@@ -19,9 +19,27 @@ class Database {
     private $charset = 'utf8mb4';
 
     /**
+     * Carga las variables de entorno desde el archivo .env si existe.
+     */
+    private function loadEnv() {
+        $envPath = dirname(__DIR__) . '/.env';
+        if (file_exists($envPath)) {
+            $env = parse_ini_file($envPath);
+            if ($env !== false) {
+                if (isset($env['DB_HOST'])) $this->host = $env['DB_HOST'];
+                if (isset($env['DB_USER'])) $this->user = $env['DB_USER'];
+                if (isset($env['DB_PASS'])) $this->pass = $env['DB_PASS'];
+                if (isset($env['DB_NAME'])) $this->dbname = $env['DB_NAME'];
+                if (isset($env['DB_CHARSET'])) $this->charset = $env['DB_CHARSET'];
+            }
+        }
+    }
+
+    /**
      * Constructor privado para prevenir instanciación directa
      */
     private function __construct() {
+        $this->loadEnv();
         $dsn = "mysql:host={$this->host};dbname={$this->dbname};charset={$this->charset}";
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, // Lanza excepciones en errores

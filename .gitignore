@@ -1,0 +1,29 @@
+# Configuración y Credenciales
+.env
+config.local.php
+
+# Herramientas del IDE / Editor
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Archivos del Sistema Operativo
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Logs y Temporales
+*.log
+logs/
+tmp/
+temp/
+
+# Redundancias y Respaldos Locales
+/DRC/
+*~
+*.bak
