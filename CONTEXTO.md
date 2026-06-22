@@ -41,6 +41,11 @@ Para garantizar un acabado profesional, pulido y de alto rendimiento, se utiliza
 * **Control de Acceso Granular:** Banderas booleanas individuales (11 permisos) por usuario para controlar minuciosamente el acceso a cada área.
 * **Panel de Administración:** Gestión de usuarios y asignación de permisos desde la interfaz de administración.
 
+### Fase 6: Seguridad y Auditoría (Versión 1.3.0)
+* **Trazabilidad y Logs de Operaciones:** Creación de una bitácora de auditoría estandarizada para registrar cada inserción, modificación y eliminación, especificando qué usuario y en qué módulo lo realizó.
+* **Prevención de Falsificación (CSRF):** Implementación de tokens vinculados a la sesión de usuario en cada uno de los formularios de guardado para mitigar inyecciones maliciosas.
+* **Protección Granular Completa:** Implementación de barreras estrictas en el backend (`Auth::checkPermission`) para impedir accesos directos por URL a los archivos PHP si no se cuenta con los privilegios correspondientes.
+
 ---
 
 ## 4. Reglas de Negocio Estrictas (Data Rules)
@@ -52,5 +57,5 @@ Para garantizar un acabado profesional, pulido y de alto rendimiento, se utiliza
 
 ---
 
-## 5. Estado Actual del Proyecto (Finalizado)
-El proyecto ha concluido el desarrollo de sus **5 fases principales** alcanzando la versión **1.2.0**. Durante la construcción, se adoptó la arquitectura de "Catálogo Maestro", donde existe una tabla centralizada de `ciudadanos` (con CURP, Nombre y Estado Vital). Todos los módulos se vinculan dinámicamente a esta tabla mediante búsquedas AJAX, eliminando la duplicidad de datos. Asimismo, se integró seguridad perimetral de sesiones, optimización responsiva y un avanzado control de permisos granulares para operadores.
+## 5. Estado Actual del Proyecto (En Progreso / Producción)
+El proyecto ha concluido el desarrollo de sus **6 fases principales** alcanzando la versión **1.3.0**. Durante la construcción, se adoptó la arquitectura de "Catálogo Maestro", donde existe una tabla centralizada de `ciudadanos` (con CURP, Nombre y Estado Vital). Todos los módulos se vinculan dinámicamente a esta tabla mediante búsquedas AJAX, eliminando la duplicidad de datos. Asimismo, se integró seguridad perimetral de sesiones, optimización responsiva, control avanzado de permisos granulares y trazabilidad de operaciones (Auditoría).

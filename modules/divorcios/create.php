@@ -191,7 +191,7 @@ $notif_api = '../../public/api/notifications.php';
             <div class="card">
                 <div class="card-body">
                     <form id="mainForm">
-                        <input type="hidden" name="csrf_token" value="dummy">
+                        <input type="hidden" name="csrf_token" value="<?php echo \Core\Auth::generateCSRF(); ?>">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="numero_acta" class="form-label fw-bold">Número de Acta</label>

@@ -4,6 +4,7 @@ require_once '../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_registro_reconocimientos');
 
 require_once '../../core/Database.php';
+require_once '../../core/Audit.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -15,18 +16,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo = Database::getConnection();
 
-        $p_{substr(:numero_acta, 1)} = mb_strtoupper(trim($_POST['numero_acta'] ?? ''), 'UTF-8');
-        $p_{substr(:reconocido_id, 1)} = intval($_POST['reconocido_id'] ?? 0);
-        $p_{substr(:reconocedor_id, 1)} = intval($_POST['reconocedor_id'] ?? 0);
-        $p_{substr(:fecha_registro, 1)} = trim($_POST['fecha_registro'] ?? '');
-        $p_{substr(:usuario_registro, 1)} = $_SESSION['user_id'];
+        $numero_acta = mb_strtoupper(trim($_POST['numero_acta'] ?? ''), 'UTF-8');
+        $reconocido_id = intval($_POST['reconocido_id'] ?? 0);
+        $reconocedor_id = intval($_POST['reconocedor_id'] ?? 0);
+        $fecha_registro = trim($_POST['fecha_registro'] ?? '');
+        $usuario_registro = $_SESSION['user_id'];
+
+        // Validar Estado Vital
+        $stmtStatus = $pdo->prepare("SELECT id, nombre, apellido_paterno, estado_vital FROM ciudadanos WHERE id IN (?, ?) AND estado_vital = 'FINADO'");
+        $stmtStatus->execute([$reconocido_id, $reconocedor_id]);
+        $finados = $stmtStatus->fetchAll();
+        if (count($finados) > 0) {
+            $nombres = array_map(function($f) { return trim($f['nombre'] . ' ' . $f['apellido_paterno']); }, $finados);
+            echo json_encode(['status' => 'error', 'message' => 'Operación denegada: ' . implode(', ', $nombres) . ' tiene estado vital FINADO.']);
+            exit;
+        }
 
         $sql = "INSERT INTO reconocimientos (numero_acta, reconocido_id, reconocedor_id, fecha_registro, usuario_registro) 
                          VALUES (:numero_acta, :reconocido_id, :reconocedor_id, :fecha_registro, :usuario_registro)";
         $stmt = $pdo->prepare($sql);
-        $result = $stmt->execute([':numero_acta' => $p_{substr(:numero_acta, 1)}, ':reconocido_id' => $p_{substr(:reconocido_id, 1)}, ':reconocedor_id' => $p_{substr(:reconocedor_id, 1)}, ':fecha_registro' => $p_{substr(:fecha_registro, 1)}, ':usuario_registro' => $p_{substr(:usuario_registro, 1)}]);
+        $result = $stmt->execute([
+            ':numero_acta' => $numero_acta, 
+            ':reconocido_id' => $reconocido_id, 
+            ':reconocedor_id' => $reconocedor_id, 
+            ':fecha_registro' => $fecha_registro, 
+            ':usuario_registro' => $usuario_registro
+        ]);
 
         if ($result) {
+            \Core\Audit::log('INSERT', 'reconocimientos', 'Se registró un nuevo trámite/registro.');
             echo json_encode(['status' => 'success']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al guardar el registro.']);

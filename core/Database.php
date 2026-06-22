@@ -72,4 +72,47 @@ class Database {
         }
         return self::$instance->pdo;
     }
+
+    /**
+     * Genera un folio único y secuencial asegurando transaccionalidad.
+     * 
+     * @param string $modulo Identificador del módulo (ej. 'peticiones_2026')
+     * @param string $prefix Prefijo opcional (ej. 'TK-2026-')
+     * @param int $padding Longitud de los ceros a la izquierda
+     * @return string Folio generado
+     */
+    public static function generateFolio($modulo, $prefix = '', $padding = 5) {
+        $pdo = self::getConnection();
+        $inTransaction = $pdo->inTransaction();
+        
+        if (!$inTransaction) {
+            $pdo->beginTransaction();
+        }
+
+        try {
+            // Bloqueo exclusivo de fila para evitar condiciones de carrera (Concurrency)
+            $stmt = $pdo->prepare("SELECT ultimo_folio FROM folios_secuencia WHERE modulo = ? FOR UPDATE");
+            $stmt->execute([$modulo]);
+            $row = $stmt->fetch();
+
+            if ($row) {
+                $next = $row['ultimo_folio'] + 1;
+                $pdo->prepare("UPDATE folios_secuencia SET ultimo_folio = ? WHERE modulo = ?")->execute([$next, $modulo]);
+            } else {
+                $next = 1;
+                $pdo->prepare("INSERT INTO folios_secuencia (modulo, ultimo_folio) VALUES (?, ?)")->execute([$modulo, $next]);
+            }
+
+            if (!$inTransaction) {
+                $pdo->commit();
+            }
+
+            return $prefix . str_pad($next, $padding, '0', STR_PAD_LEFT);
+        } catch (\Exception $e) {
+            if (!$inTransaction) {
+                $pdo->rollBack();
+            }
+            throw $e;
+        }
+    }
 }

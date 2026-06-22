@@ -4,6 +4,7 @@ require_once '../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_registro_inscripciones');
 
 require_once '../../core/Database.php';
+require_once '../../core/Audit.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -28,7 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = $stmt->execute([':numero_acta' => $p_{substr(:numero_acta, 1)}, ':ciudadano_id' => $p_{substr(:ciudadano_id, 1)}, ':pais_origen' => $p_{substr(:pais_origen, 1)}, ':documento_extranjero' => $p_{substr(:documento_extranjero, 1)}, ':fecha_registro' => $p_{substr(:fecha_registro, 1)}, ':usuario_registro' => $p_{substr(:usuario_registro, 1)}]);
 
         if ($result) {
-            echo json_encode(['status' => 'success']);
+            \Core\Audit::log('INSERT', 'inscripciones', 'Se registró un nuevo trámite/registro.');
+        echo json_encode(['status' => 'success']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al guardar el registro.']);
         }

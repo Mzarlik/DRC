@@ -1,10 +1,12 @@
 <?php
 require_once '../../core/Auth.php';
+\Core\Auth::checkPermission('permiso_tickets');
 \Core\Auth::check();
 
 // modules/peticiones/save.php
 header('Content-Type: application/json; charset=utf-8');
 require_once '../../core/Database.php';
+require_once '../../core/Audit.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -22,8 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Generación de Folio: TK-AÑO-RANDOM
-    $folio = 'TK-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5));
+    // Generación de Folio Transaccional: TK-AÑO-00001
+    $folio = Database::generateFolio('peticiones_' . date('Y'), 'TK-' . date('Y') . '-');
 
     try {
         $pdo = Database::getConnection();
@@ -40,7 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         if ($result) {
-            echo json_encode(['status' => 'success', 'folio' => $folio]);
+            \Core\Audit::log('INSERT', 'peticiones', 'Se registró un nuevo trámite/registro.');
+        echo json_encode(['status' => 'success', 'folio' => $folio]);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al crear el ticket.']);
         }

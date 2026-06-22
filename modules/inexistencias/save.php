@@ -1,11 +1,13 @@
 <?php
 require_once '../../core/Auth.php';
+\Core\Auth::checkPermission('permiso_constancias');
 \Core\Auth::check();
 
 // modules/inexistencias/save.php
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../../core/Database.php';
+require_once '../../core/Audit.php';
 
 use Core\Database;
 
@@ -45,6 +47,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo = Database::getConnection();
 
+        // Validación Cruzada: Verificar si ya existe en ciudadanos
+        if ($tipo_constancia === 'INEXISTENCIA_NACIMIENTO') {
+            $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM ciudadanos WHERE CONCAT_WS(' ', nombre, apellido_paterno, apellido_materno) LIKE :nombre");
+            $stmtCheck->execute([':nombre' => '%' . $nombre_completo . '%']);
+            $exists = $stmtCheck->fetchColumn();
+
+            if ($exists > 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Se detectó un registro local previo para este nombre en el Catálogo de Ciudadanos. No es posible expedir la constancia.']);
+                exit;
+            }
+        }
+
         // 4. Inserción con Sentencia Preparada (Prevención de SQL Injection)
         $sql = "INSERT INTO inexistencias (tipo_constancia, linea_pago, fecha_tramite, fecha_llegada, nombre_completo, observaciones) 
                 VALUES (:tipo_constancia, :linea_pago, :fecha_tramite, :fecha_llegada, :nombre_completo, :observaciones)";
@@ -62,7 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         if ($result) {
-            echo json_encode(['status' => 'success']);
+            \Core\Audit::log('INSERT', 'inexistencias', 'Se registró un nuevo trámite/registro.');
+        echo json_encode(['status' => 'success']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al guardar el registro en la base de datos.']);
         }

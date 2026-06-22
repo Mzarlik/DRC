@@ -1,10 +1,12 @@
 <?php
 require_once '../../core/Auth.php';
+\Core\Auth::checkPermission('permiso_actas_foraneas');
 \Core\Auth::check();
 
 // modules/foraneas/save.php
 header('Content-Type: application/json; charset=utf-8');
 require_once '../../core/Database.php';
+require_once '../../core/Audit.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -42,7 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         if ($result) {
-            echo json_encode(['status' => 'success']);
+            \Core\Audit::log('INSERT', 'foraneas', 'Se registró un nuevo trámite/registro.');
+        echo json_encode(['status' => 'success']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al guardar el registro.']);
         }

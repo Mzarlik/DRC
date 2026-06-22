@@ -4,6 +4,7 @@ require_once '../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_curp');
 
 require_once '../../core/Database.php';
+require_once '../../core/Audit.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -27,7 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = $stmt->execute([':ciudadano_id' => $p_{substr(:ciudadano_id, 1)}, ':tipo_solicitud' => $p_{substr(:tipo_solicitud, 1)}, ':estatus' => $p_{substr(:estatus, 1)}, ':fecha_registro' => $p_{substr(:fecha_registro, 1)}, ':usuario_registro' => $p_{substr(:usuario_registro, 1)}]);
 
         if ($result) {
-            echo json_encode(['status' => 'success']);
+            \Core\Audit::log('INSERT', 'curp', 'Se registró un nuevo trámite/registro.');
+        echo json_encode(['status' => 'success']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al guardar el registro.']);
         }

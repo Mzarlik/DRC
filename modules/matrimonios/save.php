@@ -4,6 +4,7 @@ require_once '../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_registro_matrimonios');
 
 require_once '../../core/Database.php';
+require_once '../../core/Audit.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -15,19 +16,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo = Database::getConnection();
 
-        $p_{substr(:numero_acta, 1)} = mb_strtoupper(trim($_POST['numero_acta'] ?? ''), 'UTF-8');
-        $p_{substr(:contrayente_1_id, 1)} = intval($_POST['contrayente_1_id'] ?? 0);
-        $p_{substr(:contrayente_2_id, 1)} = intval($_POST['contrayente_2_id'] ?? 0);
-        $p_{substr(:regimen_patrimonial, 1)} = mb_strtoupper(trim($_POST['regimen_patrimonial'] ?? ''), 'UTF-8');
-        $p_{substr(:fecha_registro, 1)} = trim($_POST['fecha_registro'] ?? '');
-        $p_{substr(:usuario_registro, 1)} = $_SESSION['user_id'];
+        $numero_acta = mb_strtoupper(trim($_POST['numero_acta'] ?? ''), 'UTF-8');
+        $contrayente_1_id = intval($_POST['contrayente_1_id'] ?? 0);
+        $contrayente_2_id = intval($_POST['contrayente_2_id'] ?? 0);
+        $regimen_patrimonial = mb_strtoupper(trim($_POST['regimen_patrimonial'] ?? ''), 'UTF-8');
+        $fecha_registro = trim($_POST['fecha_registro'] ?? '');
+        $usuario_registro = $_SESSION['user_id'];
+
+        // Validar Estado Vital
+        $stmtStatus = $pdo->prepare("SELECT id, nombre, apellido_paterno, estado_vital FROM ciudadanos WHERE id IN (?, ?) AND estado_vital = 'FINADO'");
+        $stmtStatus->execute([$contrayente_1_id, $contrayente_2_id]);
+        $finados = $stmtStatus->fetchAll();
+        if (count($finados) > 0) {
+            $nombres = array_map(function($f) { return trim($f['nombre'] . ' ' . $f['apellido_paterno']); }, $finados);
+            echo json_encode(['status' => 'error', 'message' => 'Operación denegada: ' . implode(', ', $nombres) . ' tiene estado vital FINADO.']);
+            exit;
+        }
 
         $sql = "INSERT INTO matrimonios (numero_acta, contrayente_1_id, contrayente_2_id, regimen_patrimonial, fecha_registro, usuario_registro) 
                          VALUES (:numero_acta, :contrayente_1_id, :contrayente_2_id, :regimen_patrimonial, :fecha_registro, :usuario_registro)";
         $stmt = $pdo->prepare($sql);
-        $result = $stmt->execute([':numero_acta' => $p_{substr(:numero_acta, 1)}, ':contrayente_1_id' => $p_{substr(:contrayente_1_id, 1)}, ':contrayente_2_id' => $p_{substr(:contrayente_2_id, 1)}, ':regimen_patrimonial' => $p_{substr(:regimen_patrimonial, 1)}, ':fecha_registro' => $p_{substr(:fecha_registro, 1)}, ':usuario_registro' => $p_{substr(:usuario_registro, 1)}]);
+        $result = $stmt->execute([
+            ':numero_acta' => $numero_acta, 
+            ':contrayente_1_id' => $contrayente_1_id, 
+            ':contrayente_2_id' => $contrayente_2_id, 
+            ':regimen_patrimonial' => $regimen_patrimonial, 
+            ':fecha_registro' => $fecha_registro, 
+            ':usuario_registro' => $usuario_registro
+        ]);
 
         if ($result) {
+            \Core\Audit::log('INSERT', 'matrimonios', 'Se registró un nuevo trámite/registro.');
             echo json_encode(['status' => 'success']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al guardar el registro.']);

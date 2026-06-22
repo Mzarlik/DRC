@@ -1,5 +1,6 @@
 <?php
 require_once '../../core/Auth.php';
+\Core\Auth::checkPermission('permiso_registro_defunciones');
 \Core\Auth::check();
 
 $current_module = basename(dirname($_SERVER['SCRIPT_NAME']));
@@ -200,7 +201,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             <div class="card border-danger border-opacity-50 border-top border-3">
                 <div class="card-body">
                     <form id="formDefuncion">
-                        <input type="hidden" name="csrf_token" value="<?php echo bin2hex(random_bytes(32)); ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo \Core\Auth::generateCSRF(); ?>">
                         
                         <div class="row mb-3">
                             <div class="col-md-6">

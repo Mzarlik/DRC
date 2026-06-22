@@ -1,5 +1,6 @@
 <?php
 require_once '../../core/Auth.php';
+\Core\Auth::checkPermission('permiso_tickets');
 \Core\Auth::check();
 
 // modules/peticiones/data.php

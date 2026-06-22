@@ -1,10 +1,12 @@
 <?php
 require_once '../../core/Auth.php';
+\Core\Auth::checkPermission('permiso_registro_defunciones');
 \Core\Auth::check();
 
 // modules/defunciones/save.php
 header('Content-Type: application/json; charset=utf-8');
 require_once '../../core/Database.php';
+require_once '../../core/Audit.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -50,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Confirmar transacción
         $pdo->commit();
 
+        \Core\Audit::log('INSERT', 'defunciones', 'Se registró un nuevo trámite/registro.');
         echo json_encode(['status' => 'success']);
 
     } catch (PDOException $e) {

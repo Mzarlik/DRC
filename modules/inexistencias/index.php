@@ -1,5 +1,6 @@
 <?php
 require_once '../../core/Auth.php';
+\Core\Auth::checkPermission('permiso_constancias');
 \Core\Auth::check();
 
 $current_module = basename(dirname($_SERVER['SCRIPT_NAME']));
@@ -192,9 +193,14 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Listado de Constancias</h2>
-                <a href="create.php" class="btn btn-primary" style="background: var(--secondary-color); border: none;">
-                    <i class="fa-solid fa-plus"></i> Nuevo Registro
-                </a>
+                <div>
+                    <button class="btn btn-success me-2" id="btnExportExcel">
+                        <i class="fa-solid fa-file-excel"></i> Exportar a Excel
+                    </button>
+                    <a href="create.php" class="btn btn-primary" style="background: var(--secondary-color); border: none;">
+                        <i class="fa-solid fa-plus"></i> Nuevo Registro
+                    </a>
+                </div>
             </div>
             
             <div class="card mb-4">
@@ -354,6 +360,11 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
         $('#filter_tipo').on('change', function() {
             table.draw();
+        });
+
+        $('#btnExportExcel').on('click', function() {
+            const tipo = $('#filter_tipo').val();
+            window.location.href = 'export_excel.php?tipo=' + encodeURIComponent(tipo);
         });
     });
 </script>

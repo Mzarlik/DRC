@@ -195,7 +195,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             <div class="card">
                 <div class="card-body">
                     <form id="formCiudadano">
-                        <input type="hidden" name="csrf_token" value="<?php echo bin2hex(random_bytes(32)); ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo \Core\Auth::generateCSRF(); ?>">
                         
                         <div class="row mb-3">
                             <div class="col-md-4">

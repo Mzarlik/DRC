@@ -1,5 +1,6 @@
 <?php
 require_once '../../core/Auth.php';
+\Core\Auth::checkPermission('permiso_registro_defunciones');
 \Core\Auth::check();
 
 // modules/defunciones/data.php

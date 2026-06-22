@@ -5,6 +5,7 @@ require_once '../../core/Auth.php';
 // modules/ciudadanos/save.php
 header('Content-Type: application/json; charset=utf-8');
 require_once '../../core/Database.php';
+require_once '../../core/Audit.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -43,7 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         if ($result) {
-            echo json_encode(['status' => 'success']);
+            \Core\Audit::log('INSERT', 'ciudadanos', 'Se registró un nuevo trámite/registro.');
+        echo json_encode(['status' => 'success']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al guardar el registro.']);
         }

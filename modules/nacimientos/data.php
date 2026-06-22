@@ -1,5 +1,6 @@
 <?php
 require_once '../../core/Auth.php';
+\Core\Auth::checkPermission('permiso_registro_nacimientos');
 \Core\Auth::check();
 
 // modules/nacimientos/data.php

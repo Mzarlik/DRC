@@ -66,4 +66,30 @@ class Auth {
             exit;
         }
     }
+
+    /**
+     * Genera un token CSRF seguro y lo almacena en sesión.
+     */
+    public static function generateCSRF() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+        return $_SESSION['csrf_token'];
+    }
+
+    /**
+     * Valida que el token proporcionado coincida con el de la sesión.
+     */
+    public static function validateCSRF($token) {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (empty($_SESSION['csrf_token']) || $token !== $_SESSION['csrf_token']) {
+            return false;
+        }
+        return true;
+    }
 }

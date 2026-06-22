@@ -1,5 +1,6 @@
 <?php
 require_once '../../core/Auth.php';
+\Core\Auth::checkPermission('permiso_constancias');
 \Core\Auth::check();
 
 // modules/inexistencias/data.php

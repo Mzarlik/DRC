@@ -429,8 +429,15 @@ $notif_api = '../../public/api/notifications.php';
                         Swal.fire({
                             title: `Acta de ${tipo}`,
                             html: htmlContent,
-                            confirmButtonText: 'Cerrar',
-                            confirmButtonColor: 'var(--primary-color)'
+                            showCancelButton: true,
+                            confirmButtonText: '<i class="fa-solid fa-print"></i> Imprimir / Descargar PDF',
+                            cancelButtonText: 'Cerrar',
+                            confirmButtonColor: '#18bc9c',
+                            cancelButtonColor: '#6c757d'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.open(`pdf.php?tipo=${tipo}&id=${id}`, '_blank');
+                            }
                         });
                     } else {
                         Swal.fire('Error', response.message, 'error');

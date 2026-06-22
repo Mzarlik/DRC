@@ -48,7 +48,7 @@ INSERT IGNORE INTO configuracion (clave, valor, descripcion) VALUES ('DIAS_ESPER
 -- --------------------------------------------------------
 -- 3. Tabla de Logs (Auditoría)
 -- --------------------------------------------------------
-CREATE TABLE IF NOT EXISTS logs (
+CREATE TABLE IF NOT EXISTS bitacora_auditoria (
     id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT,
     accion VARCHAR(100) NOT NULL,
@@ -57,6 +57,14 @@ CREATE TABLE IF NOT EXISTS logs (
     ip_address VARCHAR(45),
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
+);
+
+-- --------------------------------------------------------
+-- 3.5 Tabla Secuencias de Folios
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS folios_secuencia (
+    modulo VARCHAR(50) PRIMARY KEY,
+    ultimo_folio INT DEFAULT 0
 );
 
 -- --------------------------------------------------------
