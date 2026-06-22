@@ -3,5 +3,10 @@
         "tecnickcom/tcpdf": "^7.0",
         "chillerlan/php-qrcode": "^6.0",
         "phpoffice/phpspreadsheet": "^5.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Core\\": "core/"
+        }
     }
 }

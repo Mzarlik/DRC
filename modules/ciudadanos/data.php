@@ -8,7 +8,7 @@ require_once '../../core/Database.php';
 use Core\Database;
 
 try {
-    $pdo = Database::getConnection();
+    $pdo = Database::getReadConnection();
 
     $draw = isset($_GET['draw']) ? intval($_GET['draw']) : 1;
     $start = isset($_GET['start']) ? intval($_GET['start']) : 0;
@@ -28,8 +28,8 @@ try {
     $columnName = $columns[$columnIndex] ?? 'id';
     $columnSortOrder = isset($_GET['order'][0]['dir']) ? $_GET['order'][0]['dir'] : 'desc';
 
-    $sql = "SELECT id, curp, nombre, apellido_paterno, apellido_materno, sexo, fecha_nacimiento, estado_vital FROM ciudadanos";
-    $sqlCount = "SELECT COUNT(id) as allcount FROM ciudadanos";
+    $sql = "SELECT id, curp, nombre, apellido_paterno, apellido_materno, sexo, fecha_nacimiento, estado_vital FROM ciudadanos WHERE estado = 1";
+    $sqlCount = "SELECT COUNT(id) as allcount FROM ciudadanos WHERE estado = 1";
     
     $stmtCount = $pdo->query($sqlCount);
     $recordsTotal = $stmtCount->fetchColumn();
@@ -37,11 +37,11 @@ try {
     $searchQuery = "";
     $params = [];
     if ($searchValue != '') {
-        $searchQuery = " WHERE (curp LIKE :search OR nombre LIKE :search OR apellido_paterno LIKE :search OR apellido_materno LIKE :search) ";
+        $searchQuery = " AND (curp LIKE :search OR nombre LIKE :search OR apellido_paterno LIKE :search OR apellido_materno LIKE :search) ";
         $params[':search'] = '%' . $searchValue . '%';
     }
 
-    $sqlCountFiltered = "SELECT COUNT(id) as allcount FROM ciudadanos" . $searchQuery;
+    $sqlCountFiltered = "SELECT COUNT(id) as allcount FROM ciudadanos WHERE estado = 1" . $searchQuery;
     $stmtCountFiltered = $pdo->prepare($sqlCountFiltered);
     $stmtCountFiltered->execute($params);
     $recordsFiltered = $stmtCountFiltered->fetchColumn();

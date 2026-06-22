@@ -16,16 +16,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo = Database::getConnection();
 
-        $p_{substr(:ciudadano_id, 1)} = intval($_POST['ciudadano_id'] ?? 0);
-        $p_{substr(:tipo_solicitud, 1)} = mb_strtoupper(trim($_POST['tipo_solicitud'] ?? ''), 'UTF-8');
-        $p_{substr(:estatus, 1)} = mb_strtoupper(trim($_POST['estatus'] ?? ''), 'UTF-8');
-        $p_{substr(:fecha_registro, 1)} = trim($_POST['fecha_registro'] ?? '');
-        $p_{substr(:usuario_registro, 1)} = $_SESSION['user_id'];
+        $ciudadano_id = intval($_POST['ciudadano_id'] ?? 0);
+        $tipo_solicitud = mb_strtoupper(trim($_POST['tipo_solicitud'] ?? ''), 'UTF-8');
+        $estatus = mb_strtoupper(trim($_POST['estatus'] ?? ''), 'UTF-8');
+        $fecha_registro = trim($_POST['fecha_registro'] ?? '');
+        $usuario_registro = $_SESSION['user_id'] ?? null;
 
         $sql = "INSERT INTO tramites_curp (ciudadano_id, tipo_solicitud, estatus, fecha_registro, usuario_registro) 
                          VALUES (:ciudadano_id, :tipo_solicitud, :estatus, :fecha_registro, :usuario_registro)";
         $stmt = $pdo->prepare($sql);
-        $result = $stmt->execute([':ciudadano_id' => $p_{substr(:ciudadano_id, 1)}, ':tipo_solicitud' => $p_{substr(:tipo_solicitud, 1)}, ':estatus' => $p_{substr(:estatus, 1)}, ':fecha_registro' => $p_{substr(:fecha_registro, 1)}, ':usuario_registro' => $p_{substr(:usuario_registro, 1)}]);
+        $result = $stmt->execute([
+            ':ciudadano_id' => $ciudadano_id,
+            ':tipo_solicitud' => $tipo_solicitud,
+            ':estatus' => $estatus,
+            ':fecha_registro' => $fecha_registro,
+            ':usuario_registro' => $usuario_registro
+        ]);
 
         if ($result) {
             \Core\Audit::log('INSERT', 'curp', 'Se registró un nuevo trámite/registro.');

@@ -188,13 +188,13 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         <div class="container-fluid">
             <h2 class="mb-4">Dashboard Interactivo</h2>
             
-            <div class="row">
-                <div class="col-md-3 mb-4">
+            <div class="row row-cols-1 row-cols-md-3 row-cols-xl-5 g-4 mb-4">
+                <div class="col">
                     <div class="card bg-primary text-white h-100 border-0 shadow-sm">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="text-uppercase mb-1">Trámites Hoy</h6>
+                                    <h6 class="text-uppercase mb-1 text-white-50" style="font-size: 0.75rem;">Trámites Hoy</h6>
                                     <h2 class="mb-0 fw-bold" id="card-hoy">...</h2>
                                 </div>
                                 <i class="fa-solid fa-calendar-day fa-2x opacity-50"></i>
@@ -202,12 +202,12 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3 mb-4">
+                <div class="col">
                     <div class="card bg-danger text-white h-100 border-0 shadow-sm">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="text-uppercase mb-1">Tickets Pendientes</h6>
+                                    <h6 class="text-uppercase mb-1 text-white-50" style="font-size: 0.75rem;">Tickets Pendientes</h6>
                                     <h2 class="mb-0 fw-bold" id="card-peticiones">...</h2>
                                 </div>
                                 <i class="fa-solid fa-ticket fa-2x opacity-50"></i>
@@ -215,12 +215,12 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3 mb-4">
+                <div class="col">
                     <div class="card bg-warning text-dark h-100 border-0 shadow-sm">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="text-uppercase mb-1">Inexistencias Pendientes</h6>
+                                    <h6 class="text-uppercase mb-1 text-dark-50" style="font-size: 0.75rem; color: rgba(0,0,0,0.5);">Inexistencias Pendientes</h6>
                                     <h2 class="mb-0 fw-bold" id="card-inexistencias">...</h2>
                                 </div>
                                 <i class="fa-solid fa-clock fa-2x opacity-50"></i>
@@ -228,12 +228,12 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3 mb-4">
+                <div class="col">
                     <div class="card bg-success text-white h-100 border-0 shadow-sm">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="text-uppercase mb-1">Foráneas Validadas</h6>
+                                    <h6 class="text-uppercase mb-1 text-white-50" style="font-size: 0.75rem;">Foráneas Validadas</h6>
                                     <h2 class="mb-0 fw-bold" id="card-foraneas">...</h2>
                                 </div>
                                 <i class="fa-solid fa-check-double fa-2x opacity-50"></i>
@@ -241,31 +241,67 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         </div>
                     </div>
                 </div>
+                <div class="col">
+                    <div class="card text-white h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #18bc9c, #1abc9c);">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-uppercase mb-1 text-white-50" style="font-size: 0.75rem;">Recaudación Proyectada</h6>
+                                    <h2 class="mb-0 fw-bold" id="card-recaudacion">...</h2>
+                                </div>
+                                <i class="fa-solid fa-money-bill-trend-up fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <div class="row">
+            <div class="row mb-4">
                 <div class="col-md-8 mb-4">
                     <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header bg-white fw-bold">
-                            Distribución Histórica de Trámites
+                        <div class="card-header bg-white fw-bold py-3 border-0">
+                            <i class="fa-solid fa-chart-line text-primary me-2"></i> Tendencia de Trámites Procesados (Últimos 7 Días)
                         </div>
-                        <div class="card-body d-flex justify-content-center align-items-center">
-                            <canvas id="tramitesChart" style="max-height: 350px;"></canvas>
+                        <div class="card-body">
+                            <canvas id="diarioChart" style="max-height: 350px;"></canvas>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4 mb-4">
                     <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header bg-white fw-bold">
-                            Accesos Rápidos
+                        <div class="card-header bg-white fw-bold py-3 border-0">
+                            <i class="fa-solid fa-circle-nodes text-primary me-2"></i> Accesos Rápidos
                         </div>
                         <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a href="../modules/nacimientos/create.php" class="btn btn-outline-primary text-start"><i class="fa-solid fa-baby me-2"></i> Nuevo Nacimiento</a>
-                                <a href="../modules/defunciones/create.php" class="btn btn-outline-danger text-start"><i class="fa-solid fa-book-skull me-2"></i> Nueva Defunción</a>
-                                <a href="../modules/peticiones/create.php" class="btn btn-outline-dark text-start"><i class="fa-solid fa-ticket me-2"></i> Abrir Ticket</a>
-                                <a href="../modules/ciudadanos/create.php" class="btn btn-outline-success text-start"><i class="fa-solid fa-user-plus me-2"></i> Registrar Ciudadano</a>
+                            <div class="d-grid gap-3">
+                                <a href="../modules/nacimientos/create.php" class="btn btn-outline-primary py-2 text-start"><i class="fa-solid fa-baby me-2"></i> Nuevo Nacimiento</a>
+                                <a href="../modules/defunciones/create.php" class="btn btn-outline-danger py-2 text-start"><i class="fa-solid fa-book-skull me-2"></i> Nueva Defunción</a>
+                                <a href="../modules/peticiones/create.php" class="btn btn-outline-dark py-2 text-start"><i class="fa-solid fa-ticket me-2"></i> Abrir Ticket</a>
+                                <a href="../modules/ciudadanos/create.php" class="btn btn-outline-success py-2 text-start"><i class="fa-solid fa-user-plus me-2"></i> Registrar Ciudadano</a>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white fw-bold py-3 border-0">
+                            <i class="fa-solid fa-file-invoice-dollar text-primary me-2"></i> Recaudación Proyectada por Módulo (MXN)
+                        </div>
+                        <div class="card-body">
+                            <canvas id="recaudacionChart" style="max-height: 350px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white fw-bold py-3 border-0">
+                            <i class="fa-solid fa-chart-pie text-primary me-2"></i> Distribución de Carga Operativa
+                        </div>
+                        <div class="card-body d-flex justify-content-center align-items-center">
+                            <canvas id="cargaChart" style="max-height: 350px;"></canvas>
                         </div>
                     </div>
                 </div>
@@ -355,20 +391,108 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     $('#card-peticiones').text(response.cards.peticiones_pendientes);
                     $('#card-inexistencias').text(response.cards.inexistencias_pendientes);
                     $('#card-foraneas').text(response.cards.foraneas_validadas);
+                    
+                    // Format money for card
+                    const formatter = new Intl.NumberFormat('es-MX', {
+                        style: 'currency',
+                        currency: 'MXN'
+                    });
+                    $('#card-recaudacion').text(formatter.format(response.cards.recaudacion_total));
 
-                    // Render Chart
-                    const ctx = document.getElementById('tramitesChart').getContext('2d');
-                    new Chart(ctx, {
+                    // 1. Gráfica de Tendencia Diaria (Line Chart)
+                    const ctxDiario = document.getElementById('diarioChart').getContext('2d');
+                    const gradDiario = ctxDiario.createLinearGradient(0, 0, 0, 300);
+                    gradDiario.addColorStop(0, 'rgba(44, 62, 80, 0.4)');
+                    gradDiario.addColorStop(1, 'rgba(44, 62, 80, 0.01)');
+                    
+                    new Chart(ctxDiario, {
+                        type: 'line',
+                        data: {
+                            labels: response.processed_by_day.labels,
+                            datasets: [{
+                                label: 'Trámites',
+                                data: response.processed_by_day.data,
+                                borderColor: '#2c3e50',
+                                borderWidth: 3,
+                                backgroundColor: gradDiario,
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: '#18bc9c',
+                                pointBorderColor: '#fff',
+                                pointHoverRadius: 7,
+                                pointRadius: 5
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { stepSize: 1 }
+                                }
+                            }
+                        }
+                    });
+
+                    // 2. Gráfica de Recaudación por Módulo (Bar Chart)
+                    const ctxRec = document.getElementById('recaudacionChart').getContext('2d');
+                    const gradRec = ctxRec.createLinearGradient(0, 0, 0, 300);
+                    gradRec.addColorStop(0, '#18bc9c');
+                    gradRec.addColorStop(1, '#1abc9c');
+
+                    new Chart(ctxRec, {
+                        type: 'bar',
+                        data: {
+                            labels: response.recaudacion_proyectada.labels,
+                            datasets: [{
+                                label: 'Monto Proyectado (MXN)',
+                                data: response.recaudacion_proyectada.data,
+                                backgroundColor: gradRec,
+                                borderRadius: 5,
+                                borderSkipped: false
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return '$' + value;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    // 3. Gráfica de Carga Operativa (Doughnut Chart)
+                    const ctxCarga = document.getElementById('cargaChart').getContext('2d');
+                    new Chart(ctxCarga, {
                         type: 'doughnut',
                         data: {
-                            labels: response.chart_data.labels,
+                            labels: response.carga_operativa.labels,
                             datasets: [{
-                                data: response.chart_data.data,
+                                data: response.carga_operativa.data,
                                 backgroundColor: [
-                                    '#18bc9c', // Verde
-                                    '#e74c3c', // Rojo
-                                    '#f39c12', // Naranja
-                                    '#3498db'  // Azul
+                                    '#2c3e50', // Slate
+                                    '#18bc9c', // Teal
+                                    '#3498db', // Blue
+                                    '#9b59b6', // Purple
+                                    '#e74c3c', // Red
+                                    '#f39c12', // Orange
+                                    '#1abc9c', // Cyan
+                                    '#f1c40f', // Yellow
+                                    '#95a5a6'  // Gray
                                 ],
                                 borderWidth: 0
                             }]
@@ -378,10 +502,14 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             maintainAspectRatio: false,
                             plugins: {
                                 legend: {
-                                    position: 'right'
+                                    position: 'right',
+                                    labels: {
+                                        boxWidth: 12,
+                                        font: { size: 11 }
+                                    }
                                 }
                             },
-                            cutout: '65%'
+                            cutout: '70%'
                         }
                     });
                 }

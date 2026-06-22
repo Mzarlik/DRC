@@ -17,7 +17,40 @@ use Core\Database;
 try {
     $pdo = Database::getConnection();
     
-    // Fetch latest 5 activities across all modules
+    // 1. Consultar peticiones de aprobación si el usuario es coordinador (ADMIN o SUPERVISOR)
+    $coordinatorNotifications = [];
+    if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'SUPERVISOR'])) {
+        $stmtCorr = $pdo->query("
+            SELECT p.folio, p.fecha_creacion, c.nombre, c.apellido_paterno
+            FROM peticiones p
+            JOIN ciudadanos c ON p.ciudadano_id = c.id
+            WHERE p.tipo_peticion = 'CORRECCION_ACTA' AND p.estatus = 'ABIERTA'
+            ORDER BY p.fecha_creacion DESC
+        ");
+        while ($row = $stmtCorr->fetch(PDO::FETCH_ASSOC)) {
+            $timeDiff = time() - strtotime($row['fecha_creacion']);
+            if ($timeDiff < 60) {
+                $timeStr = "Hace unos instantes";
+            } elseif ($timeDiff < 3600) {
+                $timeStr = "Hace " . round($timeDiff / 60) . " min";
+            } elseif ($timeDiff < 86400) {
+                $timeStr = "Hace " . round($timeDiff / 3600) . " hrs";
+            } else {
+                $timeStr = date('d/m/Y H:i', strtotime($row['fecha_creacion']));
+            }
+            
+            $coordinatorNotifications[] = [
+                'tipo' => 'correccion_aprobacion',
+                'title' => 'Aprobación Requerida',
+                'desc' => "Corrección de acta de " . htmlspecialchars($row['nombre'] . ' ' . $row['apellido_paterno']) . " requiere aprobación (Folio: " . htmlspecialchars($row['folio']) . ")",
+                'time' => $timeStr,
+                'icon' => 'fa-shield-halved',
+                'color' => 'text-danger fw-bold'
+            ];
+        }
+    }
+
+    // 2. Fetch latest 5 activities across all modules
     $query = "
         SELECT 'ciudadano' AS tipo, CONCAT(nombre, ' ', apellido_paterno) AS ref, creado_en AS fecha FROM ciudadanos
         UNION ALL
@@ -95,6 +128,9 @@ try {
             'color' => $color
         ];
     }
+    
+    // 3. Combinar las alertas de aprobación y las notificaciones habituales
+    $notifications = array_merge($coordinatorNotifications, $notifications);
     
     echo json_encode([
         'status' => 'success',

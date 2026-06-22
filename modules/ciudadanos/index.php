@@ -19,6 +19,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
 <body>
@@ -203,6 +204,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                 <th>Sexo</th>
                                 <th>Fecha Nac.</th>
                                 <th>Estado Vital</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                     </table>
@@ -216,9 +218,12 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js"></script>
 
 <script>
     $(document).ready(function() {
+        const csrfToken = '<?php echo \Core\Auth::generateCSRF(); ?>';
+
         // Cargar Notificaciones
         function cargarNotificaciones() {
             $.ajax({
@@ -263,7 +268,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         cargarNotificaciones();
         setInterval(cargarNotificaciones, 60000);
 
-                        $('#sidebarCollapse').on('click', function () {
+        $('#sidebarCollapse').on('click', function () {
             if ($(window).width() >= 768) {
                 $('#sidebar').toggleClass('compact');
             } else {
@@ -306,9 +311,59 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         let badgeClass = data === 'VIVO' ? 'bg-success' : 'bg-dark';
                         return `<span class="badge ${badgeClass}">${data}</span>`;
                     }
+                },
+                {
+                    "data": null,
+                    "orderable": false,
+                    "render": function ( data, type, row ) {
+                        return `
+                            <button class="btn btn-sm btn-danger btn-eliminar-ciudadano" data-id="${row.id}" data-nombre="${row.nombre} ${row.apellido_paterno}">
+                                <i class="fa-solid fa-trash-can"></i> Eliminar
+                            </button>
+                        `;
+                    }
                 }
             ],
             "order": [[0, "desc"]]
+        });
+
+        // Manejador para baja lógica de ciudadano
+        $(document).on('click', '.btn-eliminar-ciudadano', function() {
+            const id = $(this).data('id');
+            const nombre = $(this).data('nombre');
+            Swal.fire({
+                title: '¿Dar de baja al ciudadano?',
+                text: `El ciudadano "${nombre}" se desactivará del catálogo y no se podrá usar en trámites futuros.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74c3c',
+                cancelButtonColor: '#95a5a6',
+                confirmButtonText: 'Sí, dar de baja',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: 'delete.php',
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            csrf_token: csrfToken
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                Swal.fire('Baja Completada', response.message, 'success');
+                                $('#ciudadanosTable').DataTable().ajax.reload();
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'No se pudo procesar la baja del ciudadano.', 'error');
+                        }
+                    });
+                }
+            });
         });
     });
 </script>

@@ -12,11 +12,11 @@ $term = isset($_GET['q']) ? $_GET['q'] : '';
 $estado_vital = isset($_GET['estado']) ? $_GET['estado'] : ''; // VIVO o FINADO opcional
 
 try {
-    $pdo = Database::getConnection();
+    $pdo = Database::getReadConnection();
     
     $sql = "SELECT id, curp, CONCAT_WS(' ', nombre, apellido_paterno, apellido_materno) AS text 
             FROM ciudadanos 
-            WHERE (nombre LIKE :term OR apellido_paterno LIKE :term OR curp LIKE :term)";
+            WHERE estado = 1 AND (nombre LIKE :term OR apellido_paterno LIKE :term OR curp LIKE :term)";
     
     $params = [':term' => '%' . $term . '%'];
 

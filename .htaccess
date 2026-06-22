@@ -1,1 +1,29 @@
 Options -Indexes
+
+# Bloquear acceso a cualquier archivo .env
+<FilesMatch "^\.env">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Bloquear archivos de configuración de dependencias, git y planes de implementación
+<FilesMatch "^(composer\.json|composer\.lock|\.gitignore|\.gitattributes|\.agents|CONTEXTO\.md|TESTING_SECURITY\.md|implementation_plan\.md)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Bloquear navegación directa en el directorio core
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^core/.*$ - [F,L]
+</IfModule>

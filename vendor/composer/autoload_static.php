@@ -27,6 +27,7 @@ class ComposerStaticInitedde9b514ab4d7be05cef88127068a82
         ),
         'C' =>
         array (
+            'Core\\' => 5,
             'Composer\\Pcre\\' => 14,
             'Complex\\' => 8,
             'Com\\Tecnick\\Unicode\\Data\\' => 25,
@@ -69,6 +70,10 @@ class ComposerStaticInitedde9b514ab4d7be05cef88127068a82
         'Matrix\\' =>
         array (
             0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
+        ),
+        'Core\\' =>
+        array (
+            0 => __DIR__ . '/../..' . '/core',
         ),
         'Composer\\Pcre\\' =>
         array (

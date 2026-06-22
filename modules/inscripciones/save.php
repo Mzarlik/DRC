@@ -16,17 +16,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo = Database::getConnection();
 
-        $p_{substr(:numero_acta, 1)} = mb_strtoupper(trim($_POST['numero_acta'] ?? ''), 'UTF-8');
-        $p_{substr(:ciudadano_id, 1)} = intval($_POST['ciudadano_id'] ?? 0);
-        $p_{substr(:pais_origen, 1)} = mb_strtoupper(trim($_POST['pais_origen'] ?? ''), 'UTF-8');
-        $p_{substr(:documento_extranjero, 1)} = mb_strtoupper(trim($_POST['documento_extranjero'] ?? ''), 'UTF-8');
-        $p_{substr(:fecha_registro, 1)} = trim($_POST['fecha_registro'] ?? '');
-        $p_{substr(:usuario_registro, 1)} = $_SESSION['user_id'];
+        $numero_acta = mb_strtoupper(trim($_POST['numero_acta'] ?? ''), 'UTF-8');
+        $ciudadano_id = intval($_POST['ciudadano_id'] ?? 0);
+        $pais_origen = mb_strtoupper(trim($_POST['pais_origen'] ?? ''), 'UTF-8');
+        $documento_extranjero = mb_strtoupper(trim($_POST['documento_extranjero'] ?? ''), 'UTF-8');
+        $fecha_registro = trim($_POST['fecha_registro'] ?? '');
+        $usuario_registro = $_SESSION['user_id'] ?? null;
 
         $sql = "INSERT INTO inscripciones (numero_acta, ciudadano_id, pais_origen, documento_extranjero, fecha_registro, usuario_registro) 
                          VALUES (:numero_acta, :ciudadano_id, :pais_origen, :documento_extranjero, :fecha_registro, :usuario_registro)";
         $stmt = $pdo->prepare($sql);
-        $result = $stmt->execute([':numero_acta' => $p_{substr(:numero_acta, 1)}, ':ciudadano_id' => $p_{substr(:ciudadano_id, 1)}, ':pais_origen' => $p_{substr(:pais_origen, 1)}, ':documento_extranjero' => $p_{substr(:documento_extranjero, 1)}, ':fecha_registro' => $p_{substr(:fecha_registro, 1)}, ':usuario_registro' => $p_{substr(:usuario_registro, 1)}]);
+        $result = $stmt->execute([
+            ':numero_acta' => $numero_acta,
+            ':ciudadano_id' => $ciudadano_id,
+            ':pais_origen' => $pais_origen,
+            ':documento_extranjero' => $documento_extranjero,
+            ':fecha_registro' => $fecha_registro,
+            ':usuario_registro' => $usuario_registro
+        ]);
 
         if ($result) {
             \Core\Audit::log('INSERT', 'inscripciones', 'Se registró un nuevo trámite/registro.');

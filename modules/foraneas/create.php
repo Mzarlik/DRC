@@ -1,4 +1,5 @@
 <?php
+require_once '../../vendor/autoload.php';
 require_once '../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_actas_foraneas');
 \Core\Auth::check();
@@ -213,7 +214,12 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <label for="estado_origen" class="form-label fw-bold">Estado de Origen</label>
-                                <input type="text" class="form-control text-uppercase-input" id="estado_origen" name="estado_origen" placeholder="EJ: JALISCO" required>
+                                <select class="form-select" id="estado_origen" name="estado_origen" required>
+                                    <option value="">Seleccione...</option>
+                                    <?php foreach (\Core\Catalogs::getEstados() as $code => $name): ?>
+                                        <option value="<?php echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                             <div class="col-md-4">
                                 <label for="tipo_acta" class="form-label fw-bold">Tipo de Acta</label>

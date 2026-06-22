@@ -47,7 +47,7 @@ try {
     $stmtCountFiltered->execute($params);
     $recordsFiltered = $stmtCountFiltered->fetchColumn();
 
-    $sql = "SELECT p.folio, p.tipo_peticion, DATE(p.fecha_creacion) as fecha_creacion, p.estatus, 
+    $sql = "SELECT p.id, p.folio, p.tipo_peticion, DATE(p.fecha_creacion) as fecha_creacion, p.estatus, 
             CONCAT_WS(' ', c.nombre, c.apellido_paterno, c.apellido_materno) AS nombre_completo " 
             . $baseQuery . $searchQuery . " ORDER BY " . $columnName . " " . $columnSortOrder . " LIMIT :limit OFFSET :offset";
     
@@ -65,6 +65,7 @@ try {
     $sanitizedData = [];
     foreach($data as $row) {
         $sanitizedData[] = [
+            "id" => (int)$row['id'],
             "folio" => htmlspecialchars($row['folio'], ENT_QUOTES, 'UTF-8'),
             "nombre_completo" => htmlspecialchars($row['nombre_completo'], ENT_QUOTES, 'UTF-8'),
             "tipo_peticion" => htmlspecialchars($row['tipo_peticion'], ENT_QUOTES, 'UTF-8'),

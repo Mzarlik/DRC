@@ -20,6 +20,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
 <body>
@@ -203,6 +204,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                 <th>Tipo</th>
                                 <th>Fecha de Creación</th>
                                 <th>Estatus</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                     </table>
@@ -216,9 +218,13 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js"></script>
 
 <script>
     $(document).ready(function() {
+        const isCoordinator = <?php echo in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'SUPERVISOR']) ? 'true' : 'false'; ?>;
+        const csrfToken = '<?php echo \Core\Auth::generateCSRF(); ?>';
+
         // Cargar Notificaciones
         function cargarNotificaciones() {
             $.ajax({
@@ -263,7 +269,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         cargarNotificaciones();
         setInterval(cargarNotificaciones, 60000);
 
-                        $('#sidebarCollapse').on('click', function () {
+        $('#sidebarCollapse').on('click', function () {
             if ($(window).width() >= 768) {
                 $('#sidebar').toggleClass('compact');
             } else {
@@ -281,12 +287,6 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 $('#sidebar').removeClass('compact');
             }
         });
-            if($('#sidebar').hasClass('active')){
-                $('#sidebar').css('margin-left', '-250px');
-            }else{
-                $('#sidebar').css('margin-left', '0');
-            }
-        });
 
         $('#peticionesTable').DataTable({
             "processing": true,
@@ -298,7 +298,15 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             "columns": [
                 { "data": "folio" },
                 { "data": "nombre_completo" },
-                { "data": "tipo_peticion" },
+                { 
+                    "data": "tipo_peticion",
+                    "render": function(data) {
+                        if(data === 'CORRECCION_ACTA') return 'Corrección de Acta';
+                        if(data === 'DIGITALIZACION') return 'Digitalización';
+                        if(data === 'ACLARACION') return 'Aclaración';
+                        return data;
+                    }
+                },
                 { "data": "fecha_creacion" },
                 { 
                     "data": "estatus",
@@ -309,10 +317,120 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         if(data === 'CERRADA') badgeClass = 'bg-success';
                         return `<span class="badge ${badgeClass}">${data}</span>`;
                     }
+                },
+                {
+                    "data": null,
+                    "orderable": false,
+                    "render": function ( data, type, row ) {
+                        if (!isCoordinator) {
+                            return '<span class="text-muted">-</span>';
+                        }
+                        if (row.estatus === 'ABIERTA') {
+                            return `
+                                <button class="btn btn-sm btn-success btn-aprobar me-1" data-id="${row.id}" data-folio="${row.folio}">
+                                    <i class="fa-solid fa-check"></i> Aprobar
+                                </button>
+                                <button class="btn btn-sm btn-danger btn-rechazar" data-id="${row.id}" data-folio="${row.folio}">
+                                    <i class="fa-solid fa-xmark"></i> Rechazar
+                                </button>
+                            `;
+                        } else if (row.estatus === 'EN_PROGRESO') {
+                            return `
+                                <button class="btn btn-sm btn-success btn-cerrar" data-id="${row.id}" data-folio="${row.folio}">
+                                    <i class="fa-solid fa-circle-check"></i> Cerrar
+                                </button>
+                            `;
+                        }
+                        return '<span class="text-muted"><i class="fa-solid fa-circle-check text-success"></i> Finalizado</span>';
+                    }
                 }
             ],
             "order": [[3, "desc"]]
         });
+
+        // Manejadores de aprobación / rechazo / cierre de tickets
+        $(document).on('click', '.btn-aprobar', function() {
+            const id = $(this).data('id');
+            const folio = $(this).data('folio');
+            Swal.fire({
+                title: '¿Aprobar corrección de acta?',
+                text: `Se aprobará y se cerrará el ticket ${folio}.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#18bc9c',
+                cancelButtonColor: '#95a5a6',
+                confirmButtonText: 'Sí, aprobar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    actualizarEstatusTicket(id, 'CERRADA', 'APROBAR');
+                }
+            });
+        });
+
+        $(document).on('click', '.btn-rechazar', function() {
+            const id = $(this).data('id');
+            const folio = $(this).data('folio');
+            Swal.fire({
+                title: '¿Rechazar corrección de acta?',
+                text: `Se rechazará y se cerrará el ticket ${folio}.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74c3c',
+                cancelButtonColor: '#95a5a6',
+                confirmButtonText: 'Sí, rechazar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    actualizarEstatusTicket(id, 'CERRADA', 'RECHAZAR');
+                }
+            });
+        });
+
+        $(document).on('click', '.btn-cerrar', function() {
+            const id = $(this).data('id');
+            const folio = $(this).data('folio');
+            Swal.fire({
+                title: '¿Cerrar ticket?',
+                text: `Se finalizará y cerrará el ticket ${folio}.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#18bc9c',
+                cancelButtonColor: '#95a5a6',
+                confirmButtonText: 'Sí, cerrar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    actualizarEstatusTicket(id, 'CERRADA', 'CERRAR');
+                }
+            });
+        });
+
+        function actualizarEstatusTicket(id, nuevoEstatus, accion) {
+            $.ajax({
+                url: 'update_status.php',
+                type: 'POST',
+                data: {
+                    id: id,
+                    estatus: nuevoEstatus,
+                    accion: accion,
+                    csrf_token: csrfToken
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        Swal.fire('Éxito', response.message, 'success');
+                        $('#peticionesTable').DataTable().ajax.reload();
+                        cargarNotificaciones();
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'No se pudo procesar la solicitud de actualización.', 'error');
+                }
+            });
+        }
     });
 </script>
 </body>
