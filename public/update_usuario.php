@@ -135,6 +135,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':id' => $id
             ]);
 
+            if ($id === intval($_SESSION['user_id'] ?? 0)) {
+                session_regenerate_id(true); // Regenerar ID si se modifican los privilegios del usuario actual
+            }
+
             echo json_encode(['status' => 'success']);
             exit;
         }

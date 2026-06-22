@@ -50,6 +50,52 @@ try {
         }
     }
 
+    // 1.5. Consultar reportes asíncronos generados para el usuario actual que estén completados o fallidos
+    $jobNotifications = [];
+    $stmtJobs = $pdo->prepare("
+        SELECT id, type, status, updated_at, file_path
+        FROM jobs
+        WHERE user_id = ? AND status IN ('completed', 'failed')
+        ORDER BY updated_at DESC
+        LIMIT 5
+    ");
+    $stmtJobs->execute([$_SESSION['user_id']]);
+    while ($row = $stmtJobs->fetch(PDO::FETCH_ASSOC)) {
+        $timeDiff = time() - strtotime($row['updated_at']);
+        if ($timeDiff < 60) {
+            $timeStr = "Hace unos instantes";
+        } elseif ($timeDiff < 3600) {
+            $timeStr = "Hace " . round($timeDiff / 60) . " min";
+        } elseif ($timeDiff < 86400) {
+            $timeStr = "Hace " . round($timeDiff / 3600) . " hrs";
+        } else {
+            $timeStr = date('d/m/Y H:i', strtotime($row['updated_at']));
+        }
+        
+        $title = $row['status'] === 'completed' ? 'Reporte Listo' : 'Error en Reporte';
+        $color = $row['status'] === 'completed' ? 'text-success fw-bold' : 'text-danger fw-bold';
+        $icon = $row['status'] === 'completed' ? 'fa-file-excel' : 'fa-triangle-exclamation';
+        
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+        $is_public = (strpos($referer, '/modules/') === false);
+        $relative_link = $is_public ? 'exports/' . basename($row['file_path']) : '../../public/exports/' . basename($row['file_path']);
+        
+        if ($row['status'] === 'completed') {
+            $desc = "El reporte " . ($row['type'] === 'export_inexistencias' ? 'Inexistencias' : 'General') . " ya está listo para <a href=\"" . $relative_link . "\" class=\"fw-bold text-decoration-none\" download>Descargar aquí</a>";
+        } else {
+            $desc = "Error al generar reporte " . ($row['type'] === 'export_inexistencias' ? 'Inexistencias' : 'General');
+        }
+
+        $jobNotifications[] = [
+            'tipo' => 'job_notification',
+            'title' => $title,
+            'desc' => $desc,
+            'time' => $timeStr,
+            'icon' => $icon,
+            'color' => $color
+        ];
+    }
+
     // 2. Fetch latest 5 activities across all modules
     $query = "
         SELECT 'ciudadano' AS tipo, CONCAT(nombre, ' ', apellido_paterno) AS ref, creado_en AS fecha FROM ciudadanos
@@ -129,8 +175,8 @@ try {
         ];
     }
     
-    // 3. Combinar las alertas de aprobación y las notificaciones habituales
-    $notifications = array_merge($coordinatorNotifications, $notifications);
+    // 3. Combinar las alertas de aprobación, las de reportes asíncronos y las notificaciones habituales
+    $notifications = array_merge($coordinatorNotifications, $jobNotifications, $notifications);
     
     echo json_encode([
         'status' => 'success',

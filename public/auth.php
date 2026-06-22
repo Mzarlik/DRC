@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             session_start();
+            session_regenerate_id(true); // Previene ataques de Session Fixation y Session Hijacking
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_nombre'] = $user['nombre'];
             $_SESSION['user_rol'] = $user['rol'];

@@ -21,6 +21,7 @@ $notif_api = '../../public/api/notifications.php';
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/style.css">
+    <script>if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark-mode');}</script>
 </head>
 <body>
 
@@ -102,6 +103,11 @@ $notif_api = '../../public/api/notifications.php';
                 </ul>
             </li>
             <?php endif; ?>
+
+            <!-- Reportes Cruzados -->
+            <li class="<?php echo ($current_module == 'reportes') ? 'active' : ''; ?>">
+                <a href="<?php echo ($current_module == 'reportes') ? 'index.php' : $path_prefix . 'reportes/index.php'; ?>"><i class="fa-solid fa-file-excel"></i> <span class="sidebar-text">Reportes Cruzados</span></a>
+            </li>
 
             <!-- Servicios CURP -->
             <?php if (\Core\Auth::hasPermission('permiso_curp')): ?>
@@ -329,5 +335,6 @@ $notif_api = '../../public/api/notifications.php';
         });
     });
 </script>
+<script src="../../assets/js/global.js"></script>
 </body>
 </html>

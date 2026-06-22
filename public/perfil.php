@@ -42,6 +42,7 @@ try {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
+    <script>if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark-mode');}</script>
 </head>
 <body>
 
@@ -125,6 +126,11 @@ try {
                 </ul>
             </li>
             <?php endif; ?>
+
+            <!-- Reportes Cruzados -->
+            <li class="<?php echo ($current_module == 'reportes') ? 'active' : ''; ?>">
+                <a href="<?php echo ($current_module == 'reportes') ? 'index.php' : $path_prefix . 'reportes/index.php'; ?>"><i class="fa-solid fa-file-excel"></i> <span class="sidebar-text">Reportes Cruzados</span></a>
+            </li>
 
             <!-- Servicios CURP -->
             <?php if (\Core\Auth::hasPermission('permiso_curp')): ?>
@@ -337,24 +343,6 @@ $(document).ready(function() {
         setInterval(cargarNotificaciones, 60000);
 
     // Sidebar toggle
-                    $('#sidebarCollapse').on('click', function () {
-            if ($(window).width() >= 768) {
-                $('#sidebar').toggleClass('compact');
-            } else {
-                $('#sidebar').toggleClass('active');
-            }
-        });
-
-        $('#sidebarCloseMobile').on('click', function () {
-            $('#sidebar').removeClass('active');
-        });
-
-        // Expandir sidebar si está compacta y se hace clic en un menú desplegable
-        $('#sidebar').on('click', '.dropdown-toggle', function () {
-            if ($('#sidebar').hasClass('compact')) {
-                $('#sidebar').removeClass('compact');
-            }
-        });
         } else {
             $('#sidebar').toggleClass('active');
         }
@@ -453,5 +441,6 @@ $(document).ready(function() {
 });
 </script>
 
+<script src="../assets/js/global.js"></script>
 </body>
 </html>

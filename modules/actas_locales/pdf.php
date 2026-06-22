@@ -68,6 +68,12 @@ try {
         die('Registro no encontrado.');
     }
 
+    foreach ($data as $k => $v) {
+        if (strpos($k, 'curp') !== false) {
+            $data[$k] = \Core\Encryption::decrypt($v);
+        }
+    }
+
     // 2. Generar Código QR Dinámico
     // En un entorno real, HTTP_HOST puede variar
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';

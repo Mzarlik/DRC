@@ -38,8 +38,8 @@ class GestorInexistencias {
         }
 
         // Validación de longitud y formato de cadena para la línea de pago
-        if (strlen($linea_pago) < 17 || strlen($linea_pago) > 25) {
-            return ['status' => 'error', 'message' => 'La línea de pago debe tener entre 17 y 25 caracteres.'];
+        if (!\Core\Utils::validarLineaPago($linea_pago)) {
+            return ['status' => 'error', 'message' => 'La línea de pago debe tener entre 17 y 25 caracteres alfanuméricos.'];
         }
 
         if (empty($nombre_completo) || empty($fecha_tramite) || empty($fecha_llegada)) {

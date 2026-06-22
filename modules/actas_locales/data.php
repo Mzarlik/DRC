@@ -1,5 +1,6 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
+require_once '../../vendor/autoload.php';
 require_once '../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_actas_locales');
 
@@ -105,16 +106,27 @@ try {
     $searchQuery = "";
     $params = [];
     if ($searchValue != '') {
-        $searchQuery = " WHERE (numero_acta LIKE :search1 
-                            OR ciudadano_1 LIKE :search2 
-                            OR ciudadano_2 LIKE :search3 
-                            OR curp_1 LIKE :search4 
-                            OR curp_2 LIKE :search5)";
-        $params[':search1'] = '%' . $searchValue . '%';
-        $params[':search2'] = '%' . $searchValue . '%';
-        $params[':search3'] = '%' . $searchValue . '%';
-        $params[':search4'] = '%' . $searchValue . '%';
-        $params[':search5'] = '%' . $searchValue . '%';
+        $isCurp = preg_match('/^[A-Z]{4}\d{6}[A-Z]{6}\d{2}$/i', $searchValue);
+        if ($isCurp) {
+            $encryptedCurp = \Core\Encryption::encrypt(mb_strtoupper($searchValue, 'UTF-8'));
+            $searchQuery = " WHERE (numero_acta LIKE :search1 
+                                OR ciudadano_1 LIKE :search2 
+                                OR ciudadano_2 LIKE :search3 
+                                OR curp_1 = :search4 
+                                OR curp_2 = :search5)";
+            $params[':search1'] = '%' . $searchValue . '%';
+            $params[':search2'] = '%' . $searchValue . '%';
+            $params[':search3'] = '%' . $searchValue . '%';
+            $params[':search4'] = $encryptedCurp;
+            $params[':search5'] = $encryptedCurp;
+        } else {
+            $searchQuery = " WHERE (numero_acta LIKE :search1 
+                                OR ciudadano_1 LIKE :search2 
+                                OR ciudadano_2 LIKE :search3)";
+            $params[':search1'] = '%' . $searchValue . '%';
+            $params[':search2'] = '%' . $searchValue . '%';
+            $params[':search3'] = '%' . $searchValue . '%';
+        }
     }
 
     // Total Filtrado
@@ -147,8 +159,8 @@ try {
             "tipo_acta" => htmlspecialchars($row['tipo_acta'], ENT_QUOTES, 'UTF-8'),
             "ciudadano_1" => htmlspecialchars($row['ciudadano_1'], ENT_QUOTES, 'UTF-8'),
             "ciudadano_2" => htmlspecialchars($row['ciudadano_2'], ENT_QUOTES, 'UTF-8'),
-            "curp_1" => htmlspecialchars($row['curp_1'], ENT_QUOTES, 'UTF-8'),
-            "curp_2" => htmlspecialchars($row['curp_2'], ENT_QUOTES, 'UTF-8'),
+            "curp_1" => htmlspecialchars(\Core\Encryption::decrypt($row['curp_1']) ?? '', ENT_QUOTES, 'UTF-8'),
+            "curp_2" => htmlspecialchars(\Core\Encryption::decrypt($row['curp_2']) ?? '', ENT_QUOTES, 'UTF-8'),
             "fecha_registro" => htmlspecialchars($row['fecha_registro'], ENT_QUOTES, 'UTF-8'),
             "registro_id" => htmlspecialchars($row['registro_id'], ENT_QUOTES, 'UTF-8')
         ];

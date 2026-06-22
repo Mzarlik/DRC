@@ -1,4 +1,5 @@
 <?php
+require_once '../../vendor/autoload.php';
 require_once '../../core/Auth.php';
 \Core\Auth::check();
 
@@ -8,6 +9,18 @@ require_once '../../core/Database.php';
 use Core\Database;
 
 try {
+    if (!\Core\RateLimiter::check('ciudadanos_data', 60, 60)) {
+        http_response_code(429);
+        echo json_encode([
+            "draw" => 0,
+            "iTotalRecords" => 0,
+            "iTotalDisplayRecords" => 0,
+            "aaData" => [],
+            "error" => "Límite de peticiones excedido. Intente de nuevo más tarde."
+        ]);
+        exit;
+    }
+
     $pdo = Database::getReadConnection();
 
     $draw = isset($_GET['draw']) ? intval($_GET['draw']) : 1;
@@ -37,8 +50,14 @@ try {
     $searchQuery = "";
     $params = [];
     if ($searchValue != '') {
-        $searchQuery = " AND (curp LIKE :search OR nombre LIKE :search OR apellido_paterno LIKE :search OR apellido_materno LIKE :search) ";
-        $params[':search'] = '%' . $searchValue . '%';
+        $cleanSearch = trim($searchValue);
+        if (preg_match('/^[A-Z]{4}\d{6}[A-Z]{6}\d{2}$/i', $cleanSearch)) {
+            $searchQuery = " AND curp = :search_curp ";
+            $params[':search_curp'] = \Core\Encryption::encrypt(mb_strtoupper($cleanSearch, 'UTF-8'));
+        } else {
+            $searchQuery = " AND (nombre LIKE :search OR apellido_paterno LIKE :search OR apellido_materno LIKE :search) ";
+            $params[':search'] = '%' . $searchValue . '%';
+        }
     }
 
     $sqlCountFiltered = "SELECT COUNT(id) as allcount FROM ciudadanos WHERE estado = 1" . $searchQuery;
@@ -52,8 +71,8 @@ try {
     $stmt->bindValue(':limit', $length, PDO::PARAM_INT);
     $stmt->bindValue(':offset', $start, PDO::PARAM_INT);
     
-    if ($searchValue != '') {
-        $stmt->bindValue(':search', '%' . $searchValue . '%', PDO::PARAM_STR);
+    foreach ($params as $key => $val) {
+        $stmt->bindValue($key, $val, PDO::PARAM_STR);
     }
     
     $stmt->execute();
@@ -63,7 +82,7 @@ try {
     foreach($data as $row) {
         $sanitizedData[] = [
             "id" => htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8'),
-            "curp" => htmlspecialchars($row['curp'] ?? '', ENT_QUOTES, 'UTF-8'),
+            "curp" => htmlspecialchars(\Core\Encryption::decrypt($row['curp']) ?? '', ENT_QUOTES, 'UTF-8'),
             "nombre" => htmlspecialchars($row['nombre'], ENT_QUOTES, 'UTF-8'),
             "apellido_paterno" => htmlspecialchars($row['apellido_paterno'], ENT_QUOTES, 'UTF-8'),
             "apellido_materno" => htmlspecialchars($row['apellido_materno'] ?? '', ENT_QUOTES, 'UTF-8'),

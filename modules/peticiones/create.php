@@ -22,6 +22,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/style.css">
+    <script>if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark-mode');}</script>
 </head>
 <body>
 
@@ -106,6 +107,11 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 </ul>
             </li>
             <?php endif; ?>
+
+            <!-- Reportes Cruzados -->
+            <li class="<?php echo ($current_module == 'reportes') ? 'active' : ''; ?>">
+                <a href="<?php echo ($current_module == 'reportes') ? 'index.php' : $path_prefix . 'reportes/index.php'; ?>"><i class="fa-solid fa-file-excel"></i> <span class="sidebar-text">Reportes Cruzados</span></a>
+            </li>
 
             <!-- Servicios CURP -->
             <?php if (\Core\Auth::hasPermission('permiso_curp')): ?>
@@ -285,25 +291,6 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         
         cargarNotificaciones();
         setInterval(cargarNotificaciones, 60000);
-
-                        $('#sidebarCollapse').on('click', function () {
-            if ($(window).width() >= 768) {
-                $('#sidebar').toggleClass('compact');
-            } else {
-                $('#sidebar').toggleClass('active');
-            }
-        });
-
-        $('#sidebarCloseMobile').on('click', function () {
-            $('#sidebar').removeClass('active');
-        });
-
-        // Expandir sidebar si está compacta y se hace clic en un menú desplegable
-        $('#sidebar').on('click', '.dropdown-toggle', function () {
-            if ($('#sidebar').hasClass('compact')) {
-                $('#sidebar').removeClass('compact');
-            }
-        });
         });
 
         $(document).on('input', '.text-uppercase-input', function() {
@@ -352,5 +339,6 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         });
     });
 </script>
+<script src="../../assets/js/global.js"></script>
 </body>
 </html>

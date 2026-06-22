@@ -1,4 +1,5 @@
 <?php
+require_once '../../vendor/autoload.php';
 require_once '../../core/Auth.php';
 \Core\Auth::check();
 
@@ -24,6 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CURP puede ser nulo en la BD
     if ($curp === '') {
         $curp = null;
+    } else {
+        $curp = \Core\Encryption::encrypt($curp);
     }
 
     try {

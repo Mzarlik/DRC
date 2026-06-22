@@ -81,6 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':id' => $_SESSION['user_id']
             ]);
 
+            session_regenerate_id(true); // Regenerar ID al cambiar credenciales de seguridad
+
             echo json_encode(['status' => 'success']);
             exit;
         }

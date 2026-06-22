@@ -21,6 +21,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
     <link rel="stylesheet" href="../assets/css/style.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark-mode');}</script>
 </head>
 <body>
 
@@ -105,6 +106,11 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 </ul>
             </li>
             <?php endif; ?>
+
+            <!-- Reportes Cruzados -->
+            <li class="<?php echo ($current_module == 'reportes') ? 'active' : ''; ?>">
+                <a href="<?php echo ($current_module == 'reportes') ? 'index.php' : $path_prefix . 'reportes/index.php'; ?>"><i class="fa-solid fa-file-excel"></i> <span class="sidebar-text">Reportes Cruzados</span></a>
+            </li>
 
             <!-- Servicios CURP -->
             <?php if (\Core\Auth::hasPermission('permiso_curp')): ?>
@@ -195,7 +201,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-uppercase mb-1 text-white-50" style="font-size: 0.75rem;">Trámites Hoy</h6>
-                                    <h2 class="mb-0 fw-bold" id="card-hoy">...</h2>
+                                    <h2 class="mb-0 fw-bold" id="card-hoy"><span class="skeleton" style="width: 60px; height: 32px;"></span></h2>
                                 </div>
                                 <i class="fa-solid fa-calendar-day fa-2x opacity-50"></i>
                             </div>
@@ -208,7 +214,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-uppercase mb-1 text-white-50" style="font-size: 0.75rem;">Tickets Pendientes</h6>
-                                    <h2 class="mb-0 fw-bold" id="card-peticiones">...</h2>
+                                    <h2 class="mb-0 fw-bold" id="card-peticiones"><span class="skeleton" style="width: 60px; height: 32px;"></span></h2>
                                 </div>
                                 <i class="fa-solid fa-ticket fa-2x opacity-50"></i>
                             </div>
@@ -221,7 +227,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-uppercase mb-1 text-dark-50" style="font-size: 0.75rem; color: rgba(0,0,0,0.5);">Inexistencias Pendientes</h6>
-                                    <h2 class="mb-0 fw-bold" id="card-inexistencias">...</h2>
+                                    <h2 class="mb-0 fw-bold" id="card-inexistencias"><span class="skeleton" style="width: 60px; height: 32px;"></span></h2>
                                 </div>
                                 <i class="fa-solid fa-clock fa-2x opacity-50"></i>
                             </div>
@@ -234,7 +240,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-uppercase mb-1 text-white-50" style="font-size: 0.75rem;">Foráneas Validadas</h6>
-                                    <h2 class="mb-0 fw-bold" id="card-foraneas">...</h2>
+                                    <h2 class="mb-0 fw-bold" id="card-foraneas"><span class="skeleton" style="width: 60px; height: 32px;"></span></h2>
                                 </div>
                                 <i class="fa-solid fa-check-double fa-2x opacity-50"></i>
                             </div>
@@ -247,7 +253,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-uppercase mb-1 text-white-50" style="font-size: 0.75rem;">Recaudación Proyectada</h6>
-                                    <h2 class="mb-0 fw-bold" id="card-recaudacion">...</h2>
+                                    <h2 class="mb-0 fw-bold" id="card-recaudacion"><span class="skeleton" style="width: 120px; height: 32px;"></span></h2>
                                 </div>
                                 <i class="fa-solid fa-money-bill-trend-up fa-2x opacity-50"></i>
                             </div>
@@ -263,7 +269,8 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             <i class="fa-solid fa-chart-line text-primary me-2"></i> Tendencia de Trámites Procesados (Últimos 7 Días)
                         </div>
                         <div class="card-body">
-                            <canvas id="diarioChart" style="max-height: 350px;"></canvas>
+                            <div id="diarioChartSkeleton" class="skeleton skeleton-chart" style="height: 320px; width: 100%;"></div>
+                            <canvas id="diarioChart" style="max-height: 350px; display: none;"></canvas>
                         </div>
                     </div>
                 </div>
@@ -291,7 +298,8 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             <i class="fa-solid fa-file-invoice-dollar text-primary me-2"></i> Recaudación Proyectada por Módulo (MXN)
                         </div>
                         <div class="card-body">
-                            <canvas id="recaudacionChart" style="max-height: 350px;"></canvas>
+                            <div id="recaudacionChartSkeleton" class="skeleton skeleton-chart" style="height: 320px; width: 100%;"></div>
+                            <canvas id="recaudacionChart" style="max-height: 350px; display: none;"></canvas>
                         </div>
                     </div>
                 </div>
@@ -300,8 +308,9 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         <div class="card-header bg-white fw-bold py-3 border-0">
                             <i class="fa-solid fa-chart-pie text-primary me-2"></i> Distribución de Carga Operativa
                         </div>
-                        <div class="card-body d-flex justify-content-center align-items-center">
-                            <canvas id="cargaChart" style="max-height: 350px;"></canvas>
+                        <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 320px;">
+                            <div id="cargaChartSkeleton" class="skeleton" style="width: 250px; height: 250px; border-radius: 50%;"></div>
+                            <canvas id="cargaChart" style="max-height: 350px; display: none;"></canvas>
                         </div>
                     </div>
                 </div>
@@ -360,25 +369,6 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         cargarNotificaciones();
         setInterval(cargarNotificaciones, 60000);
 
-                        $('#sidebarCollapse').on('click', function () {
-            if ($(window).width() >= 768) {
-                $('#sidebar').toggleClass('compact');
-            } else {
-                $('#sidebar').toggleClass('active');
-            }
-        });
-
-        $('#sidebarCloseMobile').on('click', function () {
-            $('#sidebar').removeClass('active');
-        });
-
-        // Expandir sidebar si está compacta y se hace clic en un menú desplegable
-        $('#sidebar').on('click', '.dropdown-toggle', function () {
-            if ($('#sidebar').hasClass('compact')) {
-                $('#sidebar').removeClass('compact');
-            }
-        });
-
         // Cargar Estadísticas Dinámicas
         $.ajax({
             url: 'api/stats.php',
@@ -386,6 +376,14 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             dataType: 'json',
             success: function(response) {
                 if(response.status === 'success') {
+                    // Remove skeletons and show canvases
+                    $('#diarioChartSkeleton').remove();
+                    $('#diarioChart').show();
+                    $('#recaudacionChartSkeleton').remove();
+                    $('#recaudacionChart').show();
+                    $('#cargaChartSkeleton').remove();
+                    $('#cargaChart').show();
+
                     // Update Cards
                     $('#card-hoy').text(response.cards.tramites_hoy);
                     $('#card-peticiones').text(response.cards.peticiones_pendientes);
@@ -517,5 +515,6 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         });
     });
 </script>
+<script src="../assets/js/global.js"></script>
 </body>
 </html>

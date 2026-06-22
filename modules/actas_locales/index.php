@@ -21,6 +21,7 @@ $notif_api = '../../public/api/notifications.php';
     <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/style.css">
+    <script>if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark-mode');}</script>
 </head>
 <body>
 
@@ -102,6 +103,11 @@ $notif_api = '../../public/api/notifications.php';
                 </ul>
             </li>
             <?php endif; ?>
+
+            <!-- Reportes Cruzados -->
+            <li class="<?php echo ($current_module == 'reportes') ? 'active' : ''; ?>">
+                <a href="<?php echo ($current_module == 'reportes') ? 'index.php' : $path_prefix . 'reportes/index.php'; ?>"><i class="fa-solid fa-file-excel"></i> <span class="sidebar-text">Reportes Cruzados</span></a>
+            </li>
 
             <!-- Servicios CURP -->
             <?php if (\Core\Auth::hasPermission('permiso_curp')): ?>
@@ -221,6 +227,45 @@ $notif_api = '../../public/api/notifications.php';
                                 <th>Acciones</th>
                             </tr>
                         </thead>
+                        <tbody class="table-skeleton">
+                            <tr>
+                                <td><span class="skeleton" style="width: 80%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 90%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 67%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 70%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 82%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 76%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 63%; height: 16px;"></span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="skeleton" style="width: 75%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 62%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 90%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 71%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 76%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 79%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 83%; height: 16px;"></span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="skeleton" style="width: 90%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 72%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 90%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 62%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 64%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 69%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 76%; height: 16px;"></span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="skeleton" style="width: 89%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 94%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 65%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 85%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 83%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 94%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 95%; height: 16px;"></span></td>
+                            </tr>
+                        </tbody>
+
                     </table>
                 </div>
             </div>
@@ -279,25 +324,6 @@ $notif_api = '../../public/api/notifications.php';
         
         cargarNotificaciones();
         setInterval(cargarNotificaciones, 60000);
-
-        $('#sidebarCollapse').on('click', function () {
-            if ($(window).width() >= 768) {
-                $('#sidebar').toggleClass('compact');
-            } else {
-                $('#sidebar').toggleClass('active');
-            }
-        });
-
-        $('#sidebarCloseMobile').on('click', function () {
-            $('#sidebar').removeClass('active');
-        });
-
-        // Expandir sidebar si está compacta y se hace clic en un menú desplegable
-        $('#sidebar').on('click', '.dropdown-toggle', function () {
-            if ($('#sidebar').hasClass('compact')) {
-                $('#sidebar').removeClass('compact');
-            }
-        });
 
         // Inicializar DataTable
         const table = $('#actasTable').DataTable({
@@ -450,5 +476,6 @@ $notif_api = '../../public/api/notifications.php';
         });
     });
 </script>
+<script src="../../assets/js/global.js"></script>
 </body>
 </html>

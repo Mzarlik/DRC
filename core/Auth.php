@@ -8,6 +8,15 @@ class Auth {
             session_start();
         }
         
+        // Permitir bypass seguro para tareas programadas (cron) vía token
+        $envPath = dirname(__DIR__) . '/.env';
+        if (file_exists($envPath)) {
+            $env = @parse_ini_file($envPath);
+            if ($env !== false && isset($env['CRON_SECRET']) && isset($_GET['cron_token']) && $_GET['cron_token'] === $env['CRON_SECRET']) {
+                return;
+            }
+        }
+        
         if (!isset($_SESSION['user_id'])) {
             header("Location: /DRC/public/login.php");
             exit;

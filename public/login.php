@@ -47,6 +47,7 @@ if (isset($_SESSION['user_id'])) {
             color: var(--primary-color);
         }
     </style>
+    <script>if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark-mode');}</script>
 </head>
 <body>
 
@@ -105,5 +106,6 @@ $(document).ready(function() {
 });
 </script>
 
+<script src="../assets/js/global.js"></script>
 </body>
 </html>

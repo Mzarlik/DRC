@@ -1,0 +1,11 @@
+{
+  "name": "drc-erp-tests",
+  "version": "1.0.0",
+  "description": "E2E tests for ERP DRC using Playwright",
+  "scripts": {
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0"
+  }
+}

@@ -1,5 +1,6 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
+require_once '../../vendor/autoload.php';
 require_once '../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_actas_locales');
 
@@ -79,6 +80,9 @@ try {
     if ($data) {
         $sanitized = [];
         foreach ($data as $k => $v) {
+            if (strpos($k, 'curp') !== false) {
+                $v = \Core\Encryption::decrypt($v);
+            }
             $sanitized[$k] = htmlspecialchars($v ?? '', ENT_QUOTES, 'UTF-8');
         }
         echo json_encode(['status' => 'success', 'data' => $sanitized]);

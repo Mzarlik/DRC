@@ -39,6 +39,7 @@ try {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
+    <script>if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark-mode');}</script>
 </head>
 <body>
 
@@ -122,6 +123,11 @@ try {
                 </ul>
             </li>
             <?php endif; ?>
+
+            <!-- Reportes Cruzados -->
+            <li class="<?php echo ($current_module == 'reportes') ? 'active' : ''; ?>">
+                <a href="<?php echo ($current_module == 'reportes') ? 'index.php' : $path_prefix . 'reportes/index.php'; ?>"><i class="fa-solid fa-file-excel"></i> <span class="sidebar-text">Reportes Cruzados</span></a>
+            </li>
 
             <!-- Servicios CURP -->
             <?php if (\Core\Auth::hasPermission('permiso_curp')): ?>
@@ -224,43 +230,39 @@ try {
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($usuarios as $u): ?>
-                                <tr>
-                                    <td class="fw-bold"><?php echo htmlspecialchars($u['nombre']); ?></td>
-                                    <td><?php echo htmlspecialchars($u['correo']); ?></td>
-                                    <td>
-                                        <span class="badge bg-<?php echo $u['rol'] === 'ADMIN' ? 'danger' : ($u['rol'] === 'SUPERVISOR' ? 'info' : 'success'); ?>">
-                                            <?php echo htmlspecialchars($u['rol']); ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-<?php echo $u['estatus'] == 1 ? 'success' : 'secondary'; ?>">
-                                            <?php echo $u['estatus'] == 1 ? 'ACTIVO' : 'INACTIVO'; ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary edit-perms-btn" 
-                                                data-id="<?php echo $u['id']; ?>"
-                                                data-nombre="<?php echo htmlspecialchars($u['nombre']); ?>"
-                                                data-rol="<?php echo $u['rol']; ?>"
-                                                data-estatus="<?php echo $u['estatus']; ?>"
-                                                data-nacimientos="<?php echo $u['permiso_registro_nacimientos']; ?>"
-                                                data-matrimonios="<?php echo $u['permiso_registro_matrimonios']; ?>"
-                                                data-divorcios="<?php echo $u['permiso_registro_divorcios']; ?>"
-                                                data-defunciones="<?php echo $u['permiso_registro_defunciones']; ?>"
-                                                data-inscripciones="<?php echo $u['permiso_registro_inscripciones']; ?>"
-                                                data-reconocimientos="<?php echo $u['permiso_registro_reconocimientos']; ?>"
-                                                data-actas_locales="<?php echo $u['permiso_actas_locales']; ?>"
-                                                data-actas_foraneas="<?php echo $u['permiso_actas_foraneas']; ?>"
-                                                data-constancias="<?php echo $u['permiso_constancias']; ?>"
-                                                data-curp="<?php echo $u['permiso_curp']; ?>"
-                                                data-tickets="<?php echo $u['permiso_tickets']; ?>">
-                                            <i class="fa-solid fa-user-gear"></i> Permisos
-                                        </button>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
+                            <tr>
+                                <td><span class="skeleton" style="width: 63%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 78%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 91%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 90%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 89%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 94%; height: 16px;"></span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="skeleton" style="width: 87%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 90%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 66%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 94%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 60%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 87%; height: 16px;"></span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="skeleton" style="width: 77%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 63%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 76%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 87%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 85%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 63%; height: 16px;"></span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="skeleton" style="width: 79%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 69%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 90%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 66%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 82%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 83%; height: 16px;"></span></td>
+                            </tr>
+</tbody>
                         </table>
                     </div>
                 </div>
@@ -412,24 +414,6 @@ try {
 <script>
 $(document).ready(function() {
     // Sidebar Collapse
-    $('#sidebarCollapse').on('click', function () {
-        if ($(window).width() >= 768) {
-            $('#sidebar').toggleClass('compact');
-        } else {
-            $('#sidebar').toggleClass('active');
-        }
-    });
-
-    $('#sidebarCloseMobile').on('click', function () {
-        $('#sidebar').removeClass('active');
-    });
-
-    // Expandir sidebar si está compacta y se hace clic en un menú desplegable
-    $('#sidebar').on('click', '.dropdown-toggle', function () {
-        if ($('#sidebar').hasClass('compact')) {
-            $('#sidebar').removeClass('compact');
-        }
-    });
 
     // Cargar Notificaciones
     function cargarNotificaciones() {
@@ -571,5 +555,6 @@ $(document).ready(function() {
 });
 </script>
 
+<script src="../assets/js/global.js"></script>
 </body>
 </html>
