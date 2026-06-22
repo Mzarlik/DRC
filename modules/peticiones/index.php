@@ -221,7 +221,6 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                 <td><span class="skeleton" style="width: 87%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 80%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 93%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 93%; height: 16px;"></span></td>
                             </tr>
                             <tr>
                                 <td><span class="skeleton" style="width: 72%; height: 16px;"></span></td>
@@ -230,7 +229,6 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                 <td><span class="skeleton" style="width: 66%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 88%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 65%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 84%; height: 16px;"></span></td>
                             </tr>
                             <tr>
                                 <td><span class="skeleton" style="width: 68%; height: 16px;"></span></td>
@@ -239,7 +237,6 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                 <td><span class="skeleton" style="width: 75%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 68%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 75%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 90%; height: 16px;"></span></td>
                             </tr>
                             <tr>
                                 <td><span class="skeleton" style="width: 62%; height: 16px;"></span></td>
@@ -248,7 +245,6 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                 <td><span class="skeleton" style="width: 88%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 92%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 94%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 73%; height: 16px;"></span></td>
                             </tr>
                         </tbody>
 

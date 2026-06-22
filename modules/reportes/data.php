@@ -25,13 +25,13 @@ try {
     // Configuración de mapa de consultas
     $modules_map = [
         'inexistencias' => [
-            'table' => 'inexistencias',
+            'table' => 'inexistencias inx',
             'modulo_label' => 'Inexistencia',
-            'folio_col' => 'linea_pago',
-            'ref_col' => 'nombre_completo',
-            'fecha_col' => 'fecha_tramite',
-            'user_col' => 'usuario_registro',
-            'status_col' => 'estatus',
+            'folio_col' => 'inx.linea_pago',
+            'ref_col' => 'inx.nombre_completo',
+            'fecha_col' => 'inx.fecha_tramite',
+            'user_col' => 'inx.usuario_registro',
+            'status_col' => 'inx.estatus',
             'joins' => ''
         ],
         'nacimientos' => [

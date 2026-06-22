@@ -235,7 +235,6 @@ $notif_api = '../../public/api/notifications.php';
                                 <td><span class="skeleton" style="width: 70%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 82%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 76%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 63%; height: 16px;"></span></td>
                             </tr>
                             <tr>
                                 <td><span class="skeleton" style="width: 75%; height: 16px;"></span></td>
@@ -244,7 +243,6 @@ $notif_api = '../../public/api/notifications.php';
                                 <td><span class="skeleton" style="width: 71%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 76%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 79%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 83%; height: 16px;"></span></td>
                             </tr>
                             <tr>
                                 <td><span class="skeleton" style="width: 90%; height: 16px;"></span></td>
@@ -253,7 +251,6 @@ $notif_api = '../../public/api/notifications.php';
                                 <td><span class="skeleton" style="width: 62%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 64%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 69%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 76%; height: 16px;"></span></td>
                             </tr>
                             <tr>
                                 <td><span class="skeleton" style="width: 89%; height: 16px;"></span></td>
@@ -262,7 +259,6 @@ $notif_api = '../../public/api/notifications.php';
                                 <td><span class="skeleton" style="width: 85%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 83%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 94%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 95%; height: 16px;"></span></td>
                             </tr>
                         </tbody>
 

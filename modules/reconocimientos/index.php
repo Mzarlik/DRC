@@ -211,28 +211,24 @@ $notif_api = '../../public/api/notifications.php';
                                 <td><span class="skeleton" style="width: 95%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 65%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 63%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 65%; height: 16px;"></span></td>
                             </tr>
                             <tr>
                                 <td><span class="skeleton" style="width: 87%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 72%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 69%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 88%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 71%; height: 16px;"></span></td>
                             </tr>
                             <tr>
                                 <td><span class="skeleton" style="width: 71%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 63%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 87%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 79%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 65%; height: 16px;"></span></td>
                             </tr>
                             <tr>
                                 <td><span class="skeleton" style="width: 81%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 84%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 65%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 63%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 81%; height: 16px;"></span></td>
                             </tr>
                         </tbody>
 
