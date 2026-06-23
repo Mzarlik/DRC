@@ -1,4 +1,5 @@
 <?php
+require_once '../../vendor/autoload.php';
 require_once '../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_constancias');
 \Core\Auth::check();
@@ -24,6 +25,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../../assets/css/style.css">
     <script>if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark-mode');}</script>
@@ -35,7 +37,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         <!-- Sidebar -->
         <!-- Sidebar -->
         <!-- Sidebar -->
-    <nav id="sidebar">
+    <nav id="sidebar" class="offcanvas-lg offcanvas-start" tabindex="-1">
         <div class="sidebar-header d-flex justify-content-between align-items-center">
             <span><i class="fa-solid fa-building-columns"></i> <span class="sidebar-text">ERP DRC</span></span>
             <button type="button" class="btn-close btn-close-white d-md-none" id="sidebarCloseMobile" aria-label="Close"></button>
@@ -141,15 +143,18 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             </li>
             <?php endif; ?>
 
-            <!-- Administración (Admin Only) -->
-            <?php if (($_SESSION['user_rol'] ?? '') === 'ADMIN'): ?>
-            <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php')) ? 'active' : ''; ?>">
-                <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
+            <!-- Administración (Admin / Supervisor) -->
+            <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'SUPERVISOR'])): ?>
+            <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
+                <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
                     <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
                 </a>
-                <ul class="collapse list-unstyled <?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'show' : ''; ?>" id="adminSubmenu">
+                <ul class="collapse list-unstyled <?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'show' : ''; ?>" id="adminSubmenu">
+                    <?php if (($_SESSION['user_rol'] ?? '') === 'ADMIN'): ?>
                     <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'usuarios.php' : '../../public/usuarios.php'; ?>"><i class="fa-solid fa-user-shield"></i> <span class="sidebar-text">Usuarios y Permisos</span></a></li>
                     <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">Auditoría y Errores</span></a></li>
+                    <?php endif; ?>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y Catálogos</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -209,9 +214,9 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     <button class="btn btn-success me-2" id="btnExportExcel">
                         <i class="fa-solid fa-file-excel"></i> Exportar a Excel
                     </button>
-                    <a href="create.php" class="btn btn-primary" style="background: var(--secondary-color); border: none;">
+                    <button class="btn btn-primary" style="background: var(--secondary-color); border: none;" data-bs-toggle="modal" data-bs-target="#createInexistenciaModal">
                         <i class="fa-solid fa-plus"></i> Nuevo Registro
-                    </a>
+                    </button>
                 </div>
             </div>
             
@@ -223,13 +228,19 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     <div class="row">
                         <div class="col-md-4">
                             <label for="filter_tipo" class="form-label fw-bold">Tipo de Constancia</label>
-                            <select class="form-select" id="filter_tipo">
-                                <option value="">TODAS LAS CONSTANCIAS</option>
-                                <option value="INEXISTENCIA_NACIMIENTO">INEXISTENCIA DE NACIMIENTO</option>
-                                <option value="INEXISTENCIA_MATRIMONIO">INEXISTENCIA DE MATRIMONIO</option>
-                                <option value="INEXISTENCIA_DESCENDENCIA">INEXISTENCIA DE DESCENDENCIA</option>
-                                <option value="NO_DEUDOR">NO DEUDOR ALIMENTARIO</option>
-                            </select>
+                             <select class="form-select" id="filter_tipo">
+                                 <option value="">TODAS LAS CONSTANCIAS</option>
+                                 <?php
+                                 $opciones = \Core\Catalogo::getOpciones('tipo_constancia');
+                                 foreach ($opciones as $opc) {
+                                     // Let's format the display text to be similar to the original hardcoded ones or keep the catalog value
+                                     // Original has "INEXISTENCIA DE NACIMIENTO" instead of "CONSTANCIA DE INEXISTENCIA DE NACIMIENTO"
+                                     // But since they can add new ones, we can just display the catalog value (which is clean and accurate)
+                                     $label = str_replace('CONSTANCIA DE ', '', $opc['valor']);
+                                     echo '<option value="' . htmlspecialchars($opc['clave'], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</option>';
+                                 }
+                                 ?>
+                             </select>
                         </div>
                     </div>
                 </div>
@@ -295,10 +306,79 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
     </div>
 </div>
 
+<!-- Modal de Registro de Inexistencia -->
+<div class="modal fade" id="createInexistenciaModal" tabindex="-1" aria-labelledby="createInexistenciaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white" style="background: var(--primary-color) !important;">
+                <h5 class="modal-title fw-bold" id="createInexistenciaModalLabel"><i class="fa-solid fa-plus me-2"></i> Registrar Nueva Constancia</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formInexistenciaModal">
+                <input type="hidden" name="csrf_token" value="<?php echo \Core\Auth::generateCSRF(); ?>">
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="modal_tipo_constancia" class="form-label fw-bold">Tipo de Constancia</label>
+                            <select class="form-select" id="modal_tipo_constancia" name="tipo_constancia" required>
+                                <option value="">Seleccione tipo...</option>
+                                <?php
+                                $opciones = \Core\Catalogo::getOpciones('tipo_constancia');
+                                foreach ($opciones as $opc) {
+                                    $label = str_replace('CONSTANCIA DE ', '', $opc['valor']);
+                                    echo '<option value="' . htmlspecialchars($opc['clave'], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="modal_linea_pago" class="form-label fw-bold">Línea de Pago (17-20 dígitos)</label>
+                            <input type="number" inputmode="numeric" class="form-control" id="modal_linea_pago" name="linea_pago" required>
+                            <div class="form-text">Tratado como cadena para evitar pérdida de precisión.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="modal_nombre_completo" class="form-label fw-bold">Nombre Completo del Ciudadano</label>
+                            <input type="text" class="form-control text-uppercase-input" id="modal_nombre_completo" name="nombre_completo" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="modal_fecha_tramite" class="form-label fw-bold">Fecha de Trámite</label>
+                            <input type="date" class="form-control" id="modal_fecha_tramite" name="fecha_tramite" value="<?php echo date('Y-m-d'); ?>" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="modal_fecha_llegada" class="form-label fw-bold">Fecha de Llegada (Cálculo Automático +15 días)</label>
+                            <input type="date" class="form-control bg-light" id="modal_fecha_llegada" name="fecha_llegada" readonly>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="modal_observaciones" class="form-label fw-bold">Observaciones</label>
+                        <textarea class="form-control text-uppercase-input" id="modal_observaciones" name="observaciones" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success" style="background: var(--secondary-color); border: none;">
+                        <i class="fa-solid fa-save"></i> Guardar Registro
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
 <script>
     $(document).ready(function() {
@@ -428,6 +508,77 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         icon: 'error',
                         title: 'Error Crítico',
                         text: 'No se pudo conectar con el servidor para procesar la cola de exportación.',
+                        confirmButtonColor: 'var(--primary-color)'
+                    });
+                }
+            });
+        });
+
+        // Calcular fecha de llegada automáticamente en el modal (Trámite + 15 días)
+        function calcularFechaLlegadaModal() {
+            let fechaTramite = $('#modal_fecha_tramite').val();
+            if(fechaTramite) {
+                let date2 = new Date(fechaTramite + 'T00:00:00');
+                date2.setDate(date2.getDate() + 15);
+                let yyyy = date2.getFullYear();
+                let mm = String(date2.getMonth() + 1).padStart(2, '0');
+                let dd = String(date2.getDate()).padStart(2, '0');
+                
+                $('#modal_fecha_llegada').val(`${yyyy}-${mm}-${dd}`);
+            }
+        }
+        $(document).on('change', '#modal_fecha_tramite', calcularFechaLlegadaModal);
+        $(document).on('show.bs.modal', '#createInexistenciaModal', function() {
+            if (!$('#modal_fecha_tramite').val()) {
+                const today = new Date().toISOString().split('T')[0];
+                $('#modal_fecha_tramite').val(today);
+            }
+            calcularFechaLlegadaModal();
+        });
+
+        // Envío AJAX del formulario del Modal
+        $('#formInexistenciaModal').on('submit', function(e) {
+            e.preventDefault();
+            const $form = $(this);
+            const $btn = $form.find('button[type="submit"]');
+            $btn.prop('disabled', true);
+            
+            $.ajax({
+                url: 'save.php',
+                type: 'POST',
+                data: $form.serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    $btn.prop('disabled', false);
+                    if(response.status === 'success') {
+                        // Close Modal
+                        const modalEl = document.getElementById('createInexistenciaModal');
+                        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                        if (modalInstance) {
+                            modalInstance.hide();
+                        }
+                        $form[0].reset();
+                        
+                        // Reload Table
+                        table.ajax.reload(null, false);
+                        
+                        // Show SweetAlert Toast
+                        window.showToast('success', '¡Guardado!', 'El registro se ha guardado exitosamente.');
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message || 'Ocurrió un error al procesar la solicitud.',
+                            confirmButtonColor: 'var(--primary-color)'
+                        });
+                    }
+                },
+                error: function() {
+                    $btn.prop('disabled', false);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error Crítico',
+                        text: 'No se pudo conectar con el servidor.',
                         confirmButtonColor: 'var(--primary-color)'
                     });
                 }

@@ -1,4 +1,5 @@
 <?php
+require_once '../../vendor/autoload.php';
 require_once '../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_constancias');
 \Core\Auth::check();
@@ -30,7 +31,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         <!-- Sidebar -->
         <!-- Sidebar -->
         <!-- Sidebar -->
-    <nav id="sidebar">
+    <nav id="sidebar" class="offcanvas-lg offcanvas-start" tabindex="-1">
         <div class="sidebar-header d-flex justify-content-between align-items-center">
             <span><i class="fa-solid fa-building-columns"></i> <span class="sidebar-text">ERP DRC</span></span>
             <button type="button" class="btn-close btn-close-white d-md-none" id="sidebarCloseMobile" aria-label="Close"></button>
@@ -136,15 +137,18 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             </li>
             <?php endif; ?>
 
-            <!-- Administración (Admin Only) -->
-            <?php if (($_SESSION['user_rol'] ?? '') === 'ADMIN'): ?>
-            <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php')) ? 'active' : ''; ?>">
-                <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
+            <!-- Administración (Admin / Supervisor) -->
+            <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'SUPERVISOR'])): ?>
+            <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
+                <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
                     <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
                 </a>
-                <ul class="collapse list-unstyled <?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'show' : ''; ?>" id="adminSubmenu">
+                <ul class="collapse list-unstyled <?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'show' : ''; ?>" id="adminSubmenu">
+                    <?php if (($_SESSION['user_rol'] ?? '') === 'ADMIN'): ?>
                     <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'usuarios.php' : '../../public/usuarios.php'; ?>"><i class="fa-solid fa-user-shield"></i> <span class="sidebar-text">Usuarios y Permisos</span></a></li>
                     <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">Auditoría y Errores</span></a></li>
+                    <?php endif; ?>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y Catálogos</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -213,10 +217,12 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             <div class="col-md-12">
                                 <label for="tipo_constancia" class="form-label fw-bold">Tipo de Constancia</label>
                                 <select class="form-select" id="tipo_constancia" name="tipo_constancia" required>
-                                    <option value="INEXISTENCIA_NACIMIENTO">CONSTANCIA DE INEXISTENCIA DE NACIMIENTO</option>
-                                    <option value="INEXISTENCIA_MATRIMONIO">CONSTANCIA DE INEXISTENCIA DE MATRIMONIO</option>
-                                    <option value="INEXISTENCIA_DESCENDENCIA">CONSTANCIA DE INEXISTENCIA DE DESCENDENCIA</option>
-                                    <option value="NO_DEUDOR">CONSTANCIA DE NO DEUDOR ALIMENTARIO</option>
+                                    <?php
+                                    $opciones = \Core\Catalogo::getOpciones('tipo_constancia');
+                                    foreach ($opciones as $opc) {
+                                        echo '<option value="' . htmlspecialchars($opc['clave'], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($opc['valor'], ENT_QUOTES, 'UTF-8') . '</option>';
+                                    }
+                                    ?>
                                 </select>
                             </div>
                         </div>
@@ -224,7 +230,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="linea_pago" class="form-label fw-bold">Línea de Pago (17-20 dígitos)</label>
-                                <input type="text" class="form-control" id="linea_pago" name="linea_pago" maxlength="25" required>
+                                <input type="number" inputmode="numeric" class="form-control" id="linea_pago" name="linea_pago" required>
                                 <div class="form-text">Tratado como cadena para evitar pérdida de precisión.</div>
                             </div>
                             <div class="col-md-6">

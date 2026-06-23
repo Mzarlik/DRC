@@ -30,8 +30,10 @@ class GestorInexistencias {
         $nombre_completo = mb_strtoupper(trim($nombre_completo), 'UTF-8');
         $observaciones = mb_strtoupper(trim($observaciones), 'UTF-8');
 
-        // Validación de tipo de constancia
-        $tipos_validos = ['INEXISTENCIA_NACIMIENTO', 'INEXISTENCIA_MATRIMONIO', 'INEXISTENCIA_DESCENDENCIA', 'NO_DEUDOR'];
+        // Validación de tipo de constancia desde base de datos (Catálogos)
+        require_once __DIR__ . '/../Catalogo.php';
+        $opciones = \Core\Catalogo::getOpciones('tipo_constancia', true);
+        $tipos_validos = array_column($opciones, 'clave');
         if (!in_array($tipo_constancia, $tipos_validos)) {
             return ['status' => 'error', 'message' => 'Tipo de constancia inválido.'];
         }
