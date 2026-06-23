@@ -2,7 +2,6 @@
 namespace Core\Services;
 
 use Core\Database;
-use Core\Audit;
 use PDOException;
 use Exception;
 
@@ -56,7 +55,7 @@ class GestorDefunciones {
 
             $pdo->commit();
 
-            Audit::log('INSERT', 'defunciones', 'Se registró un nuevo trámite/registro.');
+            \Core\Auditoria::logAccion('Defunciones', 'CREAR', "Se registró una defunción. Acta: $numero_acta, Ciudadano ID: $ciudadano_id");
             return ['status' => 'success'];
 
         } catch (PDOException $e) {

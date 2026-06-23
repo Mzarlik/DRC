@@ -4,7 +4,6 @@ require_once '../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_registro_divorcios');
 
 require_once '../../core/Database.php';
-require_once '../../core/Audit.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -46,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         if ($result) {
-            \Core\Audit::log('INSERT', 'divorcios', 'Se registró un nuevo trámite/registro.');
+            \Core\Auditoria::logAccion('Divorcios', 'CREAR', "Se registró un divorcio ($tipo_divorcio). Acta: $numero_acta, Cónyuge 1 ID: $ciudadano_1_id, Cónyuge 2 ID: $ciudadano_2_id");
             echo json_encode(['status' => 'success']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al guardar el registro.']);

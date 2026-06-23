@@ -80,10 +80,28 @@ try {
         $is_public = (strpos($referer, '/modules/') === false);
         $relative_link = $is_public ? 'exports/' . basename($row['file_path']) : '../../public/exports/' . basename($row['file_path']);
         
+        $jobNames = [
+            'export_inexistencias' => 'de Inexistencias',
+            'export_general_report' => 'General Cruzado',
+            'export_ciudadanos' => 'de Ciudadanos',
+            'export_nacimientos' => 'de Nacimientos',
+            'export_matrimonios' => 'de Matrimonios',
+            'export_divorcios' => 'de Divorcios',
+            'export_defunciones' => 'de Defunciones',
+            'export_inscripciones' => 'de Inscripciones',
+            'export_reconocimientos' => 'de Reconocimientos',
+            'export_actas_locales' => 'de Actas Locales',
+            'export_foraneas' => 'de Actas Foráneas',
+            'export_usuarios' => 'de Usuarios',
+            'export_auditoria' => 'de Auditoría',
+            'export_errores' => 'de Errores'
+        ];
+        $jobName = $jobNames[$row['type']] ?? 'General';
+
         if ($row['status'] === 'completed') {
-            $desc = "El reporte " . ($row['type'] === 'export_inexistencias' ? 'Inexistencias' : 'General') . " ya está listo para <a href=\"" . $relative_link . "\" class=\"fw-bold text-decoration-none\" download>Descargar aquí</a>";
+            $desc = "El reporte " . $jobName . " ya está listo para <a href=\"" . $relative_link . "\" class=\"fw-bold text-decoration-none\" download>Descargar aquí</a>";
         } else {
-            $desc = "Error al generar reporte " . ($row['type'] === 'export_inexistencias' ? 'Inexistencias' : 'General');
+            $desc = "Error al generar reporte " . $jobName;
         }
 
         $jobNotifications[] = [

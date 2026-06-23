@@ -4,7 +4,6 @@ require_once '../../core/Auth.php';
 
 header('Content-Type: application/json; charset=utf-8');
 require_once '../../core/Database.php';
-require_once '../../core/Audit.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -43,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($result) {
             // Guardar auditoría
-            \Core\Audit::log('DELETE', 'ciudadanos', 'Baja lógica del ciudadano ID: ' . $id . ' - ' . $nombreCompleto);
+            \Core\Auditoria::logAccion('Ciudadanos', 'ELIMINAR', 'Baja lógica del ciudadano ID: ' . $id . ' - ' . $nombreCompleto);
 
             echo json_encode([
                 'status' => 'success',

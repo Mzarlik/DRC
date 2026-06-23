@@ -4,7 +4,6 @@ require_once '../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_registro_inscripciones');
 
 require_once '../../core/Database.php';
-require_once '../../core/Audit.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -36,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         if ($result) {
-            \Core\Audit::log('INSERT', 'inscripciones', 'Se registró un nuevo trámite/registro.');
+            \Core\Auditoria::logAccion('Inscripciones', 'CREAR', "Se registró una inscripción de documento extranjero. Acta: $numero_acta, País de origen: $pais_origen, Ciudadano ID: $ciudadano_id");
         echo json_encode(['status' => 'success']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al guardar el registro.']);

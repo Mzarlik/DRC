@@ -2,7 +2,6 @@
 namespace Core\Services;
 
 use Core\Database;
-use Core\Audit;
 use PDOException;
 use Exception;
 
@@ -79,7 +78,7 @@ class GestorInexistencias {
             ]);
 
             if ($result) {
-                Audit::log('INSERT', 'inexistencias', 'Se registró un nuevo trámite/registro.');
+                \Core\Auditoria::logAccion('Inexistencias', 'CREAR', "Se registró una constancia de inexistencia ($tipo_constancia) para $nombre_completo. Línea de pago: $linea_pago");
                 return ['status' => 'success'];
             } else {
                 return ['status' => 'error', 'message' => 'Error al guardar el registro en la base de datos.'];

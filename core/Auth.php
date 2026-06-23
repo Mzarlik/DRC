@@ -2,6 +2,12 @@
 // core/Auth.php
 namespace Core;
 
+require_once __DIR__ . '/Auditoria.php';
+
+// Registrar manejadores globales de errores y excepciones
+set_exception_handler(['\Core\Auditoria', 'exceptionHandler']);
+set_error_handler(['\Core\Auditoria', 'errorHandler']);
+
 class Auth {
     public static function check() {
         if (session_status() === PHP_SESSION_NONE) {

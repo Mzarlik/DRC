@@ -4,7 +4,6 @@ require_once '../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_registro_matrimonios');
 
 require_once '../../core/Database.php';
-require_once '../../core/Audit.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -46,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         if ($result) {
-            \Core\Audit::log('INSERT', 'matrimonios', 'Se registró un nuevo trámite/registro.');
+            \Core\Auditoria::logAccion('Matrimonios', 'CREAR', "Se registró un matrimonio. Acta: $numero_acta, Contrayente 1 ID: $contrayente_1_id, Contrayente 2 ID: $contrayente_2_id, Régimen: $regimen_patrimonial");
             echo json_encode(['status' => 'success']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al guardar el registro.']);

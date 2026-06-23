@@ -11,7 +11,6 @@ if (!in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'SUPERVISOR'])) {
 
 header('Content-Type: application/json; charset=utf-8');
 require_once '../../core/Database.php';
-require_once '../../core/Audit.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -78,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
             }
-            \Core\Audit::log('UPDATE', 'peticiones', $actionLabel);
+            \Core\Auditoria::logAccion('Peticiones', 'EDITAR', $actionLabel);
             
             echo json_encode([
                 'status' => 'success', 

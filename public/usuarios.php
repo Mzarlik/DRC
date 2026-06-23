@@ -155,8 +155,14 @@ try {
 
             <!-- Administración (Admin Only) -->
             <?php if (($_SESSION['user_rol'] ?? '') === 'ADMIN'): ?>
-            <li class="<?php echo ($current_module == 'public' && basename($_SERVER['PHP_SELF']) == 'usuarios.php') ? 'active' : ''; ?>">
-                <a href="<?php echo ($current_module == 'public') ? 'usuarios.php' : '../../public/usuarios.php'; ?>"><i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span></a>
+            <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php')) ? 'active' : ''; ?>">
+                <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
+                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
+                </a>
+                <ul class="collapse list-unstyled <?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'show' : ''; ?>" id="adminSubmenu">
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'usuarios.php' : '../../public/usuarios.php'; ?>"><i class="fa-solid fa-user-shield"></i> <span class="sidebar-text">Usuarios y Permisos</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">Auditoría y Errores</span></a></li>
+                </ul>
             </li>
             <?php endif; ?>
         </ul>
@@ -211,9 +217,14 @@ try {
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Administrar Usuarios y Permisos</h2>
-                <button class="btn btn-primary" style="background: var(--secondary-color); border: none;" data-bs-toggle="modal" data-bs-target="#createUserModal">
-                    <i class="fa-solid fa-user-plus me-2"></i> Nuevo Usuario
-                </button>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success" id="btnExportExcel" style="background: var(--accent-color, #27ae60); border: none;">
+                        <i class="fa-solid fa-file-excel"></i> Exportar consulta a Excel
+                    </button>
+                    <button class="btn btn-primary" style="background: var(--secondary-color); border: none;" data-bs-toggle="modal" data-bs-target="#createUserModal">
+                        <i class="fa-solid fa-user-plus me-2"></i> Nuevo Usuario
+                    </button>
+                </div>
             </div>
             
             <div class="card border-0 shadow-sm">
@@ -230,39 +241,43 @@ try {
                                 </tr>
                             </thead>
                             <tbody>
-                            <tr>
-                                <td><span class="skeleton" style="width: 63%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 78%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 91%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 90%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 89%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 94%; height: 16px;"></span></td>
-                            </tr>
-                            <tr>
-                                <td><span class="skeleton" style="width: 87%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 90%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 66%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 94%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 60%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 87%; height: 16px;"></span></td>
-                            </tr>
-                            <tr>
-                                <td><span class="skeleton" style="width: 77%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 63%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 76%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 87%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 85%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 63%; height: 16px;"></span></td>
-                            </tr>
-                            <tr>
-                                <td><span class="skeleton" style="width: 79%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 69%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 90%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 66%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 82%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 83%; height: 16px;"></span></td>
-                            </tr>
-</tbody>
+                                <?php foreach ($usuarios as $u): ?>
+                                <tr>
+                                    <td class="fw-bold"><?php echo htmlspecialchars($u['nombre']); ?></td>
+                                    <td><?php echo htmlspecialchars($u['correo']); ?></td>
+                                    <td>
+                                        <span class="badge bg-<?php echo $u['rol'] === 'ADMIN' ? 'danger' : ($u['rol'] === 'SUPERVISOR' ? 'info' : 'success'); ?>">
+                                            <?php echo htmlspecialchars($u['rol']); ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-<?php echo $u['estatus'] == 1 ? 'success' : 'secondary'; ?>">
+                                            <?php echo $u['estatus'] == 1 ? 'ACTIVO' : 'INACTIVO'; ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary edit-perms-btn" 
+                                                data-id="<?php echo $u['id']; ?>"
+                                                data-nombre="<?php echo htmlspecialchars($u['nombre']); ?>"
+                                                data-rol="<?php echo $u['rol']; ?>"
+                                                data-estatus="<?php echo $u['estatus']; ?>"
+                                                data-nacimientos="<?php echo $u['permiso_registro_nacimientos']; ?>"
+                                                data-matrimonios="<?php echo $u['permiso_registro_matrimonios']; ?>"
+                                                data-divorcios="<?php echo $u['permiso_registro_divorcios']; ?>"
+                                                data-defunciones="<?php echo $u['permiso_registro_defunciones']; ?>"
+                                                data-inscripciones="<?php echo $u['permiso_registro_inscripciones']; ?>"
+                                                data-reconocimientos="<?php echo $u['permiso_registro_reconocimientos']; ?>"
+                                                data-actas_locales="<?php echo $u['permiso_actas_locales']; ?>"
+                                                data-actas_foraneas="<?php echo $u['permiso_actas_foraneas']; ?>"
+                                                data-constancias="<?php echo $u['permiso_constancias']; ?>"
+                                                data-curp="<?php echo $u['permiso_curp']; ?>"
+                                                data-tickets="<?php echo $u['permiso_tickets']; ?>">
+                                            <i class="fa-solid fa-user-gear"></i> Permisos
+                                        </button>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -549,6 +564,45 @@ $(document).ready(function() {
                         confirmButtonColor: 'var(--primary-color)'
                     });
                 }
+            }
+        });
+    });
+
+    // Exportar a Excel
+    $('#btnExportExcel').on('click', function() {
+        const $btn = $(this);
+        $btn.prop('disabled', true);
+        
+        $.ajax({
+            url: 'api/export_usuarios.php',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                $btn.prop('disabled', false);
+                if (response.status === 'success') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Generando Reporte',
+                        text: response.message,
+                        confirmButtonColor: 'var(--secondary-color)'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message,
+                        confirmButtonColor: 'var(--primary-color)'
+                    });
+                }
+            },
+            error: function() {
+                $btn.prop('disabled', false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error Crítico',
+                    text: 'No se pudo conectar con el servidor para procesar la exportación.',
+                    confirmButtonColor: 'var(--primary-color)'
+                });
             }
         });
     });

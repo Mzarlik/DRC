@@ -6,7 +6,6 @@ require_once '../../core/Auth.php';
 // modules/foraneas/save.php
 header('Content-Type: application/json; charset=utf-8');
 require_once '../../core/Database.php';
-require_once '../../core/Audit.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -44,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         if ($result) {
-            \Core\Audit::log('INSERT', 'foraneas', 'Se registró un nuevo trámite/registro.');
+            \Core\Auditoria::logAccion('Foráneas', 'CREAR', "Se registró una recepción de acta foránea ($tipo_acta). Acta: $numero_acta, Estado: $estado_origen, Ciudadano ID: $ciudadano_id");
         echo json_encode(['status' => 'success']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al guardar el registro.']);

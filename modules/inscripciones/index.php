@@ -134,8 +134,14 @@ $notif_api = '../../public/api/notifications.php';
 
             <!-- Administración (Admin Only) -->
             <?php if (($_SESSION['user_rol'] ?? '') === 'ADMIN'): ?>
-            <li class="<?php echo ($current_module == 'public' && basename($_SERVER['PHP_SELF']) == 'usuarios.php') ? 'active' : ''; ?>">
-                <a href="<?php echo ($current_module == 'public') ? 'usuarios.php' : '../../public/usuarios.php'; ?>"><i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span></a>
+            <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php')) ? 'active' : ''; ?>">
+                <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
+                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
+                </a>
+                <ul class="collapse list-unstyled <?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'show' : ''; ?>" id="adminSubmenu">
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'usuarios.php' : '../../public/usuarios.php'; ?>"><i class="fa-solid fa-user-shield"></i> <span class="sidebar-text">Usuarios y Permisos</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">Auditoría y Errores</span></a></li>
+                </ul>
             </li>
             <?php endif; ?>
         </ul>
@@ -189,9 +195,14 @@ $notif_api = '../../public/api/notifications.php';
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Listado de Inscripciones</h2>
-                <a href="create.php" class="btn btn-primary" style="background: var(--secondary-color); border: none;">
-                    <i class="fa-solid fa-plus me-2"></i> Nuevo Registro
-                </a>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success" id="btnExportExcel" style="background: var(--accent-color, #27ae60); border: none;">
+                        <i class="fa-solid fa-file-excel"></i> Exportar consulta a Excel
+                    </button>
+                    <a href="create.php" class="btn btn-primary" style="background: var(--secondary-color); border: none;">
+                        <i class="fa-solid fa-plus me-2"></i> Nuevo Registro
+                    </a>
+                </div>
             </div>
             
             <div class="card">
@@ -264,7 +275,7 @@ $notif_api = '../../public/api/notifications.php';
             }
         });
 
-        $('#mainTable').DataTable({
+        var table = $('#mainTable').DataTable({
             "processing": true,
             "serverSide": true,
             "ajax": "data.php",
@@ -278,6 +289,47 @@ $notif_api = '../../public/api/notifications.php';
                 { "data": "fecha_registro" },
             ],
             "order": [[0, "desc"]]
+        });
+
+        // Exportar a Excel
+        $('#btnExportExcel').on('click', function() {
+            const searchValue = table.search();
+            const $btn = $(this);
+            $btn.prop('disabled', true);
+            
+            $.ajax({
+                url: 'export_excel.php',
+                type: 'GET',
+                data: { search: searchValue },
+                dataType: 'json',
+                success: function(response) {
+                    $btn.prop('disabled', false);
+                    if (response.status === 'success') {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Generando Reporte',
+                            text: response.message,
+                            confirmButtonColor: 'var(--secondary-color)'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message,
+                            confirmButtonColor: 'var(--primary-color)'
+                        });
+                    }
+                },
+                error: function() {
+                    $btn.prop('disabled', false);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error Crítico',
+                        text: 'No se pudo conectar con el servidor para procesar la exportación.',
+                        confirmButtonColor: 'var(--primary-color)'
+                    });
+                }
+            });
         });
     });
 </script>

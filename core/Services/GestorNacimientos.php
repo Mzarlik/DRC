@@ -2,7 +2,6 @@
 namespace Core\Services;
 
 use Core\Database;
-use Core\Audit;
 use PDOException;
 use Exception;
 
@@ -49,7 +48,7 @@ class GestorNacimientos {
             ]);
 
             if ($result) {
-                Audit::log('INSERT', 'nacimientos', 'Se registró un nuevo trámite/registro.');
+                \Core\Auditoria::logAccion('Nacimientos', 'CREAR', "Se registró un nacimiento. Acta: $numero_acta, Ciudadano ID: $ciudadano_id");
                 return ['status' => 'success'];
             } else {
                 return ['status' => 'error', 'message' => 'Error al guardar el registro.'];

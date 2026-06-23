@@ -49,6 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Update session variables
             $_SESSION['user_nombre'] = $nombre;
 
+            \Core\Auditoria::logAccion('Perfil', 'EDITAR', "El usuario actualizó su información de perfil (Nombre: $nombre, Correo: $correo)");
+
             echo json_encode(['status' => 'success']);
             exit;
         } 
@@ -82,6 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             session_regenerate_id(true); // Regenerar ID al cambiar credenciales de seguridad
+
+            \Core\Auditoria::logAccion('Perfil', 'EDITAR', 'El usuario actualizó su contraseña de seguridad');
 
             echo json_encode(['status' => 'success']);
             exit;

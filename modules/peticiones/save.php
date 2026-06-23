@@ -6,7 +6,6 @@ require_once '../../core/Auth.php';
 // modules/peticiones/save.php
 header('Content-Type: application/json; charset=utf-8');
 require_once '../../core/Database.php';
-require_once '../../core/Audit.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -42,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         if ($result) {
-            \Core\Audit::log('INSERT', 'peticiones', 'Se registró un nuevo trámite/registro.');
+            \Core\Auditoria::logAccion('Peticiones', 'CREAR', "Se registró una petición/ticket. Folio: $folio, Tipo: $tipo_peticion, Ciudadano ID: $ciudadano_id");
         echo json_encode(['status' => 'success', 'folio' => $folio]);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al crear el ticket.']);

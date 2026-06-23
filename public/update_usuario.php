@@ -68,6 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':val' => $defaultVal
             ]);
 
+            \Core\Auditoria::logAccion('Administración', 'CREAR', "Se registró un nuevo usuario: $correo (Rol: $rol)");
+
             echo json_encode(['status' => 'success']);
             exit;
         }
@@ -138,6 +140,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($id === intval($_SESSION['user_id'] ?? 0)) {
                 session_regenerate_id(true); // Regenerar ID si se modifican los privilegios del usuario actual
             }
+
+            \Core\Auditoria::logAccion('Administración', 'EDITAR', "Se actualizaron permisos/datos del usuario ID: $id (Rol: $rol)");
 
             echo json_encode(['status' => 'success']);
             exit;
