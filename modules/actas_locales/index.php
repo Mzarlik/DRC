@@ -282,6 +282,21 @@ $notif_api = '../../public/api/notifications.php';
     </div>
 </div>
 
+<!-- Offcanvas para Detalles en Móvil -->
+<div class="offcanvas offcanvas-bottom" tabindex="-1" id="offcanvasDetails" aria-labelledby="offcanvasDetailsLabel" style="height: 70vh; border-top-left-radius: 16px; border-top-right-radius: 16px; background-color: var(--card-bg, #ffffff); color: var(--text-color, #2c3e50);">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title fw-bold" id="offcanvasDetailsLabel">Detalle de Acta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" style="filter: var(--close-btn-filter);"></button>
+    </div>
+    <div class="offcanvas-body" id="offcanvasDetailsBody">
+        <!-- Contenido dinámico -->
+    </div>
+    <div class="offcanvas-footer p-3 border-top d-flex gap-2" style="background-color: var(--navbar-bg, #f8f9fa);">
+        <a href="#" id="btnOffcanvasPrint" class="btn btn-success w-100" target="_blank" style="background: var(--accent-color, #27ae60); border: none;"><i class="fa-solid fa-print"></i> Imprimir PDF</a>
+        <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="offcanvas">Cerrar</button>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
@@ -430,16 +445,19 @@ $notif_api = '../../public/api/notifications.php';
             });
         });
 
-        // Detalle de Acta mediante SweetAlert2
+        // Detalle de Acta mediante SweetAlert2 o Offcanvas en móvil
         $('#actasTable').on('click', '.btn-details', function() {
             const tipo = $(this).data('tipo');
             const id = $(this).data('id');
+            const isMobile = window.innerWidth < 768;
             
-            Swal.fire({
-                title: 'Cargando Detalles...',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); }
-            });
+            if (!isMobile) {
+                Swal.fire({
+                    title: 'Cargando Detalles...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+            }
 
             $.ajax({
                 url: 'get_details.php',
@@ -447,10 +465,12 @@ $notif_api = '../../public/api/notifications.php';
                 data: { tipo: tipo, id: id },
                 dataType: 'json',
                 success: function(response) {
-                    Swal.close();
+                    if (!isMobile) {
+                        Swal.close();
+                    }
                     if(response.status === 'success') {
                         let data = response.data;
-                        let htmlContent = `<div class="text-start px-3" style="max-height: 400px; overflow-y: auto;">`;
+                        let htmlContent = `<div class="text-start px-3" style="${isMobile ? '' : 'max-height: 400px; overflow-y: auto;'}">`;
                         
                         htmlContent += `<p class="mb-1"><strong>Número de Acta:</strong> ${data.numero_acta}</p>`;
                         htmlContent += `<p class="mb-1"><strong>Fecha de Registro:</strong> ${data.fecha_registro}</p>`;
@@ -505,24 +525,35 @@ $notif_api = '../../public/api/notifications.php';
 
                         htmlContent += `</div>`;
 
-                        Swal.fire({
-                            title: `Acta de ${tipo}`,
-                            html: htmlContent,
-                            showCancelButton: true,
-                            confirmButtonText: '<i class="fa-solid fa-print"></i> Imprimir / Descargar PDF',
-                            cancelButtonText: 'Cerrar',
-                            confirmButtonColor: '#18bc9c',
-                            cancelButtonColor: '#6c757d'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.open(`pdf.php?tipo=${tipo}&id=${id}`, '_blank');
-                            }
-                        });
+                        if (isMobile) {
+                            $('#offcanvasDetailsLabel').text(`Acta de ${tipo}`);
+                            $('#offcanvasDetailsBody').html(htmlContent);
+                            $('#btnOffcanvasPrint').attr('href', `pdf.php?tipo=${tipo}&id=${id}`);
+                            const bsOffcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasDetails'));
+                            bsOffcanvas.show();
+                        } else {
+                            Swal.fire({
+                                title: `Acta de ${tipo}`,
+                                html: htmlContent,
+                                showCancelButton: true,
+                                confirmButtonText: '<i class="fa-solid fa-print"></i> Imprimir / Descargar PDF',
+                                cancelButtonText: 'Cerrar',
+                                confirmButtonColor: '#18bc9c',
+                                cancelButtonColor: '#6c757d'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.open(`pdf.php?tipo=${tipo}&id=${id}`, '_blank');
+                                }
+                            });
+                        }
                     } else {
                         Swal.fire('Error', response.message, 'error');
                     }
                 },
                 error: function() {
+                    if (!isMobile) {
+                        Swal.close();
+                    }
                     Swal.fire('Error', 'No se pudo conectar con el servidor.', 'error');
                 }
             });
