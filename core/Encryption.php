@@ -10,6 +10,10 @@ class Encryption {
 
     /**
      * Obtiene y deriva la clave criptográfica de 32 bytes desde las variables de entorno.
+     * Requiere ENCRYPTION_KEY obligatoriamente: sin llave propia, los datos cifrados
+     * (CURP) serían irrecuperables o descifrables con una clave pública conocida.
+     *
+     * @throws \RuntimeException si falta ENCRYPTION_KEY en .env
      */
     private static function getKey() {
         if (self::$key === null) {
@@ -22,7 +26,7 @@ class Encryption {
                 }
             }
             if (empty($key)) {
-                $key = 'drc_system_secure_aes256_key_2026';
+                throw new \RuntimeException('Falta ENCRYPTION_KEY en el archivo .env. Configure una clave propia antes de operar.');
             }
             // Derivación segura usando SHA-256 para obtener 32 bytes exactos
             self::$key = hash('sha256', $key, true);
@@ -80,5 +84,29 @@ class Encryption {
         $decrypted = openssl_decrypt($encrypted, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
         
         return $decrypted !== false ? $decrypted : $data;
+    }
+
+    /**
+     * Genera una firma HMAC-SHA256 para un dato (usada en tokens de validación pública).
+     *
+     * @param string $data Contenido a firmar
+     * @return string Firma hexadecimal
+     */
+    public static function sign($data) {
+        return hash_hmac('sha256', $data, self::getKey());
+    }
+
+    /**
+     * Verifica con comparación en tiempo constante que la firma pertenezca al dato.
+     *
+     * @param string $data Contenido firmado
+     * @param string $signature Firma a verificar
+     * @return bool
+     */
+    public static function verifySignature($data, $signature) {
+        if (!is_string($signature) || $signature === '') {
+            return false;
+        }
+        return hash_equals(self::sign($data), $signature);
     }
 }

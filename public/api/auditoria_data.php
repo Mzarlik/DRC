@@ -32,6 +32,7 @@ try {
     $columnIndex = isset($_GET['order'][0]['column']) ? intval($_GET['order'][0]['column']) : 0;
     $columnName = $columns[$columnIndex] ?? 'a.id';
     $columnSortOrder = isset($_GET['order'][0]['dir']) ? $_GET['order'][0]['dir'] : 'desc';
+    if (!in_array($columnSortOrder, ['asc', 'desc'])) $columnSortOrder = 'desc';
 
     $baseQuery = " FROM auditoria_logs a LEFT JOIN usuarios u ON a.usuario_id = u.id ";
                    

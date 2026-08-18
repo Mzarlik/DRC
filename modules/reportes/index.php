@@ -458,13 +458,14 @@ $notif_api = '../../public/api/notifications.php';
             
             $.ajax({
                 url: 'export_excel.php',
-                type: 'GET',
+                type: 'POST',
                 data: {
                     fecha_inicio: $('#filter_fecha_inicio').val(),
                     fecha_fin: $('#filter_fecha_fin').val(),
                     modulo: $('#filter_modulo').val(),
                     estatus: $('#filter_estatus').val(),
-                    operador_id: $('#filter_operador').val()
+                    operador_id: $('#filter_operador').val(),
+                    csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>'
                 },
                 dataType: 'json',
                 success: function(response) {

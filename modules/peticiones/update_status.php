@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
     } catch (PDOException $e) {
-        echo json_encode(['status' => 'error', 'message' => 'Error de base de datos: ' . $e->getMessage()]);
+        echo json_encode(['status' => 'error', 'message' => 'Error de base de datos. Intente de nuevo más tarde.']);
     }
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Método no permitido.']);

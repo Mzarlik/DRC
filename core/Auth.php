@@ -9,16 +9,33 @@ set_exception_handler(['\Core\Auditoria', 'exceptionHandler']);
 set_error_handler(['\Core\Auditoria', 'errorHandler']);
 
 class Auth {
-    public static function check() {
+    /**
+     * Configura parámetros seguros de cookie de sesión antes de iniciarla.
+     * HttpOnly, SameSite=Lax y Secure cuando la petición llega por HTTPS.
+     */
+    public static function initSession() {
         if (session_status() === PHP_SESSION_NONE) {
+            session_set_cookie_params([
+                'lifetime' => 0,
+                'path' => '/',
+                'httponly' => true,
+                'samesite' => 'Lax',
+                'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            ]);
             session_start();
         }
+    }
+
+    public static function check() {
+        self::initSession();
         
-        // Permitir bypass seguro para tareas programadas (cron) vía token
+        // Permitir bypass SOLO para tareas programadas (cron) vía token, y únicamente
+        // cuando el script se ejecuta desde CLI y el token coincide (comparación constante).
         $envPath = dirname(__DIR__) . '/.env';
-        if (file_exists($envPath)) {
+        if (php_sapi_name() === 'cli' && file_exists($envPath)) {
             $env = @parse_ini_file($envPath);
-            if ($env !== false && isset($env['CRON_SECRET']) && isset($_GET['cron_token']) && $_GET['cron_token'] === $env['CRON_SECRET']) {
+            if ($env !== false && isset($env['CRON_SECRET']) && isset($_GET['cron_token'])
+                && is_string($env['CRON_SECRET']) && hash_equals($env['CRON_SECRET'], $_GET['cron_token'])) {
                 return;
             }
         }
@@ -30,9 +47,7 @@ class Auth {
     }
 
     public static function getUserName() {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        self::initSession();
         return $_SESSION['user_nombre'] ?? 'Usuario';
     }
 
@@ -41,9 +56,7 @@ class Auth {
      * Los administradores tienen acceso a todo.
      */
     public static function hasPermission($permissionName) {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        self::initSession();
 
         if (($_SESSION['user_rol'] ?? '') === 'ADMIN') {
             return true;
@@ -86,9 +99,7 @@ class Auth {
      * Genera un token CSRF seguro y lo almacena en sesión.
      */
     public static function generateCSRF() {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        self::initSession();
         if (empty($_SESSION['csrf_token'])) {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
@@ -99,10 +110,8 @@ class Auth {
      * Valida que el token proporcionado coincida con el de la sesión.
      */
     public static function validateCSRF($token) {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        if (empty($_SESSION['csrf_token']) || $token !== $_SESSION['csrf_token']) {
+        self::initSession();
+        if (empty($_SESSION['csrf_token']) || !is_string($token) || !hash_equals($_SESSION['csrf_token'], $token)) {
             return false;
         }
         return true;

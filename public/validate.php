@@ -1,21 +1,28 @@
 <?php
 // public/validate.php
 require_once '../core/Database.php';
+require_once '../core/Encryption.php';
 
 $token = $_GET['token'] ?? '';
 $isValid = false;
 $actaInfo = [];
 
-if ($token) {
-    // Decodificar el token (ej. base64_encode("NACIMIENTO_12"))
-    $decoded = base64_decode($token);
-    $parts = explode('_', $decoded);
-    
-    if (count($parts) === 2) {
-        $tipo = mb_strtoupper($parts[0], 'UTF-8');
-        $id = intval($parts[1]);
+if ($token && is_string($token)) {
+    // El token es: base64("TIPO_id") . "." . firma HMAC
+    $tokenParts = explode('.', $token);
 
-        try {
+    if (count($tokenParts) === 2) {
+        $decoded = base64_decode($tokenParts[0], true);
+
+        if ($decoded !== false && \Core\Encryption::verifySignature($decoded, $tokenParts[1])) {
+            // Decodificar el token (ej. base64_encode("NACIMIENTO_12"))
+            $parts = explode('_', $decoded);
+
+            if (count($parts) === 2) {
+                $tipo = mb_strtoupper($parts[0], 'UTF-8');
+                $id = intval($parts[1]);
+
+                try {
             $pdo = \Core\Database::getConnection();
             $sql = "";
             switch ($tipo) {

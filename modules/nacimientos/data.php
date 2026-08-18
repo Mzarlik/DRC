@@ -27,6 +27,7 @@ try {
     $columnName = $columns[$columnIndex] ?? 'numero_acta';
     if($columnName === 'nombre_completo') $columnName = 'c.nombre'; // Ordenar por nombre
     $columnSortOrder = isset($_GET['order'][0]['dir']) ? $_GET['order'][0]['dir'] : 'desc';
+    if (!in_array($columnSortOrder, ['asc', 'desc'])) $columnSortOrder = 'desc';
 
     $baseQuery = " FROM nacimientos n 
                    INNER JOIN ciudadanos c ON n.ciudadano_id = c.id ";

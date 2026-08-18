@@ -2,9 +2,15 @@
 // public/auth.php
 header('Content-Type: application/json; charset=utf-8');
 require_once '../core/Database.php';
+require_once '../core/RateLimiter.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!\Core\RateLimiter::check('login', 10, 300)) {
+        echo json_encode(['status' => 'error', 'message' => 'Demasiados intentos de inicio de sesión. Espere unos minutos e intente de nuevo.']);
+        exit;
+    }
+
     $correo = trim($_POST['correo'] ?? '');
     $password = trim($_POST['password'] ?? '');
 

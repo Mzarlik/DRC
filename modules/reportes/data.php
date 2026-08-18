@@ -184,12 +184,22 @@ try {
     $stmt = $pdo->prepare($full_sql);
     $stmt->execute($params);
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
+    // Escapar cada campo antes de json_encode (el frontend renderiza con innerHTML)
+    $sanitizedData = [];
+    foreach ($data as $row) {
+        $sanitizedRow = [];
+        foreach ($row as $key => $value) {
+            $sanitizedRow[$key] = $value !== null ? htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8') : '';
+        }
+        $sanitizedData[] = $sanitizedRow;
+    }
+
     echo json_encode([
         "draw" => $draw,
         "recordsTotal" => $recordsTotal,
         "recordsFiltered" => $recordsFiltered,
-        "data" => $data
+        "data" => $sanitizedData
     ]);
 
 } catch (Exception $e) {
@@ -198,6 +208,6 @@ try {
         "recordsTotal" => 0,
         "recordsFiltered" => 0,
         "data" => [],
-        "error" => $e->getMessage()
+        "error" => "Error interno del servidor."
     ]);
 }

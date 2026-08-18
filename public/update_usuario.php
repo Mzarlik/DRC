@@ -18,6 +18,12 @@ use Core\Database;
 $action = $_POST['action'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    if (!\Core\Auth::validateCSRF($csrf_token)) {
+        echo json_encode(['status' => 'error', 'message' => 'Token CSRF inválido. Recargue la página e intente de nuevo.']);
+        exit;
+    }
+
     try {
         $pdo = Database::getConnection();
 
@@ -27,6 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $correo = trim($_POST['correo'] ?? '');
             $password = trim($_POST['password'] ?? '');
             $rol = trim($_POST['rol'] ?? 'OPERADOR');
+            if (!in_array($rol, ['ADMIN', 'SUPERVISOR', 'OPERADOR'], true)) {
+                $rol = 'OPERADOR';
+            }
 
             if (empty($nombre) || empty($correo) || empty($password)) {
                 echo json_encode(['status' => 'error', 'message' => 'Todos los campos son obligatorios.']);
@@ -78,6 +87,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'update_perms') {
             $id = intval($_POST['id'] ?? 0);
             $rol = trim($_POST['rol'] ?? 'OPERADOR');
+            if (!in_array($rol, ['ADMIN', 'SUPERVISOR', 'OPERADOR'], true)) {
+                $rol = 'OPERADOR';
+            }
             $estatus = intval($_POST['estatus'] ?? 1);
 
             if ($id <= 0) {
@@ -150,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['status' => 'error', 'message' => 'Acción no soportada.']);
 
     } catch (PDOException $e) {
-        echo json_encode(['status' => 'error', 'message' => 'Error de base de datos: ' . $e->getMessage()]);
+        echo json_encode(['status' => 'error', 'message' => 'Error de base de datos. Intente de nuevo más tarde.']);
     }
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Método no soportado.']);

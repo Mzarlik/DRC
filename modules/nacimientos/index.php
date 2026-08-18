@@ -337,8 +337,8 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             
             $.ajax({
                 url: 'export_excel.php',
-                type: 'GET',
-                data: { search: searchValue },
+                type: 'POST',
+                data: { search: searchValue, csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>' },
                 dataType: 'json',
                 success: function(response) {
                     $btn.prop('disabled', false);

@@ -34,6 +34,7 @@ try {
     $columnIndex = isset($_GET['order'][0]['column']) ? intval($_GET['order'][0]['column']) : 0;
     $columnName = $columns[$columnIndex] ?? 'id';
     $columnSortOrder = isset($_GET['order'][0]['dir']) ? $_GET['order'][0]['dir'] : 'desc';
+    if (!in_array($columnSortOrder, ['asc', 'desc'])) $columnSortOrder = 'desc';
 
     // Construcción de la consulta base
     $sql = "SELECT id, tipo_constancia, linea_pago, nombre_completo, fecha_tramite, fecha_llegada, estatus FROM inexistencias";

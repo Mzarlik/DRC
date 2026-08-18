@@ -27,3 +27,11 @@ Options -Indexes
     RewriteEngine On
     RewriteRule ^core/.*$ - [F,L]
 </IfModule>
+
+# Bloquear acceso directo a exportaciones, reportes, logs, caché y archivos SQL
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^public/(exports|reports)/ - [F,L]
+    RewriteRule ^(logs|cache)/ - [F,L]
+    RewriteRule \.(sql|bak|old|sql\.gz)$ - [F,L]
+</IfModule>

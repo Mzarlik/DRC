@@ -259,6 +259,7 @@ $notif_api = 'api/notifications.php';
             <form id="formConcepto">
                 <input type="hidden" name="action" value="agregar_opcion">
                 <input type="hidden" name="catalogo" id="modalCatalogo" value="tipo_constancia">
+                <input type="hidden" name="csrf_token" value="<?php echo \Core\Auth::generateCSRF(); ?>">
                 
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title fw-bold" id="modalTitle"><i class="fa-solid fa-plus me-2"></i> Registrar Nuevo Concepto</h5>
@@ -463,7 +464,8 @@ $(document).ready(function() {
                     data: {
                         action: 'toggle_estado',
                         id: id,
-                        activo: activo
+                        activo: activo,
+                        csrf_token: $('#formConcepto input[name="csrf_token"]').val()
                     },
                     dataType: 'json',
                     success: function(response) {

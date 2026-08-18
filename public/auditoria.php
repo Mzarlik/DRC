@@ -459,8 +459,8 @@ $(document).ready(function() {
         
         $.ajax({
             url: 'api/export_auditoria.php',
-            type: 'GET',
-            data: { search: searchValue },
+            type: 'POST',
+            data: { search: searchValue, csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>' },
             dataType: 'json',
             success: function(response) {
                 $btn.prop('disabled', false);
@@ -500,8 +500,8 @@ $(document).ready(function() {
         
         $.ajax({
             url: 'api/export_errores.php',
-            type: 'GET',
-            data: { search: searchValue },
+            type: 'POST',
+            data: { search: searchValue, csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>' },
             dataType: 'json',
             success: function(response) {
                 $btn.prop('disabled', false);

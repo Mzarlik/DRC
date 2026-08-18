@@ -15,6 +15,14 @@ use Core\Catalogo;
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    if (!\Core\Auth::validateCSRF($csrf_token)) {
+        echo json_encode(['status' => 'error', 'message' => 'Token CSRF inválido.']);
+        exit;
+    }
+}
+
 try {
     if ($action === 'get_opciones') {
         $catalogo = $_GET['catalogo'] ?? '';

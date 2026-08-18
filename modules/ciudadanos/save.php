@@ -9,7 +9,8 @@ require_once '../../core/Database.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (empty($_POST['csrf_token'])) {
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    if (!\Core\Auth::validateCSRF($csrf_token)) {
         echo json_encode(['status' => 'error', 'message' => 'Token CSRF inválido.']);
         exit;
     }

@@ -252,6 +252,7 @@ try {
                         <div class="card-body">
                             <form id="formGeneralInfo">
                                 <input type="hidden" name="action" value="update_info">
+                                <input type="hidden" name="csrf_token" value="<?php echo \Core\Auth::generateCSRF(); ?>">
                                 <div class="mb-3">
                                     <label for="nombre" class="form-label fw-bold">Nombre Completo</label>
                                     <input type="text" class="form-control" id="nombre" name="nombre" value="<?php echo htmlspecialchars($user['nombre']); ?>" required>
@@ -275,6 +276,7 @@ try {
                         <div class="card-body">
                             <form id="formPassword">
                                 <input type="hidden" name="action" value="change_password">
+                                <input type="hidden" name="csrf_token" value="<?php echo \Core\Auth::generateCSRF(); ?>">
                                 <div class="mb-3">
                                     <label for="current_password" class="form-label fw-bold">Contraseña Actual</label>
                                     <input type="password" class="form-control" id="current_password" name="current_password" required>

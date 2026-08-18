@@ -262,7 +262,7 @@ try {
                                         <button class="btn btn-sm btn-outline-primary edit-perms-btn" 
                                                 data-id="<?php echo $u['id']; ?>"
                                                 data-nombre="<?php echo htmlspecialchars($u['nombre']); ?>"
-                                                data-rol="<?php echo $u['rol']; ?>"
+                                                data-rol="<?php echo htmlspecialchars($u['rol']); ?>"
                                                 data-estatus="<?php echo $u['estatus']; ?>"
                                                 data-nacimientos="<?php echo $u['permiso_registro_nacimientos']; ?>"
                                                 data-matrimonios="<?php echo $u['permiso_registro_matrimonios']; ?>"
@@ -295,6 +295,7 @@ try {
         <div class="modal-content">
             <form id="formCreateUser">
                 <input type="hidden" name="action" value="create">
+                <input type="hidden" name="csrf_token" value="<?php echo \Core\Auth::generateCSRF(); ?>">
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold">Registrar Nuevo Usuario</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -337,6 +338,7 @@ try {
             <form id="formEditPerms">
                 <input type="hidden" name="action" value="update_perms">
                 <input type="hidden" name="id" id="edit_id">
+                <input type="hidden" name="csrf_token" value="<?php echo \Core\Auth::generateCSRF(); ?>">
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold">Configurar Permisos de: <span id="edit_nombre_label" class="text-primary"></span></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -564,7 +566,8 @@ $(document).ready(function() {
         
         $.ajax({
             url: 'api/export_usuarios.php',
-            type: 'GET',
+            type: 'POST',
+            data: { csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>' },
             dataType: 'json',
             success: function(response) {
                 $btn.prop('disabled', false);

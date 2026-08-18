@@ -28,6 +28,7 @@ try {
     $columnName = $columns[$columnIndex] ?? 'folio';
     if($columnName === 'nombre_completo') $columnName = 'c.nombre';
     $columnSortOrder = isset($_GET['order'][0]['dir']) ? $_GET['order'][0]['dir'] : 'desc';
+    if (!in_array($columnSortOrder, ['asc', 'desc'])) $columnSortOrder = 'desc';
 
     $baseQuery = " FROM peticiones p INNER JOIN ciudadanos c ON p.ciudadano_id = c.id ";
                    

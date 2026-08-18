@@ -29,6 +29,7 @@ try {
     $columnName = $columns[$columnIndex] ?? 'numero_acta';
     if($columnName === 'nombre_completo') $columnName = 'c.nombre';
     $columnSortOrder = isset($_GET['order'][0]['dir']) ? $_GET['order'][0]['dir'] : 'desc';
+    if (!in_array($columnSortOrder, ['asc', 'desc'])) $columnSortOrder = 'desc';
 
     $baseQuery = " FROM foraneas f INNER JOIN ciudadanos c ON f.ciudadano_id = c.id ";
                    

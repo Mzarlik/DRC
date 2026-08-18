@@ -173,7 +173,7 @@ function generateInexistenciasReport($pdo, $payload, $jobId, $exportDir) {
         $sheet->setCellValue('E' . $rowNum, $row['fecha_tramite']);
         $sheet->setCellValue('F' . $rowNum, $row['fecha_llegada']);
         $sheet->setCellValue('G' . $rowNum, $row['estatus']);
-        $sheet->setCellValue('H' . $rowNum, $row['observaciones']);
+        $sheet->setCellValue('H' . $rowNum, safeCell($row['observaciones']));
         $rowNum++;
     }
     
@@ -373,9 +373,9 @@ function generateGeneralReport($pdo, $payload, $jobId, $exportDir) {
         // Formatear folio como string estrictamente para evitar que Excel corrompa números
         $sheet->setCellValueExplicit('B' . $rowNum, $row['folio'], DataType::TYPE_STRING);
         
-        $sheet->setCellValue('C' . $rowNum, $row['referencia']);
+        $sheet->setCellValue('C' . $rowNum, safeCell($row['referencia']));
         $sheet->setCellValue('D' . $rowNum, $row['fecha']);
-        $sheet->setCellValue('E' . $rowNum, $row['operador'] ?? 'N/A');
+        $sheet->setCellValue('E' . $rowNum, safeCell($row['operador'] ?? 'N/A'));
         $sheet->setCellValue('F' . $rowNum, $row['estatus']);
         $rowNum++;
     }
@@ -406,6 +406,17 @@ function styleExcelHeader($sheet, $colMax) {
         if ($col === $colMax) break;
         $col++;
     }
+}
+
+/**
+ * Neutraliza inyección de fórmulas en Excel: si el texto inicia con
+ * = + - @ o tabulador/salto, se antepone un apóstrofo para tratarlo como texto.
+ */
+function safeCell($value) {
+    if (is_string($value) && $value !== '' && preg_match('/^[=+\-@\t\r\n]/', $value)) {
+        return "'" . $value;
+    }
+    return $value;
 }
 
 /**
@@ -457,9 +468,9 @@ function generateCiudadanosReport($pdo, $payload, $jobId, $exportDir) {
     foreach ($records as $row) {
         $curp = \Core\Encryption::decrypt($row['curp']) ?? '';
         $sheet->setCellValueExplicit('A' . $rowNum, $curp, DataType::TYPE_STRING);
-        $sheet->setCellValue('B' . $rowNum, $row['nombre']);
-        $sheet->setCellValue('C' . $rowNum, $row['apellido_paterno']);
-        $sheet->setCellValue('D' . $rowNum, $row['apellido_materno']);
+        $sheet->setCellValue('B' . $rowNum, safeCell($row['nombre']));
+        $sheet->setCellValue('C' . $rowNum, safeCell($row['apellido_paterno']));
+        $sheet->setCellValue('D' . $rowNum, safeCell($row['apellido_materno']));
         $sheet->setCellValue('E' . $rowNum, $row['sexo']);
         $sheet->setCellValue('F' . $rowNum, $row['fecha_nacimiento']);
         $sheet->setCellValue('G' . $rowNum, $row['estado_vital']);
@@ -510,9 +521,9 @@ function generateNacimientosReport($pdo, $payload, $jobId, $exportDir) {
     foreach ($records as $row) {
         $sheet->setCellValueExplicit('A' . $rowNum, $row['numero_acta'], DataType::TYPE_STRING);
         $sheet->setCellValue('B' . $rowNum, $row['nombre_completo']);
-        $sheet->setCellValue('C' . $rowNum, $row['padre'] ?: 'N/A');
-        $sheet->setCellValue('D' . $rowNum, $row['madre'] ?: 'N/A');
-        $sheet->setCellValue('E' . $rowNum, $row['lugar_nacimiento']);
+        $sheet->setCellValue('C' . $rowNum, safeCell($row['padre'] ?: 'N/A'));
+        $sheet->setCellValue('D' . $rowNum, safeCell($row['madre'] ?: 'N/A'));
+        $sheet->setCellValue('E' . $rowNum, safeCell($row['lugar_nacimiento']));
         $sheet->setCellValue('F' . $rowNum, $row['fecha_registro']);
         $rowNum++;
     }
@@ -558,9 +569,9 @@ function generateMatrimoniosReport($pdo, $payload, $jobId, $exportDir) {
     $rowNum = 2;
     foreach ($records as $row) {
         $sheet->setCellValueExplicit('A' . $rowNum, $row['numero_acta'], DataType::TYPE_STRING);
-        $sheet->setCellValue('B' . $rowNum, $row['contrayente_1']);
-        $sheet->setCellValue('C' . $rowNum, $row['contrayente_2']);
-        $sheet->setCellValue('D' . $rowNum, $row['regimen_patrimonial']);
+        $sheet->setCellValue('B' . $rowNum, safeCell($row['contrayente_1']));
+        $sheet->setCellValue('C' . $rowNum, safeCell($row['contrayente_2']));
+        $sheet->setCellValue('D' . $rowNum, safeCell($row['regimen_patrimonial']));
         $sheet->setCellValue('E' . $rowNum, $row['fecha_registro']);
         $rowNum++;
     }
@@ -606,8 +617,8 @@ function generateDivorciosReport($pdo, $payload, $jobId, $exportDir) {
     $rowNum = 2;
     foreach ($records as $row) {
         $sheet->setCellValueExplicit('A' . $rowNum, $row['numero_acta'], DataType::TYPE_STRING);
-        $sheet->setCellValue('B' . $rowNum, $row['divorciado_1']);
-        $sheet->setCellValue('C' . $rowNum, $row['divorciado_2']);
+        $sheet->setCellValue('B' . $rowNum, safeCell($row['divorciado_1']));
+        $sheet->setCellValue('C' . $rowNum, safeCell($row['divorciado_2']));
         $sheet->setCellValue('D' . $rowNum, $row['tipo_divorcio']);
         $sheet->setCellValue('E' . $rowNum, $row['fecha_registro']);
         $rowNum++;
@@ -652,9 +663,9 @@ function generateDefuncionesReport($pdo, $payload, $jobId, $exportDir) {
     $rowNum = 2;
     foreach ($records as $row) {
         $sheet->setCellValueExplicit('A' . $rowNum, $row['numero_acta'], DataType::TYPE_STRING);
-        $sheet->setCellValue('B' . $rowNum, $row['nombre_completo']);
+        $sheet->setCellValue('B' . $rowNum, safeCell($row['nombre_completo']));
         $sheet->setCellValue('C' . $rowNum, $row['fecha_defuncion']);
-        $sheet->setCellValue('D' . $rowNum, $row['causa_muerte']);
+        $sheet->setCellValue('D' . $rowNum, safeCell($row['causa_muerte']));
         $sheet->setCellValue('E' . $rowNum, $row['fecha_registro']);
         $rowNum++;
     }
@@ -698,9 +709,9 @@ function generateInscripcionesReport($pdo, $payload, $jobId, $exportDir) {
     $rowNum = 2;
     foreach ($records as $row) {
         $sheet->setCellValueExplicit('A' . $rowNum, $row['numero_acta'], DataType::TYPE_STRING);
-        $sheet->setCellValue('B' . $rowNum, $row['ciudadano']);
+        $sheet->setCellValue('B' . $rowNum, safeCell($row['ciudadano']));
         $sheet->setCellValue('C' . $rowNum, $row['pais_origen']);
-        $sheet->setCellValue('D' . $rowNum, $row['documento_extranjero']);
+        $sheet->setCellValue('D' . $rowNum, safeCell($row['documento_extranjero']));
         $sheet->setCellValue('E' . $rowNum, $row['fecha_registro']);
         $rowNum++;
     }
@@ -746,8 +757,8 @@ function generateReconocimientosReport($pdo, $payload, $jobId, $exportDir) {
     $rowNum = 2;
     foreach ($records as $row) {
         $sheet->setCellValueExplicit('A' . $rowNum, $row['numero_acta'], DataType::TYPE_STRING);
-        $sheet->setCellValue('B' . $rowNum, $row['reconocido']);
-        $sheet->setCellValue('C' . $rowNum, $row['reconocedor']);
+        $sheet->setCellValue('B' . $rowNum, safeCell($row['reconocido']));
+        $sheet->setCellValue('C' . $rowNum, safeCell($row['reconocedor']));
         $sheet->setCellValue('D' . $rowNum, $row['fecha_registro']);
         $rowNum++;
     }
@@ -841,8 +852,8 @@ function generateActasLocalesReport($pdo, $payload, $jobId, $exportDir) {
     foreach ($records as $row) {
         $sheet->setCellValue('A' . $rowNum, $row['tipo_acta']);
         $sheet->setCellValueExplicit('B' . $rowNum, $row['numero_acta'], DataType::TYPE_STRING);
-        $sheet->setCellValue('C' . $rowNum, $row['ciudadano_1']);
-        $sheet->setCellValue('D' . $rowNum, $row['ciudadano_2'] ?: 'N/A');
+        $sheet->setCellValue('C' . $rowNum, safeCell($row['ciudadano_1']));
+        $sheet->setCellValue('D' . $rowNum, safeCell($row['ciudadano_2'] ?: 'N/A'));
         
         $curp1 = \Core\Encryption::decrypt($row['curp_1']) ?? '';
         $curp2 = \Core\Encryption::decrypt($row['curp_2']) ?? '';
@@ -897,7 +908,7 @@ function generateForaneasReport($pdo, $payload, $jobId, $exportDir) {
         $sheet->setCellValue('D' . $rowNum, $row['tipo_acta']);
         $sheet->setCellValue('E' . $rowNum, $row['fecha_recepcion']);
         $sheet->setCellValue('F' . $rowNum, $row['estatus']);
-        $sheet->setCellValue('G' . $rowNum, $row['observaciones']);
+        $sheet->setCellValue('G' . $rowNum, safeCell($row['observaciones']));
         $rowNum++;
     }
     autoFitColumns($sheet, 'G');
@@ -989,7 +1000,7 @@ function generateAuditoriaReport($pdo, $payload, $jobId, $exportDir) {
         $sheet->setCellValue('C' . $rowNum, $row['usuario'] ?? 'Sistema');
         $sheet->setCellValue('D' . $rowNum, $row['modulo']);
         $sheet->setCellValue('E' . $rowNum, $row['accion']);
-        $sheet->setCellValue('F' . $rowNum, $row['detalles']);
+        $sheet->setCellValue('F' . $rowNum, safeCell($row['detalles']));
         $sheet->setCellValue('G' . $rowNum, $row['ip_address']);
         $rowNum++;
     }
@@ -1034,12 +1045,12 @@ function generateErroresReport($pdo, $payload, $jobId, $exportDir) {
         $sheet->setCellValue('A' . $rowNum, $row['id']);
         $sheet->setCellValue('B' . $rowNum, $row['fecha_hora']);
         $sheet->setCellValue('C' . $rowNum, $row['usuario'] ?? 'Sistema');
-        $sheet->setCellValue('D' . $rowNum, $row['mensaje']);
+        $sheet->setCellValue('D' . $rowNum, safeCell($row['mensaje']));
         $sheet->setCellValue('E' . $rowNum, $row['archivo']);
         $sheet->setCellValue('F' . $rowNum, $row['linea']);
-        $sheet->setCellValue('G' . $rowNum, $row['url']);
+        $sheet->setCellValue('G' . $rowNum, safeCell($row['url']));
         $sheet->setCellValue('H' . $rowNum, $row['ip_address']);
-        $sheet->setCellValue('I' . $rowNum, $row['stack_trace']);
+        $sheet->setCellValue('I' . $rowNum, safeCell($row['stack_trace']));
         $rowNum++;
     }
     autoFitColumns($sheet, 'I');

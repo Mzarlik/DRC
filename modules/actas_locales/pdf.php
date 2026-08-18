@@ -5,6 +5,7 @@ require_once '../../core/Auth.php';
 
 require_once '../../vendor/autoload.php';
 require_once '../../core/Database.php';
+require_once '../../core/Encryption.php';
 
 use Core\Database;
 use chillerlan\QRCode\QRCode;
@@ -77,7 +78,8 @@ try {
     // 2. Generar Código QR Dinámico
     // En un entorno real, HTTP_HOST puede variar
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    $token = base64_encode($tipo . '_' . $id);
+    $tokenPlain = $tipo . '_' . $id;
+    $token = base64_encode($tokenPlain) . '.' . \Core\Encryption::sign($tokenPlain);
     $validationUrl = "http://{$host}/DRC/public/validate.php?token={$token}";
     
     $qrOptions = new QROptions([

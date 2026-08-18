@@ -10,12 +10,24 @@ if (($_SESSION['user_rol'] ?? '') !== 'ADMIN') {
 }
 
 require_once '../../core/Database.php';
+require_once '../../core/Jobs.php';
 use Core\Database;
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(['status' => 'error', 'message' => 'Método no soportado.']);
+    exit;
+}
+
+$csrf_token = $_POST['csrf_token'] ?? '';
+if (!\Core\Auth::validateCSRF($csrf_token)) {
+    echo json_encode(['status' => 'error', 'message' => 'Token CSRF inválido.']);
+    exit;
+}
 
 try {
     $pdo = Database::getConnection();
     
-    $search = $_GET['search'] ?? '';
+    $search = $_POST['search'] ?? '';
     
     $payload = json_encode([
         'search' => $search
@@ -29,8 +41,7 @@ try {
         'pending'
     ]);
     
-    $workerPath = escapeshellarg(dirname(dirname(__DIR__)) . '/core/Worker.php');
-    pclose(popen("start /B c:\\xampp\\php\\php.exe $workerPath > NUL 2>&1", "r"));
+    \Core\Jobs::launchWorker();
     
     echo json_encode([
         'status' => 'success',
@@ -41,7 +52,7 @@ try {
 } catch (\Exception $e) {
     echo json_encode([
         'status' => 'error',
-        'message' => 'Error al registrar el reporte: ' . $e->getMessage()
+        'message' => 'Error al registrar el reporte. Intente de nuevo más tarde.'
     ]);
     exit;
 }

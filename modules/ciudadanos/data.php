@@ -40,6 +40,7 @@ try {
     $columnIndex = isset($_GET['order'][0]['column']) ? intval($_GET['order'][0]['column']) : 0;
     $columnName = $columns[$columnIndex] ?? 'id';
     $columnSortOrder = isset($_GET['order'][0]['dir']) ? $_GET['order'][0]['dir'] : 'desc';
+    if (!in_array($columnSortOrder, ['asc', 'desc'])) $columnSortOrder = 'desc';
 
     $sql = "SELECT id, curp, nombre, apellido_paterno, apellido_materno, sexo, fecha_nacimiento, estado_vital FROM ciudadanos WHERE estado = 1";
     $sqlCount = "SELECT COUNT(id) as allcount FROM ciudadanos WHERE estado = 1";

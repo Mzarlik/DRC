@@ -10,6 +10,7 @@ use PDOException;
  */
 class Database {
     private static $instance = null;
+    private static $env = null; // Caché del .env: una sola lectura por proceso
     private $pdo;
     private $readPdo = null;
 
@@ -27,25 +28,32 @@ class Database {
 
     /**
      * Carga las variables de entorno desde el archivo .env si existe.
+     * La lectura se cachea en una propiedad estática para no releer por request.
      */
     private function loadEnv() {
-        $envPath = dirname(__DIR__) . '/.env';
-        if (file_exists($envPath)) {
-            $env = parse_ini_file($envPath);
-            if ($env !== false) {
-                if (isset($env['DB_HOST'])) $this->host = $env['DB_HOST'];
-                if (isset($env['DB_USER'])) $this->user = $env['DB_USER'];
-                if (isset($env['DB_PASS'])) $this->pass = $env['DB_PASS'];
-                if (isset($env['DB_NAME'])) $this->dbname = $env['DB_NAME'];
-                if (isset($env['DB_CHARSET'])) $this->charset = $env['DB_CHARSET'];
-
-                // Read replica
-                if (isset($env['DB_READ_HOST'])) $this->readHost = $env['DB_READ_HOST'];
-                if (isset($env['DB_READ_USER'])) $this->readUser = $env['DB_READ_USER'];
-                if (isset($env['DB_READ_PASS'])) $this->readPass = $env['DB_READ_PASS'];
-                if (isset($env['DB_READ_NAME'])) $this->readDbname = $env['DB_READ_NAME'];
+        if (self::$env === null) {
+            $envPath = dirname(__DIR__) . '/.env';
+            self::$env = [];
+            if (file_exists($envPath)) {
+                $parsed = parse_ini_file($envPath);
+                if ($parsed !== false) {
+                    self::$env = $parsed;
+                }
             }
         }
+        $env = self::$env;
+
+        if (isset($env['DB_HOST'])) $this->host = $env['DB_HOST'];
+        if (isset($env['DB_USER'])) $this->user = $env['DB_USER'];
+        if (isset($env['DB_PASS'])) $this->pass = $env['DB_PASS'];
+        if (isset($env['DB_NAME'])) $this->dbname = $env['DB_NAME'];
+        if (isset($env['DB_CHARSET'])) $this->charset = $env['DB_CHARSET'];
+
+        // Read replica
+        if (isset($env['DB_READ_HOST'])) $this->readHost = $env['DB_READ_HOST'];
+        if (isset($env['DB_READ_USER'])) $this->readUser = $env['DB_READ_USER'];
+        if (isset($env['DB_READ_PASS'])) $this->readPass = $env['DB_READ_PASS'];
+        if (isset($env['DB_READ_NAME'])) $this->readDbname = $env['DB_READ_NAME'];
     }
 
     /**

@@ -78,7 +78,9 @@ try {
         
         $referer = $_SERVER['HTTP_REFERER'] ?? '';
         $is_public = (strpos($referer, '/modules/') === false);
-        $relative_link = $is_public ? 'exports/' . basename($row['file_path']) : '../../public/exports/' . basename($row['file_path']);
+        $relative_link = $is_public
+            ? 'api/download_export.php?file=' . urlencode(basename($row['file_path']))
+            : '../../public/api/download_export.php?file=' . urlencode(basename($row['file_path']));
         
         $jobNames = [
             'export_inexistencias' => 'de Inexistencias',

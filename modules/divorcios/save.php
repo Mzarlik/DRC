@@ -7,6 +7,12 @@ require_once '../../core/Database.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    if (!\Core\Auth::validateCSRF($csrf_token)) {
+        echo json_encode(['status' => 'error', 'message' => 'Token CSRF inválido.']);
+        exit;
+    }
+
     if (trim($_POST['numero_acta'] ?? '') === '' || empty($_POST['ciudadano_1_id']) || empty($_POST['ciudadano_2_id']) || trim($_POST['tipo_divorcio'] ?? '') === '' || trim($_POST['fecha_registro'] ?? '') === '') {
         echo json_encode(['status' => 'error', 'message' => 'Por favor, rellene todos los campos obligatorios.']);
         exit;
@@ -54,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($e->getCode() == 23000) {
             echo json_encode(['status' => 'error', 'message' => 'El número de acta ingresado ya se encuentra registrado.']);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'Error de base de datos: ' . $e->getMessage()]);
+            echo json_encode(['status' => 'error', 'message' => 'Error de base de datos. Intente de nuevo más tarde.']);
         }
     }
 } else {
