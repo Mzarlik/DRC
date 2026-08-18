@@ -36,9 +36,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $nombreCompleto = $row['nombre'] . ' ' . $row['apellido_paterno'];
 
-        // Realizar baja lógica (Soft Delete)
-        $stmt = $pdo->prepare("UPDATE ciudadanos SET estado = 0 WHERE id = :id");
-        $result = $stmt->execute([':id' => $id]);
+        // Realizar baja lógica (Soft Delete): estado = 0 y marcas deleted_at/deleted_by si existen
+        $stmtCol = $pdo->query("SHOW COLUMNS FROM ciudadanos LIKE 'deleted_at'");
+        if ($stmtCol->fetch()) {
+            $stmt = $pdo->prepare("UPDATE ciudadanos SET estado = 0, deleted_at = IFNULL(deleted_at, NOW()), deleted_by = ? WHERE id = ?");
+            $result = $stmt->execute([$_SESSION['user_id'] ?? null, $id]);
+        } else {
+            $stmt = $pdo->prepare("UPDATE ciudadanos SET estado = 0 WHERE id = :id");
+            $result = $stmt->execute([':id' => $id]);
+        }
 
         if ($result) {
             // Guardar auditoría

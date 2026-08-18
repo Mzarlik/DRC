@@ -4,7 +4,7 @@ require_once '../vendor/autoload.php';
 require_once '../core/Auth.php';
 \Core\Auth::check();
 
-if (!in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'SUPERVISOR'])) {
+if (!in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])) {
     header("Location: index.php");
     exit;
 }
@@ -142,7 +142,24 @@ $notif_api = 'api/notifications.php';
             <?php endif; ?>
 
             <!-- Administración (Admin / Supervisor) -->
-            <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'SUPERVISOR'])): ?>
+            <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
+            <!-- Ventanilla (Petición Rápida y Turnos) -->
+            <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas') || \Core\Auth::hasPermission('permiso_turnos')): ?>
+            <li class="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'active' : ''; ?>">
+                <a href="#ventanillaSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'true' : 'false'; ?>" class="dropdown-toggle">
+                    <i class="fa-solid fa-user-clock"></i> <span class="sidebar-text">Ventanilla</span>
+                </a>
+                <ul class="collapse list-unstyled <?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'show' : ''; ?>" id="ventanillaSubmenu">
+                    <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
+                    <li class="<?php echo ($current_module == 'peticion_rapida') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'peticion_rapida') ? 'index.php' : $path_prefix . 'peticion_rapida/index.php'; ?>"><i class="fa-solid fa-bolt"></i> <span class="sidebar-text">Petición Rápida</span></a></li>
+                    <?php endif; ?>
+                    <?php if (\Core\Auth::hasPermission('permiso_turnos')): ?>
+                    <li class="<?php echo ($current_module == 'turnos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'turnos') ? 'index.php' : $path_prefix . 'turnos/index.php'; ?>"><i class="fa-solid fa-list-ol"></i> <span class="sidebar-text">Turnos de Atención</span></a></li>
+                    <?php endif; ?>
+                </ul>
+            </li>
+            <?php endif; ?>
+
             <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
                 <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="true" class="dropdown-toggle">
                     <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>

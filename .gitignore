@@ -27,3 +27,7 @@ temp/
 /DRC/
 *~
 *.bak
+
+# Exportaciones generadas (cola de jobs)
+public/exports/
+public/reports/

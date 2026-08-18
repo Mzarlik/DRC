@@ -78,7 +78,9 @@ class AuditoriaTest extends TestCase {
         $this->assertEquals($mensaje, $row['mensaje']);
         $this->assertEquals($archivo, $row['archivo']);
         $this->assertEquals($linea, $row['linea']);
-        $this->assertEquals($stackTrace, $row['stack_trace']);
+        $this->assertStringContainsString($stackTrace, $row['stack_trace']);
+        $this->assertStringContainsString('[MENSAJE ORIGINAL]', $row['stack_trace']);
+        $this->assertStringContainsString($mensaje, $row['stack_trace']);
         $this->assertEquals('/test-uri', $row['url']);
         $this->assertEquals('127.0.0.1', $row['ip_address']);
     }

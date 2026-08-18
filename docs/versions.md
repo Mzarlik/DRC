@@ -4,6 +4,40 @@ Este documento registra todos los cambios notables, actualizaciones y correcione
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.4.0] - 2026-08-18
+### Añadido
+- **Rol COORDINADOR y banderas de ventanilla/exportación:** migración `docs/migration_turnos_ventanilla.php` agrega el rol `COORDINADOR` y las banderas `permiso_exportar`, `permiso_peticiones_rapidas`, `permiso_turnos`; `update_usuario.php`/`usuarios.php` incorporan el nuevo rol y las banderas (ADMIN fuerza todas a 1; COORDINADOR/SUPERVISOR siempre exportan).
+- **Módulo Petición Rápida de Ventanilla (`modules/peticion_rapida`):** registro de peticiones de acta foránea o constancia vinculadas al ciudadano (FK + búsqueda), folio `VP-AAAA-NNNNNN` con `Database::generateFolio()`, catálogo `tipo_peticion_ventanilla`, DataTables server-side, estatus PENDIENTE/ENTREGADO/CANCELADO y ticket imprimible con CURP desencriptada.
+- **Sistema de Turnos (`modules/turnos` + `public/turnos.php`):** generación de turnos con folio `VT-AAAA-NNNNNN`, tablero de atención (en espera / en atención / atendidos hoy, polling 15 s), transiciones EN_ESPERA→ATENDIENDO→COMPLETADO/CANCELADO registrando ventanilla y usuario, ticket imprimible y pantalla pública de exhibición con auto-refresco (`public/api/turnos_pantalla.php`).
+- **Exportación restringida a coordinadores:** `Auth::checkExport()` protege los 14 endpoints de exportación (11 módulos + usuarios/auditoría/errores): solo `canExportar()` (COORDINADOR/SUPERVISOR/ADMIN o bandera `permiso_exportar`) y deja registro en auditoría (`Exportaciones / EXPORTAR`); los botones de "Exportar consulta a Excel" solo se renderizan para usuarios autorizados.
+- **Errores legibles para el usuario/administrador:** `Core\Services\ErrorMessages` traduce errores comunes de BD (conexión 2002, credenciales 1045, claves duplicadas 23000, columnas/consultas 42S22/42S02, deadlock 1205, overflow 22001/22003) a mensajes entendibles; `Auditoria::logError()` guarda el mensaje humano en `error_logs.mensaje` y el detalle técnico en `stack_trace` con marcador `[MENSAJE ORIGINAL]`.
+- **Filtros de auditoría:** selectores de módulo y acción (server-side) en `public/auditoria.php`; el modal de errores muestra el mensaje técnico original por separado del mensaje entendible.
+- **Sidebar de Ventanilla** (Petición Rápida y Turnos) agregado a las 28 vistas, visible según banderas; el grupo Administración ahora incluye al rol COORDINADOR.
+
+### Corregido
+- `docs/migration_turnos_ventanilla.php` insertaba el catálogo con columnas inexistentes (`nombre_visible`, `activo`) — ahora usa `descripcion`.
+
+## [1.3.0] - 2026-08-18
+### Añadido
+- **Seed de datos de prueba (`docs/seed_mockup.php`):** Poblado CLI (`--usuarios`, `--reset`) con 4 usuarios, 38 ciudadanos (incluye 3 finados, 3 bebés y 2 bajas lógicas), trámites en los 11 módulos (folios TK-2026, CURP cifrada de 18 dígitos, llegada de inexistencia = trámite + días de `configuracion`) y catálogos dinámicos.
+- **Soft-delete en Ciudadanos:** `delete.php` marca la baja (columna `estado` + `deleted_at`/`deleted_by` si la migración está aplicada), nuevo `restore.php` para reactivar, `data.php` expone `estado` y filtra con `incluir_inactivos=1`, y `index.php` agrega columna Estatus, botón Restaurar y conmutador Ver/Ocultar inactivos.
+- **Migración `docs/migration_softdelete_indices.php` (idempotente, CLI):** columnas soft-delete en 11 tablas de negocio + índices complementarios (jobs por status, auditoría/errores, foráneas por folio, inexistencias por fecha).
+- **Descarga segura de exportaciones (`public/api/download_export.php`):** valida sesión, propiedad del job (solo propietario o ADMIN) y estado `completed`; la campana de notificaciones apunta aquí.
+- **Rate limit de login:** `core/RateLimiter` (caché con fallback a archivos) limita a 10 intentos por 300 s en `public/auth.php`.
+- **Endpoints de exportación migrados a POST + CSRF + cola (`core/Jobs`):** 13 `export_excel.php` de módulos y `export_{usuarios,auditoria,errores}.php` ya no son GET mutantes; el worker se lanza con `Jobs::launchWorker()` (Windows/Linux).
+- **Índices de rendimiento:** `docs/migration_softdelete_indices.php` agrega índices sobre FK y columnas filtradas de las tablas de negocio.
+
+### Cambiado
+- **CSRF estricto en guardados:** los 11 `save.php` de módulos, `update_perfil.php`, `update_usuario.php` y `catalogos_handler.php` validan el token con `Auth::validateCSRF()` (hash_equals) y rechazan peticiones sin token; vistas afectadas incluyen el token oculto.
+- **Mensajes de error genéricos:** se eliminó la exposición de `$e->getMessage()` en stats, notifications, Gestores (Nacimientos/Inexistencias/Defunciones), 6 `data.php`, `get_details.php`, `update_status.php`, `delete.php`, `catalogos_handler.php` y `pdf.php` (los detalles van a `error_log`).
+- **Token QR firmado en actas (`actas_locales/pdf.php` + `public/validate.php`):** el QR contiene `base64("TIPO_id")."firma HMAC"`; `validate.php` lo verifica con `Encryption::verifySignature()`; fix de compatibilidad con `chillerlan/php-qrcode` v6 (`QRGdImagePNG::class`, `EccLevel::L`, version 10) y TCPDF.
+- **`core/RateLimiter`** requiere explícitamente `core/Cache.php`; `composer dump-autoload -o` requiere regenerarse tras agregar clases en `core/`.
+- **`.htaccess`:** bloquea `core/`, `public/(exports|reports)/`, `(logs|cache)/` y `*.sql|bak|old`; `.gitignore` excluye `public/exports/` y `public/reports/`.
+
+### Corregido
+- `public/validate.php` tenía llaves desbalanceadas (parse error).
+- Exportaciones corrompían respuestas con warnings de encabezados al correr en segundo plano.
+
 ## [1.2.0] - 2026-06-19
 ### Añadido
 - **Nuevos Módulos de Registro:** Lanzamiento de los módulos para matrimonios (`modules/matrimonios`), divorcios (`modules/divorcios`), reconocimientos (`modules/reconocimientos`), inscripciones (`modules/inscripciones`) y trámites de CURP (`modules/curp`).

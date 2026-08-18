@@ -10,6 +10,8 @@ require_once '../../core/Encryption.php';
 use Core\Database;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
+use chillerlan\QRCode\Output\QRGdImagePNG;
+use chillerlan\QRCode\Common\EccLevel;
 
 $tipo = mb_strtoupper($_GET['tipo'] ?? '', 'UTF-8');
 $id = intval($_GET['id'] ?? 0);
@@ -83,9 +85,9 @@ try {
     $validationUrl = "http://{$host}/DRC/public/validate.php?token={$token}";
     
     $qrOptions = new QROptions([
-        'version'    => 5,
-        'outputType' => QRCode::OUTPUT_IMAGE_PNG,
-        'eccLevel'   => QRCode::ECC_L,
+        'version'    => 10,
+        'outputType' => QRGdImagePNG::class,
+        'eccLevel'   => EccLevel::L,
     ]);
     
     $qrcode = new QRCode($qrOptions);
@@ -167,5 +169,6 @@ try {
     $pdf->Output('Acta_' . $tipo . '_' . $data['numero_acta'] . '.pdf', 'I');
 
 } catch (Exception $e) {
-    die('Error al generar el documento: ' . $e->getMessage());
+    error_log('PDF acta: ' . $e->getMessage());
+    die('Error al generar el documento. Intente de nuevo más tarde.');
 }

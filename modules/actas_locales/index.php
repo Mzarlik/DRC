@@ -135,7 +135,24 @@ $notif_api = '../../public/api/notifications.php';
             <?php endif; ?>
 
             <!-- Administración (Admin / Supervisor) -->
-            <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'SUPERVISOR'])): ?>
+            <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
+            <!-- Ventanilla (Petición Rápida y Turnos) -->
+            <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas') || \Core\Auth::hasPermission('permiso_turnos')): ?>
+            <li class="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'active' : ''; ?>">
+                <a href="#ventanillaSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'true' : 'false'; ?>" class="dropdown-toggle">
+                    <i class="fa-solid fa-user-clock"></i> <span class="sidebar-text">Ventanilla</span>
+                </a>
+                <ul class="collapse list-unstyled <?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'show' : ''; ?>" id="ventanillaSubmenu">
+                    <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
+                    <li class="<?php echo ($current_module == 'peticion_rapida') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'peticion_rapida') ? 'index.php' : $path_prefix . 'peticion_rapida/index.php'; ?>"><i class="fa-solid fa-bolt"></i> <span class="sidebar-text">Petición Rápida</span></a></li>
+                    <?php endif; ?>
+                    <?php if (\Core\Auth::hasPermission('permiso_turnos')): ?>
+                    <li class="<?php echo ($current_module == 'turnos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'turnos') ? 'index.php' : $path_prefix . 'turnos/index.php'; ?>"><i class="fa-solid fa-list-ol"></i> <span class="sidebar-text">Turnos de Atención</span></a></li>
+                    <?php endif; ?>
+                </ul>
+            </li>
+            <?php endif; ?>
+
             <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
                 <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
                     <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
@@ -201,9 +218,11 @@ $notif_api = '../../public/api/notifications.php';
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Consulta de Actas Locales</h2>
+                <?php if (\Core\Auth::canExportar()): ?>
                 <button class="btn btn-success" id="btnExportExcel" style="background: var(--accent-color, #27ae60); border: none;">
                     <i class="fa-solid fa-file-excel"></i> Exportar consulta a Excel
                 </button>
+                <?php endif; ?>
             </div>
             
             <div class="card mb-4">

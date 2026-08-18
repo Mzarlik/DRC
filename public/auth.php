@@ -49,6 +49,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['permiso_constancias'] = (int)$user['permiso_constancias'];
             $_SESSION['permiso_curp'] = (int)$user['permiso_curp'];
             $_SESSION['permiso_tickets'] = (int)$user['permiso_tickets'];
+            $_SESSION['permiso_exportar'] = (int)($user['permiso_exportar'] ?? 0);
+            $_SESSION['permiso_peticiones_rapidas'] = (int)($user['permiso_peticiones_rapidas'] ?? 0);
+            $_SESSION['permiso_turnos'] = (int)($user['permiso_turnos'] ?? 0);
 
             echo json_encode(['status' => 'success']);
         } else {

@@ -90,6 +90,7 @@ try {
         throw new Exception("Acción no soportada.");
     }
 } catch (Exception $e) {
-    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    error_log('catalogos_handler: ' . $e->getMessage());
+    echo json_encode(['status' => 'error', 'message' => 'No se pudo completar la operación. Intente de nuevo más tarde.']);
     exit;
 }

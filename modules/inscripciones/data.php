@@ -78,6 +78,6 @@ try {
         "iTotalRecords" => 0,
         "iTotalDisplayRecords" => 0,
         "aaData" => [],
-        "error" => $e->getMessage()
+        "error" => "Error al cargar los datos."
     ]);
 }

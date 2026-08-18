@@ -42,8 +42,11 @@ try {
     $columnSortOrder = isset($_GET['order'][0]['dir']) ? $_GET['order'][0]['dir'] : 'desc';
     if (!in_array($columnSortOrder, ['asc', 'desc'])) $columnSortOrder = 'desc';
 
-    $sql = "SELECT id, curp, nombre, apellido_paterno, apellido_materno, sexo, fecha_nacimiento, estado_vital FROM ciudadanos WHERE estado = 1";
-    $sqlCount = "SELECT COUNT(id) as allcount FROM ciudadanos WHERE estado = 1";
+    // Soft-delete: por defecto solo activos; con incluir_inactivos=1 se muestran las bajas
+    $soloActivos = (($_GET['incluir_inactivos'] ?? '') === '1') ? '' : 'estado = 1 AND';
+
+    $sql = "SELECT id, curp, nombre, apellido_paterno, apellido_materno, sexo, fecha_nacimiento, estado_vital, estado FROM ciudadanos WHERE $soloActivos 1 = 1";
+    $sqlCount = "SELECT COUNT(id) as allcount FROM ciudadanos WHERE $soloActivos 1 = 1";
     
     $stmtCount = $pdo->query($sqlCount);
     $recordsTotal = $stmtCount->fetchColumn();
@@ -61,7 +64,7 @@ try {
         }
     }
 
-    $sqlCountFiltered = "SELECT COUNT(id) as allcount FROM ciudadanos WHERE estado = 1" . $searchQuery;
+    $sqlCountFiltered = "SELECT COUNT(id) as allcount FROM ciudadanos WHERE $soloActivos 1 = 1" . $searchQuery;
     $stmtCountFiltered = $pdo->prepare($sqlCountFiltered);
     $stmtCountFiltered->execute($params);
     $recordsFiltered = $stmtCountFiltered->fetchColumn();
@@ -89,7 +92,8 @@ try {
             "apellido_materno" => htmlspecialchars($row['apellido_materno'] ?? '', ENT_QUOTES, 'UTF-8'),
             "sexo" => htmlspecialchars($row['sexo'], ENT_QUOTES, 'UTF-8'),
             "fecha_nacimiento" => htmlspecialchars($row['fecha_nacimiento'], ENT_QUOTES, 'UTF-8'),
-            "estado_vital" => htmlspecialchars($row['estado_vital'], ENT_QUOTES, 'UTF-8')
+            "estado_vital" => htmlspecialchars($row['estado_vital'], ENT_QUOTES, 'UTF-8'),
+            "estado" => (int)$row['estado']
         ];
     }
 

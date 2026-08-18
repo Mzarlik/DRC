@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $correo = trim($_POST['correo'] ?? '');
             $password = trim($_POST['password'] ?? '');
             $rol = trim($_POST['rol'] ?? 'OPERADOR');
-            if (!in_array($rol, ['ADMIN', 'SUPERVISOR', 'OPERADOR'], true)) {
+            if (!in_array($rol, ['ADMIN', 'COORDINADOR', 'SUPERVISOR', 'OPERADOR'], true)) {
                 $rol = 'OPERADOR';
             }
 
@@ -55,17 +55,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Default permissions based on role (admins get all-access, others get standard operators)
             $defaultVal = ($rol === 'ADMIN') ? 1 : 0; // Operators will start with no permissions by default until assigned
+            $exportarDefault = in_array($rol, ['ADMIN', 'COORDINADOR', 'SUPERVISOR'], true) ? 1 : 0;
+            $ventanillaDefault = 1;
 
             $sql = "INSERT INTO usuarios (
                 nombre, correo, password_hash, rol, estatus,
                 permiso_registro_nacimientos, permiso_registro_matrimonios, permiso_registro_divorcios,
                 permiso_registro_defunciones, permiso_registro_inscripciones, permiso_registro_reconocimientos,
-                permiso_actas_locales, permiso_actas_foraneas, permiso_constancias, permiso_curp, permiso_tickets
+                permiso_actas_locales, permiso_actas_foraneas, permiso_constancias, permiso_curp, permiso_tickets,
+                permiso_exportar, permiso_peticiones_rapidas, permiso_turnos
             ) VALUES (
                 :nombre, :correo, :hash, :rol, 1,
                 :val, :val, :val,
                 :val, :val, :val,
-                :val, :val, :val, :val, :val
+                :val, :val, :val, :val, :val,
+                :exp, :pet, :tur
             )";
 
             $stmt = $pdo->prepare($sql);
@@ -74,7 +78,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':correo' => $correo,
                 ':hash' => $passwordHash,
                 ':rol' => $rol,
-                ':val' => $defaultVal
+                ':val' => $defaultVal,
+                ':exp' => $exportarDefault,
+                ':pet' => $ventanillaDefault,
+                ':tur' => $ventanillaDefault
             ]);
 
             \Core\Auditoria::logAccion('Administración', 'CREAR', "Se registró un nuevo usuario: $correo (Rol: $rol)");
@@ -87,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'update_perms') {
             $id = intval($_POST['id'] ?? 0);
             $rol = trim($_POST['rol'] ?? 'OPERADOR');
-            if (!in_array($rol, ['ADMIN', 'SUPERVISOR', 'OPERADOR'], true)) {
+            if (!in_array($rol, ['ADMIN', 'COORDINADOR', 'SUPERVISOR', 'OPERADOR'], true)) {
                 $rol = 'OPERADOR';
             }
             $estatus = intval($_POST['estatus'] ?? 1);
@@ -109,10 +116,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $p_constancias = isset($_POST['permiso_constancias']) ? 1 : 0;
             $p_curp = isset($_POST['permiso_curp']) ? 1 : 0;
             $p_tickets = isset($_POST['permiso_tickets']) ? 1 : 0;
+            $p_exportar = isset($_POST['permiso_exportar']) ? 1 : 0;
+            $p_petrapida = isset($_POST['permiso_peticiones_rapidas']) ? 1 : 0;
+            $p_turnos = isset($_POST['permiso_turnos']) ? 1 : 0;
 
             // If updating to ADMIN, force all permissions to 1
             if ($rol === 'ADMIN') {
-                $p_nacimientos = $p_matrimonios = $p_divorcios = $p_defunciones = $p_inscripciones = $p_reconocimientos = $p_actas_locales = $p_actas_foraneas = $p_constancias = $p_curp = $p_tickets = 1;
+                $p_nacimientos = $p_matrimonios = $p_divorcios = $p_defunciones = $p_inscripciones = $p_reconocimientos = $p_actas_locales = $p_actas_foraneas = $p_constancias = $p_curp = $p_tickets = $p_exportar = $p_petrapida = $p_turnos = 1;
+            }
+            // Coordinadores (COORDINADOR/SUPERVISOR) siempre pueden exportar
+            if (in_array($rol, ['COORDINADOR', 'SUPERVISOR'], true)) {
+                $p_exportar = 1;
             }
 
             $sql = "UPDATE usuarios SET 
@@ -128,7 +142,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 permiso_actas_foraneas = :p_afor,
                 permiso_constancias = :p_const,
                 permiso_curp = :p_curp,
-                permiso_tickets = :p_tick
+                permiso_tickets = :p_tick,
+                permiso_exportar = :p_exp,
+                permiso_peticiones_rapidas = :p_pet,
+                permiso_turnos = :p_tur
                 WHERE id = :id";
 
             $stmt = $pdo->prepare($sql);
@@ -146,6 +163,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':p_const' => $p_constancias,
                 ':p_curp' => $p_curp,
                 ':p_tick' => $p_tickets,
+                ':p_exp' => $p_exportar,
+                ':p_pet' => $p_petrapida,
+                ':p_tur' => $p_turnos,
                 ':id' => $id
             ]);
 

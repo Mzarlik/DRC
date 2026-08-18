@@ -61,7 +61,8 @@ class GestorNacimientos {
                 return ['status' => 'error', 'message' => 'Error de integridad en la base de datos.'];
             }
         } catch (Exception $e) {
-            return ['status' => 'error', 'message' => 'Error inesperado del servidor: ' . $e->getMessage()];
+            error_log('GestorNacimientos: ' . $e->getMessage());
+            return ['status' => 'error', 'message' => 'Error inesperado del servidor.'];
         }
     }
 }

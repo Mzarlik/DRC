@@ -72,7 +72,8 @@ class GestorDefunciones {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
-            return ['status' => 'error', 'message' => 'Error inesperado del servidor: ' . $e->getMessage()];
+            error_log('GestorDefunciones: ' . $e->getMessage());
+            return ['status' => 'error', 'message' => 'Error inesperado del servidor.'];
         }
     }
 }

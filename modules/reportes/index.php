@@ -157,9 +157,11 @@ $notif_api = '../../public/api/notifications.php';
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Generador de Reportes Cruzados</h2>
+                <?php if (\Core\Auth::canExportar()): ?>
                 <button class="btn btn-success" id="btnExportGeneralExcel">
                     <i class="fa-solid fa-file-excel"></i> Exportar Consulta a Excel
                 </button>
+                <?php endif; ?>
             </div>
             
             <!-- Stackable Filters Card -->

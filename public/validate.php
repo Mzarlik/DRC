@@ -78,6 +78,8 @@ if ($token && is_string($token)) {
         } catch (Exception $e) {
             // Manejar error silenciosamente
         }
+            }
+        }
     }
 }
 ?>

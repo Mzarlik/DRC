@@ -1,6 +1,8 @@
 <?php
 namespace Core;
 
+require_once __DIR__ . '/Cache.php';
+
 /**
  * Clase RateLimiter encargada de limitar el número de peticiones por minuto
  * para proteger endpoints sensibles contra scraping o ataques de denegación de servicio.

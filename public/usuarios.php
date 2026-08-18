@@ -154,7 +154,24 @@ try {
             <?php endif; ?>
 
             <!-- Administración (Admin / Supervisor) -->
-            <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'SUPERVISOR'])): ?>
+            <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
+            <!-- Ventanilla (Petición Rápida y Turnos) -->
+            <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas') || \Core\Auth::hasPermission('permiso_turnos')): ?>
+            <li class="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'active' : ''; ?>">
+                <a href="#ventanillaSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'true' : 'false'; ?>" class="dropdown-toggle">
+                    <i class="fa-solid fa-user-clock"></i> <span class="sidebar-text">Ventanilla</span>
+                </a>
+                <ul class="collapse list-unstyled <?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'show' : ''; ?>" id="ventanillaSubmenu">
+                    <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
+                    <li class="<?php echo ($current_module == 'peticion_rapida') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'peticion_rapida') ? 'index.php' : $path_prefix . 'peticion_rapida/index.php'; ?>"><i class="fa-solid fa-bolt"></i> <span class="sidebar-text">Petición Rápida</span></a></li>
+                    <?php endif; ?>
+                    <?php if (\Core\Auth::hasPermission('permiso_turnos')): ?>
+                    <li class="<?php echo ($current_module == 'turnos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'turnos') ? 'index.php' : $path_prefix . 'turnos/index.php'; ?>"><i class="fa-solid fa-list-ol"></i> <span class="sidebar-text">Turnos de Atención</span></a></li>
+                    <?php endif; ?>
+                </ul>
+            </li>
+            <?php endif; ?>
+
             <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
                 <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
                     <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
@@ -221,9 +238,11 @@ try {
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Administrar Usuarios y Permisos</h2>
                 <div class="d-flex gap-2">
+                    <?php if (\Core\Auth::canExportar()): ?>
                     <button class="btn btn-success" id="btnExportExcel" style="background: var(--accent-color, #27ae60); border: none;">
                         <i class="fa-solid fa-file-excel"></i> Exportar consulta a Excel
                     </button>
+                    <?php endif; ?>
                     <button class="btn btn-primary" style="background: var(--secondary-color); border: none;" data-bs-toggle="modal" data-bs-target="#createUserModal">
                         <i class="fa-solid fa-user-plus me-2"></i> Nuevo Usuario
                     </button>
@@ -249,7 +268,7 @@ try {
                                     <td class="fw-bold"><?php echo htmlspecialchars($u['nombre']); ?></td>
                                     <td><?php echo htmlspecialchars($u['correo']); ?></td>
                                     <td>
-                                        <span class="badge bg-<?php echo $u['rol'] === 'ADMIN' ? 'danger' : ($u['rol'] === 'SUPERVISOR' ? 'info' : 'success'); ?>">
+                                        <span class="badge bg-<?php echo $u['rol'] === 'ADMIN' ? 'danger' : ($u['rol'] === 'SUPERVISOR' ? 'info' : ($u['rol'] === 'COORDINADOR' ? 'warning' : 'success')); ?>">
                                             <?php echo htmlspecialchars($u['rol']); ?>
                                         </span>
                                     </td>
@@ -274,7 +293,10 @@ try {
                                                 data-actas_foraneas="<?php echo $u['permiso_actas_foraneas']; ?>"
                                                 data-constancias="<?php echo $u['permiso_constancias']; ?>"
                                                 data-curp="<?php echo $u['permiso_curp']; ?>"
-                                                data-tickets="<?php echo $u['permiso_tickets']; ?>">
+                                                data-tickets="<?php echo $u['permiso_tickets']; ?>"
+                                                data-exportar="<?php echo $u['permiso_exportar'] ?? 0; ?>"
+                                                data-petrapida="<?php echo $u['permiso_peticiones_rapidas'] ?? 1; ?>"
+                                                data-turnos="<?php echo $u['permiso_turnos'] ?? 1; ?>">
                                             <i class="fa-solid fa-user-gear"></i> Permisos
                                         </button>
                                     </td>
@@ -318,6 +340,7 @@ try {
                         <select class="form-select" id="new_rol" name="rol" required>
                             <option value="OPERADOR">OPERADOR</option>
                             <option value="SUPERVISOR">SUPERVISOR</option>
+                            <option value="COORDINADOR">COORDINADOR</option>
                             <option value="ADMIN">ADMIN (Acceso Total)</option>
                         </select>
                     </div>
@@ -350,6 +373,7 @@ try {
                             <select class="form-select" id="edit_rol" name="rol" required>
                                 <option value="OPERADOR">OPERADOR</option>
                                 <option value="SUPERVISOR">SUPERVISOR</option>
+                                <option value="COORDINADOR">COORDINADOR</option>
                                 <option value="ADMIN">ADMIN</option>
                             </select>
                         </div>
@@ -363,7 +387,7 @@ try {
                     </div>
                     
                     <div class="alert alert-info py-2" id="adminWarning" style="display: none;">
-                        <i class="fa-solid fa-circle-info me-2"></i> Los usuarios <strong>ADMIN</strong> siempre tienen acceso a todos los módulos independientemente de estas casillas.
+                        <i class="fa-solid fa-circle-info me-2"></i> Los usuarios <strong>ADMIN</strong> siempre tienen acceso a todos los módulos independientemente de estas casillas. Los roles <strong>COORDINADOR</strong> y <strong>SUPERVISOR</strong> siempre pueden exportar a Excel.
                     </div>
 
                     <h6 class="fw-bold border-bottom pb-2 mb-3">Permisos de Módulo (Operadores)</h6>
@@ -414,6 +438,27 @@ try {
                             <div class="mb-3 form-check">
                                 <input type="checkbox" class="form-check-input" id="p_tickets" name="permiso_tickets" value="1">
                                 <label class="form-check-label fw-bold" for="p_tickets">Mesa de Ayuda (Tickets)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold border-bottom pb-2 mb-3 mt-4">Ventanilla y Exportaciones</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="p_petrapida" name="permiso_peticiones_rapidas" value="1">
+                                <label class="form-check-label fw-bold" for="p_petrapida">Petición Rápida de Ventanilla</label>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="p_turnos" name="permiso_turnos" value="1">
+                                <label class="form-check-label fw-bold" for="p_turnos">Sistema de Turnos</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="p_exportar" name="permiso_exportar" value="1">
+                                <label class="form-check-label fw-bold" for="p_exportar">Exportar consultas a Excel</label>
+                                <div class="form-text small">Los roles ADMIN, COORDINADOR y SUPERVISOR siempre pueden exportar.</div>
                             </div>
                         </div>
                     </div>
@@ -495,6 +540,9 @@ $(document).ready(function() {
         $('#p_constancias').prop('checked', btn.data('constancias') == 1);
         $('#p_curp').prop('checked', btn.data('curp') == 1);
         $('#p_tickets').prop('checked', btn.data('tickets') == 1);
+        $('#p_exportar').prop('checked', btn.data('exportar') == 1);
+        $('#p_petrapida').prop('checked', btn.data('petrapida') == 1);
+        $('#p_turnos').prop('checked', btn.data('turnos') == 1);
 
         toggleAdminWarning(btn.data('rol'));
 

@@ -137,6 +137,6 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    echo json_encode(['status' => 'error', 'message' => 'Error al obtener estadísticas: ' . $e->getMessage()]);
+    echo json_encode(['status' => 'error', 'message' => 'Error al obtener estadísticas. Intente de nuevo más tarde.']);
 }
 

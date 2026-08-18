@@ -3,6 +3,7 @@
 header('Content-Type: application/json; charset=utf-8');
 require_once '../../core/Auth.php';
 \Core\Auth::check();
+\Core\Auth::checkExport('Errores');
 
 if (($_SESSION['user_rol'] ?? '') !== 'ADMIN') {
     echo json_encode(["status" => "error", "message" => "No autorizado"]);

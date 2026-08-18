@@ -18,6 +18,8 @@ try {
     $start = isset($_GET['start']) ? intval($_GET['start']) : 0;
     $length = isset($_GET['length']) ? intval($_GET['length']) : 10;
     $searchValue = isset($_GET['search']['value']) ? $_GET['search']['value'] : '';
+    $filtroModulo = trim($_GET['filtro_modulo'] ?? '');
+    $filtroAccion = trim($_GET['filtro_accion'] ?? '');
 
     $columns = [
         0 => 'a.id',
@@ -41,9 +43,21 @@ try {
 
     $searchQuery = "";
     $params = [];
+    $whereParts = [];
     if ($searchValue != '') {
-        $searchQuery = " WHERE (a.modulo LIKE :search OR a.accion LIKE :search OR a.detalles LIKE :search OR u.nombre LIKE :search OR a.ip_address LIKE :search) ";
+        $whereParts[] = "(a.modulo LIKE :search OR a.accion LIKE :search OR a.detalles LIKE :search OR u.nombre LIKE :search OR a.ip_address LIKE :search)";
         $params[':search'] = '%' . $searchValue . '%';
+    }
+    if ($filtroModulo !== '') {
+        $whereParts[] = "a.modulo = :f_modulo";
+        $params[':f_modulo'] = $filtroModulo;
+    }
+    if ($filtroAccion !== '') {
+        $whereParts[] = "a.accion = :f_accion";
+        $params[':f_accion'] = $filtroAccion;
+    }
+    if ($whereParts) {
+        $searchQuery = " WHERE " . implode(' AND ', $whereParts);
     }
 
     $stmtCountFiltered = $pdo->prepare("SELECT COUNT(a.id) as allcount " . $baseQuery . $searchQuery);
@@ -59,6 +73,12 @@ try {
     
     if ($searchValue != '') {
         $stmt->bindValue(':search', '%' . $searchValue . '%', PDO::PARAM_STR);
+    }
+    if ($filtroModulo !== '') {
+        $stmt->bindValue(':f_modulo', $filtroModulo, PDO::PARAM_STR);
+    }
+    if ($filtroAccion !== '') {
+        $stmt->bindValue(':f_accion', $filtroAccion, PDO::PARAM_STR);
     }
     
     $stmt->execute();

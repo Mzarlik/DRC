@@ -66,6 +66,38 @@ class Auth {
     }
 
     /**
+     * Indica si el usuario es coordinador (ADMIN, COORDINADOR o SUPERVISOR).
+     */
+    public static function esCoordinador() {
+        self::initSession();
+        return in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'], true);
+    }
+
+    /**
+     * Autoriza la exportación a Excel: la permite únicamente a coordinadores
+     * o a usuarios con la bandera 'permiso_exportar' habilitada.
+     */
+    public static function canExportar() {
+        return self::esCoordinador() || self::hasPermission('permiso_exportar');
+    }
+
+    /**
+     * Guarda de endpoints de exportación: exige coordinador o bandera
+     * permiso_exportar y deja registro en la auditoría de quien lo solicitó.
+     */
+    public static function checkExport($modulo = 'Desconocido') {
+        self::check();
+        if (!self::canExportar()) {
+            http_response_code(403);
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['status' => 'error', 'message' => 'No autorizado para exportar. Solicite el permiso de exportación al coordinador o administrador.']);
+            exit;
+        }
+        \Core\Auditoria::logAccion('Exportaciones', 'EXPORTAR', "Exportación a Excel solicitada: $modulo.");
+        return true;
+    }
+
+    /**
      * Protege una vista verificando que el usuario tenga el permiso adecuado.
      * Si no lo tiene, interrumpe con error 403.
      */

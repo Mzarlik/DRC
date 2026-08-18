@@ -4,6 +4,7 @@ header('Content-Type: application/json; charset=utf-8');
 require_once '../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_registro_defunciones');
 \Core\Auth::check();
+\Core\Auth::checkExport('Defunciones');
 
 require_once '../../core/Database.php';
 require_once '../../core/Jobs.php';

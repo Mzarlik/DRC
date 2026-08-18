@@ -179,6 +179,6 @@ try {
         "iTotalRecords" => 0,
         "iTotalDisplayRecords" => 0,
         "aaData" => [],
-        "error" => "Error interno del servidor: " . $e->getMessage()
+        "error" => "Error interno del servidor."
     ]);
 }

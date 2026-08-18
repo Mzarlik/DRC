@@ -4,6 +4,7 @@ header('Content-Type: application/json; charset=utf-8');
 require_once '../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_registro_reconocimientos');
 \Core\Auth::check();
+\Core\Auth::checkExport('Reconocimientos');
 
 require_once '../../core/Database.php';
 require_once '../../core/Jobs.php';

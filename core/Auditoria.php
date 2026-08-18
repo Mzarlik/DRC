@@ -28,6 +28,8 @@ class Auditoria {
 
     /**
      * Registra un error en el log de errores.
+     * Guarda en `mensaje` una versión entendible del error y en `stack_trace`
+     * el detalle técnico completo (incluido el mensaje original).
      *
      * @param string $mensaje El mensaje de error principal
      * @param string $archivo El archivo donde ocurrió el error
@@ -37,13 +39,17 @@ class Auditoria {
     public static function logError($mensaje, $archivo = '', $linea = null, $stack_trace = '') {
         try {
             require_once __DIR__ . '/Database.php';
+            require_once __DIR__ . '/Services/ErrorMessages.php';
             $pdo = Database::getConnection();
             $usuario_id = $_SESSION['user_id'] ?? null;
             $ip = $_SERVER['REMOTE_ADDR'] ?? null;
             $url = $_SERVER['REQUEST_URI'] ?? null;
 
+            $mensajeHumano = \Core\Services\ErrorMessages::humanizeText($mensaje);
+            $traceConTecnico = trim($stack_trace . "\n[MENSAJE ORIGINAL] " . $mensaje);
+
             $stmt = $pdo->prepare("INSERT INTO error_logs (usuario_id, mensaje, archivo, linea, stack_trace, url, ip_address) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$usuario_id, $mensaje, $archivo, $linea, $stack_trace, $url, $ip]);
+            $stmt->execute([$usuario_id, $mensajeHumano, $archivo, $linea, $traceConTecnico, $url, $ip]);
         } catch (\Exception $e) {
             // Silencioso
         }

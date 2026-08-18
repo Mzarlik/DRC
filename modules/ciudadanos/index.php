@@ -138,7 +138,24 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             <?php endif; ?>
 
             <!-- Administración (Admin / Supervisor) -->
-            <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'SUPERVISOR'])): ?>
+            <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
+            <!-- Ventanilla (Petición Rápida y Turnos) -->
+            <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas') || \Core\Auth::hasPermission('permiso_turnos')): ?>
+            <li class="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'active' : ''; ?>">
+                <a href="#ventanillaSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'true' : 'false'; ?>" class="dropdown-toggle">
+                    <i class="fa-solid fa-user-clock"></i> <span class="sidebar-text">Ventanilla</span>
+                </a>
+                <ul class="collapse list-unstyled <?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'show' : ''; ?>" id="ventanillaSubmenu">
+                    <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
+                    <li class="<?php echo ($current_module == 'peticion_rapida') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'peticion_rapida') ? 'index.php' : $path_prefix . 'peticion_rapida/index.php'; ?>"><i class="fa-solid fa-bolt"></i> <span class="sidebar-text">Petición Rápida</span></a></li>
+                    <?php endif; ?>
+                    <?php if (\Core\Auth::hasPermission('permiso_turnos')): ?>
+                    <li class="<?php echo ($current_module == 'turnos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'turnos') ? 'index.php' : $path_prefix . 'turnos/index.php'; ?>"><i class="fa-solid fa-list-ol"></i> <span class="sidebar-text">Turnos de Atención</span></a></li>
+                    <?php endif; ?>
+                </ul>
+            </li>
+            <?php endif; ?>
+
             <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
                 <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
                     <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
@@ -205,9 +222,14 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Catálogo de Ciudadanos</h2>
                 <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary" id="btnVerInactivos">
+                        <i class="fa-solid fa-eye"></i> Ver inactivos
+                    </button>
+                    <?php if (\Core\Auth::canExportar()): ?>
                     <button class="btn btn-success" id="btnExportExcel" style="background: var(--accent-color, #27ae60); border: none;">
                         <i class="fa-solid fa-file-excel"></i> Exportar consulta a Excel
                     </button>
+                    <?php endif; ?>
                     <a href="create.php" class="btn btn-primary" style="background: var(--secondary-color); border: none;">
                         <i class="fa-solid fa-user-plus"></i> Registrar Ciudadano
                     </a>
@@ -225,7 +247,8 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                 <th>Sexo</th>
                                 <th>Fecha Nac.</th>
                                 <th>Estado Vital</th>
-                                <th>Acciones</th>
+                                    <th>Estatus</th>
+                                    <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="table-skeleton">
@@ -236,6 +259,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                 <td><span class="skeleton" style="width: 91%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 65%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 84%; height: 16px;"></span></td>
+                                <td><span class="skeleton" style="width: 50%; height: 16px;"></span></td>
                                 <td><span class="skeleton" style="width: 68%; height: 16px;"></span></td>
                             </tr>
                             <tr>
@@ -333,7 +357,12 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         var table = $('#ciudadanosTable').DataTable({
             "processing": true,
             "serverSide": true,
-            "ajax": "data.php",
+            "ajax": {
+                "url": "data.php",
+                "data": function(d) {
+                    d.incluir_inactivos = $('#btnVerInactivos').data('inactivos') ? '1' : '';
+                }
+            },
             "language": {
                 "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-MX.json"
             },
@@ -355,10 +384,25 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         return `<span class="badge ${badgeClass}">${data}</span>`;
                     }
                 },
+                { 
+                    "data": "estado",
+                    "orderable": false,
+                    "render": function ( data, type, row ) {
+                        if (data === 1) return `<span class="badge bg-success">ACTIVO</span>`;
+                        return `<span class="badge bg-secondary">INACTIVO</span>`;
+                    }
+                },
                 {
                     "data": null,
                     "orderable": false,
                     "render": function ( data, type, row ) {
+                        if (row.estado === 0) {
+                            return `
+                                <button class="btn btn-sm btn-outline-success btn-restaurar-ciudadano" data-id="${row.id}" data-nombre="${row.nombre} ${row.apellido_paterno}">
+                                    <i class="fa-solid fa-rotate-left"></i> Restaurar
+                                </button>
+                            `;
+                        }
                         return `
                             <button class="btn btn-sm btn-danger btn-eliminar-ciudadano" data-id="${row.id}" data-nombre="${row.nombre} ${row.apellido_paterno}">
                                 <i class="fa-solid fa-trash-can"></i> Eliminar
@@ -368,6 +412,17 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 }
             ],
             "order": [[0, "desc"]]
+        });
+
+        // Toggle mostrar/ocultar ciudadanos dados de baja (soft-delete)
+        $('#btnVerInactivos').on('click', function() {
+            const btn = $(this);
+            const activo = btn.data('inactivos') ? false : true;
+            btn.data('inactivos', activo);
+            btn.html(activo
+                ? '<i class="fa-solid fa-eye-slash"></i> Ocultar inactivos'
+                : '<i class="fa-solid fa-eye"></i> Ver inactivos');
+            table.ajax.reload();
         });
 
         // Manejador para baja lógica de ciudadano
@@ -407,6 +462,45 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     });
                 }
             });
+        // Manejador para reactivar (soft-delete -> restauración)
+        $(document).on('click', '.btn-restaurar-ciudadano', function() {
+            const id = $(this).data('id');
+            const nombre = $(this).data('nombre');
+            Swal.fire({
+                title: '¿Reactivar al ciudadano?',
+                text: `El ciudadano "${nombre}" volverá a estar disponible para trámites.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#27ae60',
+                cancelButtonColor: '#95a5a6',
+                confirmButtonText: 'Sí, reactivar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: 'restore.php',
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            csrf_token: csrfToken
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                Swal.fire('Reactivación Completada', response.message, 'success');
+                                $('#ciudadanosTable').DataTable().ajax.reload();
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'No se pudo procesar la reactivación del ciudadano.', 'error');
+                        }
+                    });
+                }
+            });
+        });
+
         // Exportar a Excel
         $('#btnExportExcel').on('click', function() {
             const searchValue = table.search();

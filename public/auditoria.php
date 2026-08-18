@@ -7,6 +7,12 @@ if (($_SESSION['user_rol'] ?? '') !== 'ADMIN') {
     exit;
 }
 
+require_once '../core/Database.php';
+use Core\Database;
+$pdo = Database::getReadConnection();
+$modulosAuditoria = $pdo->query("SELECT DISTINCT modulo FROM auditoria_logs ORDER BY modulo")->fetchAll(PDO::FETCH_COLUMN);
+$accionesAuditoria = $pdo->query("SELECT DISTINCT accion FROM auditoria_logs ORDER BY accion")->fetchAll(PDO::FETCH_COLUMN);
+
 $current_module = 'public';
 $path_prefix = '../modules/';
 $db_link = 'index.php';
@@ -156,7 +162,24 @@ $notif_api = 'api/notifications.php';
             <?php endif; ?>
 
             <!-- Administración (Admin / Supervisor) -->
-            <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'SUPERVISOR'])): ?>
+            <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
+            <!-- Ventanilla (Petición Rápida y Turnos) -->
+            <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas') || \Core\Auth::hasPermission('permiso_turnos')): ?>
+            <li class="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'active' : ''; ?>">
+                <a href="#ventanillaSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'true' : 'false'; ?>" class="dropdown-toggle">
+                    <i class="fa-solid fa-user-clock"></i> <span class="sidebar-text">Ventanilla</span>
+                </a>
+                <ul class="collapse list-unstyled <?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'show' : ''; ?>" id="ventanillaSubmenu">
+                    <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
+                    <li class="<?php echo ($current_module == 'peticion_rapida') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'peticion_rapida') ? 'index.php' : $path_prefix . 'peticion_rapida/index.php'; ?>"><i class="fa-solid fa-bolt"></i> <span class="sidebar-text">Petición Rápida</span></a></li>
+                    <?php endif; ?>
+                    <?php if (\Core\Auth::hasPermission('permiso_turnos')): ?>
+                    <li class="<?php echo ($current_module == 'turnos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'turnos') ? 'index.php' : $path_prefix . 'turnos/index.php'; ?>"><i class="fa-solid fa-list-ol"></i> <span class="sidebar-text">Turnos de Atención</span></a></li>
+                    <?php endif; ?>
+                </ul>
+            </li>
+            <?php endif; ?>
+
             <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
                 <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
                     <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
@@ -236,10 +259,42 @@ $notif_api = 'api/notifications.php';
             <div class="tab-content" id="auditoriaTabsContent">
                 <!-- Pestaña Acciones -->
                 <div class="tab-pane fade show active" id="acciones" role="tabpanel" aria-labelledby="acciones-tab">
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-body py-3">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-4">
+                                    <label for="filtroModulo" class="form-label small fw-bold mb-1">Módulo</label>
+                                    <select id="filtroModulo" class="form-select form-select-sm">
+                                        <option value="">Todos los módulos</option>
+                                        <?php foreach ($modulosAuditoria as $m): ?>
+                                        <option value="<?php echo htmlspecialchars($m); ?>"><?php echo htmlspecialchars($m); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="filtroAccion" class="form-label small fw-bold mb-1">Acción</label>
+                                    <select id="filtroAccion" class="form-select form-select-sm">
+                                        <option value="">Todas las acciones</option>
+                                        <?php foreach ($accionesAuditoria as $a): ?>
+                                        <option value="<?php echo htmlspecialchars($a); ?>"><?php echo htmlspecialchars($a); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <button id="btnFiltrar" class="btn btn-sm btn-primary w-100"><i class="fa-solid fa-filter me-1"></i> Filtrar</button>
+                                </div>
+                                <div class="col-md-2">
+                                    <button id="btnLimpiarFiltros" class="btn btn-sm btn-outline-secondary w-100">Limpiar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="d-flex justify-content-end mb-3">
+                        <?php if (\Core\Auth::canExportar()): ?>
                         <button class="btn btn-success" id="btnExportAcciones" style="background: var(--accent-color, #27ae60); border: none;">
                             <i class="fa-solid fa-file-excel me-2"></i> Exportar Acciones a Excel
                         </button>
+                        <?php endif; ?>
                     </div>
                     <div class="card border-0 shadow-sm">
                         <div class="card-body">
@@ -266,9 +321,11 @@ $notif_api = 'api/notifications.php';
                 <!-- Pestaña Errores -->
                 <div class="tab-pane fade" id="errores" role="tabpanel" aria-labelledby="errores-tab">
                     <div class="d-flex justify-content-end mb-3">
+                        <?php if (\Core\Auth::canExportar()): ?>
                         <button class="btn btn-danger" id="btnExportErrores" style="border: none;">
                             <i class="fa-solid fa-file-excel me-2"></i> Exportar Errores a Excel
                         </button>
+                        <?php endif; ?>
                     </div>
                     <div class="card border-0 shadow-sm border-danger">
                         <div class="card-body">
@@ -307,6 +364,8 @@ $notif_api = 'api/notifications.php';
             <div class="modal-body">
                 <h6 class="fw-bold">Mensaje:</h6>
                 <p id="st_mensaje" class="text-danger"></p>
+                <h6 id="st_original_label" class="fw-bold" style="display: none;">Mensaje técnico original:</h6>
+                <p id="st_mensaje_original" class="text-muted small" style="display: none; word-break: break-word;"></p>
                 <h6 class="fw-bold">Ubicación:</h6>
                 <p id="st_archivo"></p>
                 <h6 class="fw-bold">Stack Trace:</h6>
@@ -373,7 +432,13 @@ $(document).ready(function() {
     const accionesTable = $('#accionesTable').DataTable({
         "processing": true,
         "serverSide": true,
-        "ajax": "api/auditoria_data.php",
+        "ajax": {
+            "url": "api/auditoria_data.php",
+            "data": function(d) {
+                d.filtro_modulo = $('#filtroModulo').val();
+                d.filtro_accion = $('#filtroAccion').val();
+            }
+        },
         "language": {
             "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-MX.json"
         },
@@ -396,6 +461,15 @@ $(document).ready(function() {
             { "data": "ip_address" }
         ],
         "order": [[0, "desc"]]
+    });
+
+    $('#btnFiltrar').on('click', function() {
+        accionesTable.ajax.reload();
+    });
+    $('#btnLimpiarFiltros').on('click', function() {
+        $('#filtroModulo').val('');
+        $('#filtroAccion').val('');
+        accionesTable.ajax.reload();
     });
 
     const erroresTable = $('#erroresTable').DataTable({
@@ -442,7 +516,19 @@ $(document).ready(function() {
     $('#erroresTable').on('click', '.view-trace-btn', function() {
         $('#st_mensaje').text($(this).data('mensaje'));
         $('#st_archivo').text($(this).data('archivo'));
-        $('#st_trace').text($(this).data('trace'));
+        let trace = $(this).data('trace') || '';
+        const marker = '[MENSAJE ORIGINAL]';
+        const pos = trace.lastIndexOf(marker);
+        if (pos >= 0) {
+            const original = trace.substring(pos + marker.length).trim();
+            trace = trace.substring(0, pos).trim();
+            $('#st_original_label').show();
+            $('#st_mensaje_original').text(original).show();
+        } else {
+            $('#st_original_label').hide();
+            $('#st_mensaje_original').hide();
+        }
+        $('#st_trace').text(trace || 'Sin detalles técnicos.');
         $('#stackTraceModal').modal('show');
     });
 
