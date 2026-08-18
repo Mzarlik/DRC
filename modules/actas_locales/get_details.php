@@ -90,5 +90,5 @@ try {
         echo json_encode(['status' => 'error', 'message' => 'No se encontró el registro.']);
     }
 } catch (Exception $e) {
-    echo json_encode(['status' => 'error', 'message' => 'Error de base de datos: ' . $e->getMessage()]);
+    echo json_encode(['status' => 'error', 'message' => 'Error de base de datos. Intente de nuevo más tarde.']);
 }

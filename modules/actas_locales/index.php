@@ -412,8 +412,8 @@ $notif_api = '../../public/api/notifications.php';
             
             $.ajax({
                 url: 'export_excel.php',
-                type: 'GET',
-                data: { search: searchValue, tipo_acta: tipoActa },
+                type: 'POST',
+                data: { search: searchValue, tipo_acta: tipoActa, csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>' },
                 dataType: 'json',
                 success: function(response) {
                     $btn.prop('disabled', false);
