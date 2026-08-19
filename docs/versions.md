@@ -13,6 +13,7 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 - **Errores legibles para el usuario/administrador:** `Core\Services\ErrorMessages` traduce errores comunes de BD (conexión 2002, credenciales 1045, claves duplicadas 23000, columnas/consultas 42S22/42S02, deadlock 1205, overflow 22001/22003) a mensajes entendibles; `Auditoria::logError()` guarda el mensaje humano en `error_logs.mensaje` y el detalle técnico en `stack_trace` con marcador `[MENSAJE ORIGINAL]`.
 - **Filtros de auditoría:** selectores de módulo y acción (server-side) en `public/auditoria.php`; el modal de errores muestra el mensaje técnico original por separado del mensaje entendible.
 - **Sidebar de Ventanilla** (Petición Rápida y Turnos) agregado a las 28 vistas, visible según banderas; el grupo Administración ahora incluye al rol COORDINADOR.
+- **Manual de Despliegue en Hostinger (`docs/manual_despliegue_hostinger.md`):** Guía completa paso a paso con configuración de PHP 8.2+, extensiones, base de datos MySQL, subida en `public_html`, permisos chmod, configuración `.env` con secretos criptográficos, Cron Jobs para el worker asíncrono y reporte semanal, activación de SSL y checklist de verificación post-despliegue.
 
 ### Corregido
 - `docs/migration_turnos_ventanilla.php` insertaba el catálogo con columnas inexistentes (`nombre_visible`, `activo`) — ahora usa `descripcion`.
