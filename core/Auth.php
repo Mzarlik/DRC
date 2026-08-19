@@ -2,6 +2,7 @@
 // core/Auth.php
 namespace Core;
 
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/Auditoria.php';
 
 // Registrar manejadores globales de errores y excepciones

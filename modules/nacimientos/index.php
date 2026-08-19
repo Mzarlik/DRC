@@ -125,37 +125,38 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             </li>
             <?php endif; ?>
 
-            <!-- Mesa de Ayuda -->
-            <?php if (\Core\Auth::hasPermission('permiso_tickets')): ?>
-            <li class="<?php echo ($current_module == 'peticiones') ? 'active' : ''; ?>">
-                <a href="#ayudaSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo ($current_module == 'peticiones') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-headset"></i> <span class="sidebar-text">Mesa de Ayuda</span>
+            <!-- Ventanilla y Seguimiento -->
+            <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas') || \Core\Auth::hasPermission('permiso_tickets')): ?>
+            <li class="<?php echo in_array($current_module, ['peticion_rapida', 'peticiones']) ? 'active' : ''; ?>">
+                <a href="#ventanillaSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo in_array($current_module, ['peticion_rapida', 'peticiones']) ? 'true' : 'false'; ?>" class="dropdown-toggle">
+                    <i class="fa-solid fa-person-shelter"></i> <span class="sidebar-text">Ventanilla</span>
                 </a>
-                <ul class="collapse list-unstyled <?php echo ($current_module == 'peticiones') ? 'show' : ''; ?>" id="ayudaSubmenu">
-                    <li class="<?php echo ($current_module == 'peticiones') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'peticiones') ? 'index.php' : $path_prefix . 'peticiones/index.php'; ?>"><i class="fa-solid fa-ticket"></i> <span class="sidebar-text">Tickets / Peticiones</span></a></li>
+                <ul class="collapse list-unstyled <?php echo in_array($current_module, ['peticion_rapida', 'peticiones']) ? 'show' : ''; ?>" id="ventanillaSubmenu">
+                    <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
+                    <li class="<?php echo ($current_module == 'peticion_rapida' && basename($_SERVER['PHP_SELF']) != 'reporte_diario.php') ? 'active' : ''; ?>">
+                        <a href="<?php echo ($current_module == 'peticion_rapida') ? 'index.php' : $path_prefix . 'peticion_rapida/index.php'; ?>">
+                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">Petición Rápida</span>
+                        </a>
+                    </li>
+                    <li class="<?php echo ($current_module == 'peticion_rapida' && basename($_SERVER['PHP_SELF']) == 'reporte_diario.php') ? 'active' : ''; ?>">
+                        <a href="<?php echo ($current_module == 'peticion_rapida') ? 'reporte_diario.php' : $path_prefix . 'peticion_rapida/reporte_diario.php'; ?>">
+                            <i class="fa-solid fa-file-invoice text-info"></i> <span class="sidebar-text">Reporte Diario</span>
+                        </a>
+                    </li>
+                    <?php endif; ?>
+                    <?php if (\Core\Auth::hasPermission('permiso_tickets')): ?>
+                    <li class="<?php echo ($current_module == 'peticiones') ? 'active' : ''; ?>">
+                        <a href="<?php echo ($current_module == 'peticiones') ? 'index.php' : $path_prefix . 'peticiones/index.php'; ?>">
+                            <i class="fa-solid fa-folder-open text-primary"></i> <span class="sidebar-text">Ventanilla de Seguimiento</span>
+                        </a>
+                    </li>
+                    <?php endif; ?>
                 </ul>
             </li>
             <?php endif; ?>
 
             <!-- Administración (Admin / Supervisor) -->
             <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
-            <!-- Ventanilla (Petición Rápida y Turnos) -->
-            <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas') || \Core\Auth::hasPermission('permiso_turnos')): ?>
-            <li class="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'active' : ''; ?>">
-                <a href="#ventanillaSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-user-clock"></i> <span class="sidebar-text">Ventanilla</span>
-                </a>
-                <ul class="collapse list-unstyled <?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'show' : ''; ?>" id="ventanillaSubmenu">
-                    <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
-                    <li class="<?php echo ($current_module == 'peticion_rapida') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'peticion_rapida') ? 'index.php' : $path_prefix . 'peticion_rapida/index.php'; ?>"><i class="fa-solid fa-bolt"></i> <span class="sidebar-text">Petición Rápida</span></a></li>
-                    <?php endif; ?>
-                    <?php if (\Core\Auth::hasPermission('permiso_turnos')): ?>
-                    <li class="<?php echo ($current_module == 'turnos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'turnos') ? 'index.php' : $path_prefix . 'turnos/index.php'; ?>"><i class="fa-solid fa-list-ol"></i> <span class="sidebar-text">Turnos de Atención</span></a></li>
-                    <?php endif; ?>
-                </ul>
-            </li>
-            <?php endif; ?>
-
             <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
                 <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
                     <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
@@ -220,21 +221,24 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Actas de Nacimiento</h2>
+                <div>
+                    <h2 class="fw-bold mb-1">Actas de Nacimiento</h2>
+                    <p class="text-muted small mb-0">Libro y registro digital de nacimientos oficiales</p>
+                </div>
                 <div class="d-flex gap-2">
                     <?php if (\Core\Auth::canExportar()): ?>
-                    <button class="btn btn-success" id="btnExportExcel" style="background: var(--accent-color, #27ae60); border: none;">
-                        <i class="fa-solid fa-file-excel"></i> Exportar consulta a Excel
+                    <button class="btn btn-excel" id="btnExportExcel">
+                        <i class="fa-solid fa-file-excel me-1"></i> Exportar a Excel
                     </button>
                     <?php endif; ?>
-                    <a href="create.php" class="btn btn-primary" style="background: var(--secondary-color); border: none;">
-                        <i class="fa-solid fa-plus"></i> Registrar Nacimiento
+                    <a href="create.php" class="btn btn-primary">
+                        <i class="fa-solid fa-plus me-1"></i> Registrar Nacimiento
                     </a>
                 </div>
             </div>
             
-            <div class="card">
-                <div class="card-body">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
                     <table id="nacimientosTable" class="table table-striped dt-responsive nowrap w-100">
                         <thead>
                             <tr>
@@ -244,32 +248,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                 <th>Lugar de Nacimiento</th>
                             </tr>
                         </thead>
-                        <tbody class="table-skeleton">
-                            <tr>
-                                <td><span class="skeleton" style="width: 73%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 72%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 69%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 86%; height: 16px;"></span></td>
-                            </tr>
-                            <tr>
-                                <td><span class="skeleton" style="width: 95%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 74%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 82%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 70%; height: 16px;"></span></td>
-                            </tr>
-                            <tr>
-                                <td><span class="skeleton" style="width: 89%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 62%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 75%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 73%; height: 16px;"></span></td>
-                            </tr>
-                            <tr>
-                                <td><span class="skeleton" style="width: 68%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 94%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 61%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 76%; height: 16px;"></span></td>
-                            </tr>
-                        </tbody>
+                        <tbody></tbody>
 
                     </table>
                 </div>
@@ -288,57 +267,13 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 <script>
     $(document).ready(function() {
         // Cargar Notificaciones
-        function cargarNotificaciones() {
-            $.ajax({
-                url: '<?php echo $notif_api; ?>',
-                type: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    if (response.status === 'success' && response.notifications.length > 0) {
-                        $('#notifBadge').text(response.notifications.length).show();
-                        $('#notifTotal').text(response.notifications.length);
-                        $('#notifEmpty').hide();
-                        
-                        // Clear dynamic items
-                        $('#notifList li.notif-item').remove();
-                        
-                        response.notifications.forEach(function(notif) {
-                            let itemHtml = `
-                                <li class="notif-item border-bottom">
-                                    <a class="dropdown-item p-3 d-flex align-items-start" href="#" style="white-space: normal;">
-                                        <div class="me-3 mt-1">
-                                            <i class="fa-solid ${notif.icon} ${notif.color} fa-lg"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1 fw-bold small text-dark">${notif.title}</h6>
-                                            <p class="mb-1 text-muted small" style="line-height: 1.3;">${notif.desc}</p>
-                                            <small class="text-uppercase fw-bold text-muted" style="font-size: 0.65rem;">${notif.time}</small>
-                                        </div>
-                                    </a>
-                                </li>
-                            `;
-                            $('#notifList').append(itemHtml);
-                        });
-                    } else {
-                        $('#notifBadge').hide();
-                        $('#notifTotal').text('0');
-                        $('#notifEmpty').show();
-                    }
-                }
-            });
-        }
-        
-        cargarNotificaciones();
-        setInterval(cargarNotificaciones, 60000);
 
 
         var table = $('#nacimientosTable').DataTable({
             "processing": true,
             "serverSide": true,
             "ajax": "data.php",
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-MX.json"
-            },
+            
             "columns": [
                 { "data": "numero_acta" },
                 { "data": "nombre_completo" },

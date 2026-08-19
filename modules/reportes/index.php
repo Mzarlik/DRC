@@ -156,17 +156,20 @@ $notif_api = '../../public/api/notifications.php';
 
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Generador de Reportes Cruzados</h2>
+                <div>
+                    <h2 class="fw-bold mb-1">Generador de Reportes Cruzados</h2>
+                    <p class="text-muted small mb-0">Consultas analíticas consolidadas de todos los actos registrales</p>
+                </div>
                 <?php if (\Core\Auth::canExportar()): ?>
-                <button class="btn btn-success" id="btnExportGeneralExcel">
-                    <i class="fa-solid fa-file-excel"></i> Exportar Consulta a Excel
+                <button class="btn btn-excel" id="btnExportGeneralExcel">
+                    <i class="fa-solid fa-file-excel me-1"></i> Exportar a Excel
                 </button>
                 <?php endif; ?>
             </div>
             
             <!-- Stackable Filters Card -->
-            <div class="card mb-4">
-                <div class="card-header bg-white fw-bold">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header fw-bold">
                     <i class="fa-solid fa-filter text-primary me-2"></i> Filtros de Búsqueda Apilables
                 </div>
                 <div class="card-body">
@@ -247,32 +250,7 @@ $notif_api = '../../public/api/notifications.php';
                                 <th>Estatus</th>
                             </tr>
                         </thead>
-                        <tbody class="table-skeleton">
-                            <tr>
-                                <td><span class="skeleton" style="width: 82%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 85%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 90%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 75%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 80%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 65%; height: 16px;"></span></td>
-                            </tr>
-                            <tr>
-                                <td><span class="skeleton" style="width: 82%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 85%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 90%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 75%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 80%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 65%; height: 16px;"></span></td>
-                            </tr>
-                            <tr>
-                                <td><span class="skeleton" style="width: 82%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 85%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 90%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 75%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 80%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 65%; height: 16px;"></span></td>
-                            </tr>
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
@@ -291,46 +269,6 @@ $notif_api = '../../public/api/notifications.php';
 <script>
     $(document).ready(function() {
         // Cargar Notificaciones
-        function cargarNotificaciones() {
-            $.ajax({
-                url: '<?php echo $notif_api; ?>',
-                type: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    if (response.status === 'success' && response.notifications.length > 0) {
-                        $('#notifBadge').text(response.notifications.length).show();
-                        $('#notifTotal').text(response.notifications.length);
-                        $('#notifEmpty').hide();
-                        
-                        $('#notifList li.notif-item').remove();
-                        response.notifications.forEach(function(notif) {
-                            let itemHtml = `
-                                <li class="notif-item border-bottom">
-                                    <a class="dropdown-item p-3 d-flex align-items-start" href="#" style="white-space: normal;">
-                                        <div class="me-3 mt-1">
-                                            <i class="fa-solid ${notif.icon} ${notif.color} fa-lg"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1 fw-bold small text-dark">${notif.title}</h6>
-                                            <p class="mb-1 text-muted small" style="line-height: 1.3;">${notif.desc}</p>
-                                            <small class="text-uppercase fw-bold text-muted" style="font-size: 0.65rem;">${notif.time}</small>
-                                        </div>
-                                    </a>
-                                </li>
-                            `;
-                            $('#notifList').append(itemHtml);
-                        });
-                    } else {
-                        $('#notifBadge').hide();
-                        $('#notifTotal').text('0');
-                        $('#notifEmpty').show();
-                    }
-                }
-            });
-        }
-        
-        cargarNotificaciones();
-        setInterval(cargarNotificaciones, 60000);
 
         // DataTables setup
         const table = $('#reportesTable').DataTable({
@@ -346,9 +284,7 @@ $notif_api = '../../public/api/notifications.php';
                     d.operador_id = $('#filter_operador').val();
                 }
             },
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-MX.json"
-            },
+            
             "columns": [
                 { "data": "modulo" },
                 { "data": "folio" },

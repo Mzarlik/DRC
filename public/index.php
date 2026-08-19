@@ -26,9 +26,6 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
 <div class="wrapper">
     <!-- Sidebar -->
-        <!-- Sidebar -->
-        <!-- Sidebar -->
-        <!-- Sidebar -->
     <nav id="sidebar" class="offcanvas-lg offcanvas-start" tabindex="-1">
         <div class="sidebar-header d-flex justify-content-between align-items-center">
             <span><i class="fa-solid fa-building-columns"></i> <span class="sidebar-text">ERP DRC</span></span>
@@ -123,37 +120,38 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             </li>
             <?php endif; ?>
 
-            <!-- Mesa de Ayuda -->
-            <?php if (\Core\Auth::hasPermission('permiso_tickets')): ?>
-            <li class="<?php echo ($current_module == 'peticiones') ? 'active' : ''; ?>">
-                <a href="#ayudaSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo ($current_module == 'peticiones') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-headset"></i> <span class="sidebar-text">Mesa de Ayuda</span>
+            <!-- Ventanilla y Seguimiento -->
+            <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas') || \Core\Auth::hasPermission('permiso_tickets')): ?>
+            <li class="<?php echo in_array($current_module, ['peticion_rapida', 'peticiones']) ? 'active' : ''; ?>">
+                <a href="#ventanillaSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo in_array($current_module, ['peticion_rapida', 'peticiones']) ? 'true' : 'false'; ?>" class="dropdown-toggle">
+                    <i class="fa-solid fa-person-shelter"></i> <span class="sidebar-text">Ventanilla</span>
                 </a>
-                <ul class="collapse list-unstyled <?php echo ($current_module == 'peticiones') ? 'show' : ''; ?>" id="ayudaSubmenu">
-                    <li class="<?php echo ($current_module == 'peticiones') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'peticiones') ? 'index.php' : $path_prefix . 'peticiones/index.php'; ?>"><i class="fa-solid fa-ticket"></i> <span class="sidebar-text">Tickets / Peticiones</span></a></li>
+                <ul class="collapse list-unstyled <?php echo in_array($current_module, ['peticion_rapida', 'peticiones']) ? 'show' : ''; ?>" id="ventanillaSubmenu">
+                    <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
+                    <li class="<?php echo ($current_module == 'peticion_rapida' && basename($_SERVER['PHP_SELF']) != 'reporte_diario.php') ? 'active' : ''; ?>">
+                        <a href="<?php echo ($current_module == 'peticion_rapida') ? 'index.php' : $path_prefix . 'peticion_rapida/index.php'; ?>">
+                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">Petición Rápida</span>
+                        </a>
+                    </li>
+                    <li class="<?php echo ($current_module == 'peticion_rapida' && basename($_SERVER['PHP_SELF']) == 'reporte_diario.php') ? 'active' : ''; ?>">
+                        <a href="<?php echo ($current_module == 'peticion_rapida') ? 'reporte_diario.php' : $path_prefix . 'peticion_rapida/reporte_diario.php'; ?>">
+                            <i class="fa-solid fa-file-invoice text-info"></i> <span class="sidebar-text">Reporte Diario</span>
+                        </a>
+                    </li>
+                    <?php endif; ?>
+                    <?php if (\Core\Auth::hasPermission('permiso_tickets')): ?>
+                    <li class="<?php echo ($current_module == 'peticiones') ? 'active' : ''; ?>">
+                        <a href="<?php echo ($current_module == 'peticiones') ? 'index.php' : $path_prefix . 'peticiones/index.php'; ?>">
+                            <i class="fa-solid fa-folder-open text-primary"></i> <span class="sidebar-text">Ventanilla de Seguimiento</span>
+                        </a>
+                    </li>
+                    <?php endif; ?>
                 </ul>
             </li>
             <?php endif; ?>
 
             <!-- Administración (Admin / Supervisor) -->
             <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
-            <!-- Ventanilla (Petición Rápida y Turnos) -->
-            <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas') || \Core\Auth::hasPermission('permiso_turnos')): ?>
-            <li class="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'active' : ''; ?>">
-                <a href="#ventanillaSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-user-clock"></i> <span class="sidebar-text">Ventanilla</span>
-                </a>
-                <ul class="collapse list-unstyled <?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'show' : ''; ?>" id="ventanillaSubmenu">
-                    <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
-                    <li class="<?php echo ($current_module == 'peticion_rapida') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'peticion_rapida') ? 'index.php' : $path_prefix . 'peticion_rapida/index.php'; ?>"><i class="fa-solid fa-bolt"></i> <span class="sidebar-text">Petición Rápida</span></a></li>
-                    <?php endif; ?>
-                    <?php if (\Core\Auth::hasPermission('permiso_turnos')): ?>
-                    <li class="<?php echo ($current_module == 'turnos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'turnos') ? 'index.php' : $path_prefix . 'turnos/index.php'; ?>"><i class="fa-solid fa-list-ol"></i> <span class="sidebar-text">Turnos de Atención</span></a></li>
-                    <?php endif; ?>
-                </ul>
-            </li>
-            <?php endif; ?>
-
             <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
                 <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
                     <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
@@ -172,170 +170,180 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
     <!-- Page Content -->
     <div id="content">
-                <nav class="navbar navbar-expand-lg navbar-light">
+        <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
-                <button type="button" id="sidebarCollapse" class="btn btn-primary" style="background: var(--primary-color); border: none;">
+                <button type="button" id="sidebarCollapse" class="btn-sidebar-toggle" aria-label="Toggle Sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
-                                <div class="d-flex align-items-center ms-auto">
+                <div class="d-flex align-items-center ms-auto">
                     <!-- Historial de Notificaciones -->
                     <div class="dropdown me-3" id="notificacionesMenu">
-                        <a class="nav-link dropdown-toggle text-dark position-relative no-caret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle text-dark position-relative no-caret p-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Centro de Notificaciones">
                             <i class="fa-solid fa-bell fa-lg"></i>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifBadge" style="font-size: 0.65rem; display: none;">
                                 0
                             </span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end py-0 shadow border-0" style="width: 320px; max-height: 400px; overflow-y: auto;" id="notifList">
+                        <ul class="dropdown-menu dropdown-menu-end py-0 shadow border-0 notif-dropdown" style="width: 350px; max-height: 420px; overflow-y: auto;" id="notifList">
                             <li class="p-3 border-bottom bg-light">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span class="fw-bold">Historial de Notificaciones</span>
+                                    <span class="fw-bold"><i class="fa-solid fa-bell me-1 text-primary"></i> Notificaciones</span>
                                     <span class="badge bg-primary rounded-pill" id="notifTotal">0</span>
                                 </div>
                             </li>
-                            <li class="p-3 text-center text-muted" id="notifEmpty">
-                                <i class="fa-solid fa-bell-slash mb-2 fa-lg"></i>
-                                <p class="mb-0 small">No hay notificaciones recientes</p>
+                            <li class="p-4 text-center text-muted" id="notifEmpty">
+                                <i class="fa-solid fa-bell-slash mb-2 fa-2x text-muted opacity-50"></i>
+                                <p class="mb-0 small fw-semibold">Sin notificaciones pendientes</p>
                             </li>
                         </ul>
                     </div>
 
                     <!-- Perfil de Usuario -->
                     <div class="dropdown">
-                        <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">
-                            <?php echo \Core\Utils::getAvatarHtml(\Core\Auth::getUserName(), 32); ?>
-                            <?php echo htmlspecialchars(\Core\Auth::getUserName()); ?>
+                        <a class="nav-link dropdown-toggle text-dark d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                            <?php echo \Core\Utils::getAvatarHtml(\Core\Auth::getUserName(), 34); ?>
+                            <span class="fw-semibold ms-1"><?php echo htmlspecialchars(\Core\Auth::getUserName()); ?></span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="<?php echo $profile_link; ?>"><i class="fa-solid fa-user fa-sm me-2"></i> Perfil</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li><a class="dropdown-item py-2" href="<?php echo $profile_link; ?>"><i class="fa-solid fa-user fa-sm me-2 text-muted"></i> Perfil</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar Sesión</a></li>
+                            <li><a class="dropdown-item py-2 text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar Sesión</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
         </nav>
 
-        <div class="container-fluid">
-            <h2 class="mb-4">Dashboard Interactivo</h2>
+        <div class="container-fluid px-0">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1">Dashboard Interactivo</h2>
+                    <p class="text-muted small mb-0">Resumen operativo y estadísticas en tiempo real</p>
+                </div>
+                <div>
+                    <span class="badge bg-light text-dark border px-3 py-2 fw-normal">
+                        <i class="fa-regular fa-calendar me-1"></i> <?php echo date('d/m/Y'); ?>
+                    </span>
+                </div>
+            </div>
             
-            <div class="row row-cols-1 row-cols-md-3 row-cols-xl-5 g-4 mb-4">
+            <!-- 5 Tarjetas KPI Superiores con Luxury Gradients -->
+            <div class="row row-cols-1 row-cols-md-3 row-cols-xl-5 g-3 mb-4">
                 <div class="col">
-                    <div class="card bg-primary text-white h-100 border-0 shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="text-uppercase mb-1 text-white-50" style="font-size: 0.75rem;">Trámites Hoy</h6>
-                                    <h2 class="mb-0 fw-bold" id="card-hoy"><span class="skeleton" style="width: 60px; height: 32px;"></span></h2>
-                                </div>
-                                <i class="fa-solid fa-calendar-day fa-2x opacity-50"></i>
+                    <div class="card-kpi kpi-burgundy">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="kpi-label">Trámites Hoy</div>
+                                <div class="kpi-value" id="card-hoy">0</div>
                             </div>
+                            <div class="kpi-icon-badge"><i class="fa-solid fa-calendar-day"></i></div>
                         </div>
                     </div>
                 </div>
                 <div class="col">
-                    <div class="card bg-danger text-white h-100 border-0 shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="text-uppercase mb-1 text-white-50" style="font-size: 0.75rem;">Tickets Pendientes</h6>
-                                    <h2 class="mb-0 fw-bold" id="card-peticiones"><span class="skeleton" style="width: 60px; height: 32px;"></span></h2>
-                                </div>
-                                <i class="fa-solid fa-ticket fa-2x opacity-50"></i>
+                    <div class="card-kpi kpi-slate">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="kpi-label">Tickets Pendientes</div>
+                                <div class="kpi-value" id="card-peticiones">0</div>
                             </div>
+                            <div class="kpi-icon-badge"><i class="fa-solid fa-ticket"></i></div>
                         </div>
                     </div>
                 </div>
                 <div class="col">
-                    <div class="card bg-warning text-dark h-100 border-0 shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="text-uppercase mb-1 text-dark-50" style="font-size: 0.75rem; color: rgba(0,0,0,0.5);">Inexistencias Pendientes</h6>
-                                    <h2 class="mb-0 fw-bold" id="card-inexistencias"><span class="skeleton" style="width: 60px; height: 32px;"></span></h2>
-                                </div>
-                                <i class="fa-solid fa-clock fa-2x opacity-50"></i>
+                    <div class="card-kpi kpi-gold">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="kpi-label">Inexistencias</div>
+                                <div class="kpi-value" id="card-inexistencias">0</div>
                             </div>
+                            <div class="kpi-icon-badge"><i class="fa-solid fa-clock"></i></div>
                         </div>
                     </div>
                 </div>
                 <div class="col">
-                    <div class="card bg-success text-white h-100 border-0 shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="text-uppercase mb-1 text-white-50" style="font-size: 0.75rem;">Foráneas Validadas</h6>
-                                    <h2 class="mb-0 fw-bold" id="card-foraneas"><span class="skeleton" style="width: 60px; height: 32px;"></span></h2>
-                                </div>
-                                <i class="fa-solid fa-check-double fa-2x opacity-50"></i>
+                    <div class="card-kpi kpi-emerald">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="kpi-label">Foráneas Validadas</div>
+                                <div class="kpi-value" id="card-foraneas">0</div>
                             </div>
+                            <div class="kpi-icon-badge"><i class="fa-solid fa-check-double"></i></div>
                         </div>
                     </div>
                 </div>
                 <div class="col">
-                    <div class="card text-white h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #18bc9c, #1abc9c);">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="text-uppercase mb-1 text-white-50" style="font-size: 0.75rem;">Recaudación Proyectada</h6>
-                                    <h2 class="mb-0 fw-bold" id="card-recaudacion"><span class="skeleton" style="width: 120px; height: 32px;"></span></h2>
-                                </div>
-                                <i class="fa-solid fa-money-bill-trend-up fa-2x opacity-50"></i>
+                    <div class="card-kpi kpi-teal">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="kpi-label">Recaudación</div>
+                                <div class="kpi-value" id="card-recaudacion">$0.00</div>
                             </div>
+                            <div class="kpi-icon-badge"><i class="fa-solid fa-money-bill-trend-up"></i></div>
                         </div>
                     </div>
                 </div>
             </div>
             
             <div class="row mb-4">
-                <div class="col-md-8 mb-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header bg-white fw-bold py-3 border-0">
-                            <i class="fa-solid fa-chart-line text-primary me-2"></i> Tendencia de Trámites Procesados (Últimos 7 Días)
+                <div class="col-lg-8 mb-4 mb-lg-0">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span><i class="fa-solid fa-chart-line text-primary me-2"></i> Tendencia de Trámites Procesados (Últimos 7 Días)</span>
                         </div>
                         <div class="card-body">
-                            <div id="diarioChartSkeleton" class="skeleton skeleton-chart" style="height: 320px; width: 100%;"></div>
-                            <canvas id="diarioChart" style="max-height: 350px; display: none;"></canvas>
+                            <canvas id="diarioChart" style="max-height: 320px; width: 100%;"></canvas>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 mb-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header bg-white fw-bold py-3 border-0">
-                            <i class="fa-solid fa-circle-nodes text-primary me-2"></i> Accesos Rápidos
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <i class="fa-solid fa-bolt text-primary me-2"></i> Accesos Rápidos
                         </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-3">
-                                <a href="../modules/nacimientos/create.php" class="btn btn-outline-primary py-2 text-start"><i class="fa-solid fa-baby me-2"></i> Nuevo Nacimiento</a>
-                                <a href="../modules/defunciones/create.php" class="btn btn-outline-danger py-2 text-start"><i class="fa-solid fa-book-skull me-2"></i> Nueva Defunción</a>
-                                <a href="../modules/peticiones/create.php" class="btn btn-outline-dark py-2 text-start"><i class="fa-solid fa-ticket me-2"></i> Abrir Ticket</a>
-                                <a href="../modules/ciudadanos/create.php" class="btn btn-outline-success py-2 text-start"><i class="fa-solid fa-user-plus me-2"></i> Registrar Ciudadano</a>
+                        <div class="card-body d-flex flex-column justify-content-center">
+                            <div class="d-grid gap-2">
+                                <a href="../modules/peticion_rapida/index.php" class="btn btn-outline-primary text-start py-2">
+                                    <i class="fa-solid fa-bolt text-warning me-2"></i> Petición Rápida
+                                </a>
+                                <a href="../modules/peticion_rapida/reporte_diario.php" class="btn btn-outline-info text-start py-2">
+                                    <i class="fa-solid fa-file-invoice me-2"></i> Reporte Diario Oficial
+                                </a>
+                                <a href="../modules/peticiones/index.php" class="btn btn-outline-secondary text-start py-2">
+                                    <i class="fa-solid fa-folder-open text-primary me-2"></i> Ventanilla de Seguimiento
+                                </a>
+                                <a href="../modules/nacimientos/create.php" class="btn btn-outline-success text-start py-2">
+                                    <i class="fa-solid fa-baby me-2"></i> Registrar Nacimiento
+                                </a>
+                                <a href="../modules/foraneas/create.php" class="btn btn-outline-warning text-start py-2">
+                                    <i class="fa-solid fa-plane-arrival me-2"></i> Registrar Acta Foránea
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header bg-white fw-bold py-3 border-0">
-                            <i class="fa-solid fa-file-invoice-dollar text-primary me-2"></i> Recaudación Proyectada por Módulo (MXN)
+            <!-- Fila de Gráficas: Recaudación Proyectada y Carga Operativa -->
+            <div class="row mb-4">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <i class="fa-solid fa-coins text-emerald me-2"></i> Recaudación Proyectada por Acto
                         </div>
                         <div class="card-body">
-                            <div id="recaudacionChartSkeleton" class="skeleton skeleton-chart" style="height: 320px; width: 100%;"></div>
-                            <canvas id="recaudacionChart" style="max-height: 350px; display: none;"></canvas>
+                            <canvas id="recaudacionChart" style="max-height: 280px; width: 100%;"></canvas>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 mb-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header bg-white fw-bold py-3 border-0">
-                            <i class="fa-solid fa-chart-pie text-primary me-2"></i> Distribución de Carga Operativa
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <i class="fa-solid fa-chart-pie text-slate me-2"></i> Carga Operativa por Módulo
                         </div>
-                        <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 320px;">
-                            <div id="cargaChartSkeleton" class="skeleton" style="width: 250px; height: 250px; border-radius: 50%;"></div>
-                            <canvas id="cargaChart" style="max-height: 350px; display: none;"></canvas>
+                        <div class="card-body">
+                            <canvas id="cargaChart" style="max-height: 280px; width: 100%;"></canvas>
                         </div>
                     </div>
                 </div>
@@ -347,91 +355,30 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
 <script src="../assets/vendor/jquery/jquery-3.7.1.min.js"></script>
 <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="../assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
 <script src="../assets/vendor/chartjs/chart.umd.min.js"></script>
-<script src="../assets/js/components-alpine.js"></script>
-<script src="../assets/vendor/alpine/alpine-csp.min.js" defer></script>
+<script src="../assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
 
 <script>
-    $(document).ready(function () {
-        // Cargar Notificaciones
-        function cargarNotificaciones() {
-            $.ajax({
-                url: '<?php echo $notif_api; ?>',
-                type: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    if (response.status === 'success' && response.notifications.length > 0) {
-                        $('#notifBadge').text(response.notifications.length).show();
-                        $('#notifTotal').text(response.notifications.length);
-                        $('#notifEmpty').hide();
-                        
-                        // Clear dynamic items
-                        $('#notifList li.notif-item').remove();
-                        
-                        response.notifications.forEach(function(notif) {
-                            let itemHtml = `
-                                <li class="notif-item border-bottom">
-                                    <a class="dropdown-item p-3 d-flex align-items-start" href="#" style="white-space: normal;">
-                                        <div class="me-3 mt-1">
-                                            <i class="fa-solid ${notif.icon} ${notif.color} fa-lg"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1 fw-bold small text-dark">${notif.title}</h6>
-                                            <p class="mb-1 text-muted small" style="line-height: 1.3;">${notif.desc}</p>
-                                            <small class="text-uppercase fw-bold text-muted" style="font-size: 0.65rem;">${notif.time}</small>
-                                        </div>
-                                    </a>
-                                </li>
-                            `;
-                            $('#notifList').append(itemHtml);
-                        });
-                    } else {
-                        $('#notifBadge').hide();
-                        $('#notifTotal').text('0');
-                        $('#notifEmpty').show();
-                    }
-                }
-            });
-        }
-        
-        cargarNotificaciones();
-        setInterval(cargarNotificaciones, 60000);
-
-        // Cargar Estadísticas Dinámicas
+    $(document).ready(function() {
         $.ajax({
             url: 'api/stats.php',
             type: 'GET',
             dataType: 'json',
             success: function(response) {
-                if(response.status === 'success') {
-                    // Remove skeletons and show canvases
-                    $('#diarioChartSkeleton').remove();
-                    $('#diarioChart').show();
-                    $('#recaudacionChartSkeleton').remove();
-                    $('#recaudacionChart').show();
-                    $('#cargaChartSkeleton').remove();
-                    $('#cargaChart').show();
+                if (response.status === 'success') {
+                    // Update Top Cards
+                    $('#card-hoy').text(response.cards.tramites_hoy || 0);
+                    $('#card-peticiones').text(response.cards.peticiones_pendientes || 0);
+                    $('#card-inexistencias').text(response.cards.inexistencias_proceso || 0);
+                    $('#card-foraneas').text(response.cards.foraneas_validadas || 0);
+                    $('#card-recaudacion').text('$' + (parseFloat(response.cards.recaudacion_estimada || 0).toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})));
 
-                    // Update Cards
-                    $('#card-hoy').text(response.cards.tramites_hoy);
-                    $('#card-peticiones').text(response.cards.peticiones_pendientes);
-                    $('#card-inexistencias').text(response.cards.inexistencias_pendientes);
-                    $('#card-foraneas').text(response.cards.foraneas_validadas);
-                    
-                    // Format money for card
-                    const formatter = new Intl.NumberFormat('es-MX', {
-                        style: 'currency',
-                        currency: 'MXN'
-                    });
-                    $('#card-recaudacion').text(formatter.format(response.cards.recaudacion_total));
-
-                    // 1. Gráfica de Tendencia Diaria (Line Chart)
+                    // 1. Gráfica de Tendencia (Line Chart Guinda/Vino)
                     const ctxDiario = document.getElementById('diarioChart').getContext('2d');
                     const gradDiario = ctxDiario.createLinearGradient(0, 0, 0, 300);
-                    gradDiario.addColorStop(0, 'rgba(44, 62, 80, 0.4)');
-                    gradDiario.addColorStop(1, 'rgba(44, 62, 80, 0.01)');
-                    
+                    gradDiario.addColorStop(0, 'rgba(105, 28, 50, 0.25)');
+                    gradDiario.addColorStop(1, 'rgba(105, 28, 50, 0.00)');
+
                     new Chart(ctxDiario, {
                         type: 'line',
                         data: {
@@ -439,15 +386,16 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             datasets: [{
                                 label: 'Trámites',
                                 data: response.processed_by_day.data,
-                                borderColor: '#2c3e50',
+                                borderColor: '#691C32',
                                 borderWidth: 3,
                                 backgroundColor: gradDiario,
                                 fill: true,
-                                tension: 0.4,
-                                pointBackgroundColor: '#18bc9c',
+                                tension: 0.35,
+                                pointBackgroundColor: '#B38E5D',
                                 pointBorderColor: '#fff',
-                                pointHoverRadius: 7,
-                                pointRadius: 5
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 6,
+                                pointRadius: 4
                             }]
                         },
                         options: {
@@ -465,11 +413,11 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         }
                     });
 
-                    // 2. Gráfica de Recaudación por Módulo (Bar Chart)
+                    // 2. Gráfica de Recaudación (Bar Chart Emerald/Teal)
                     const ctxRec = document.getElementById('recaudacionChart').getContext('2d');
-                    const gradRec = ctxRec.createLinearGradient(0, 0, 0, 300);
-                    gradRec.addColorStop(0, '#18bc9c');
-                    gradRec.addColorStop(1, '#1abc9c');
+                    const gradRec = ctxRec.createLinearGradient(0, 0, 0, 280);
+                    gradRec.addColorStop(0, '#0F766E');
+                    gradRec.addColorStop(1, '#14B8A6');
 
                     new Chart(ctxRec, {
                         type: 'bar',
@@ -479,7 +427,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                 label: 'Monto Proyectado (MXN)',
                                 data: response.recaudacion_proyectada.data,
                                 backgroundColor: gradRec,
-                                borderRadius: 5,
+                                borderRadius: 6,
                                 borderSkipped: false
                             }]
                         },
@@ -502,7 +450,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         }
                     });
 
-                    // 3. Gráfica de Carga Operativa (Doughnut Chart)
+                    // 3. Gráfica de Carga Operativa (Doughnut Chart Paleta Corporativa)
                     const ctxCarga = document.getElementById('cargaChart').getContext('2d');
                     new Chart(ctxCarga, {
                         type: 'doughnut',
@@ -511,17 +459,18 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             datasets: [{
                                 data: response.carga_operativa.data,
                                 backgroundColor: [
-                                    '#2c3e50', // Slate
-                                    '#18bc9c', // Teal
-                                    '#3498db', // Blue
-                                    '#9b59b6', // Purple
-                                    '#e74c3c', // Red
-                                    '#f39c12', // Orange
-                                    '#1abc9c', // Cyan
-                                    '#f1c40f', // Yellow
-                                    '#95a5a6'  // Gray
+                                    '#691C32', // Guinda
+                                    '#B38E5D', // Dorado
+                                    '#0F766E', // Esmeralda
+                                    '#1E293B', // Slate
+                                    '#BE123C', // Rosa oscuro
+                                    '#D97706', // Ámbar
+                                    '#0284C7', // Azul
+                                    '#7C3AED', // Violeta
+                                    '#64748B'  // Gris
                                 ],
-                                borderWidth: 0
+                                borderWidth: 2,
+                                borderColor: '#fff'
                             }]
                         },
                         options: {
@@ -536,7 +485,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                     }
                                 }
                             },
-                            cutout: '70%'
+                            cutout: '68%'
                         }
                     });
                 }

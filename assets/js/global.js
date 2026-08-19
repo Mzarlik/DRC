@@ -16,10 +16,26 @@ if (localStorage.getItem('theme') === 'dark') {
     }
 }
 
-// Overwrite DataTables defaults to globally enable Responsive extension
+// Overwrite DataTables defaults to globally enable Responsive extension & 100% Offline Spanish
 if (window.jQuery && $.fn.dataTable) {
     $.extend(true, $.fn.dataTable.defaults, {
-        responsive: true
+        responsive: true,
+        language: {
+            processing: "Procesando...",
+            lengthMenu: "Mostrar _MENU_ registros",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "No hay datos disponibles en la tabla",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Mostrando 0 a 0 de 0 registros",
+            infoFiltered: "(filtrado de _MAX_ registros en total)",
+            search: "Buscar:",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "Siguiente",
+                previous: "Anterior"
+            }
+        }
     });
 }
 
@@ -61,29 +77,27 @@ $(document).ready(function() {
     }
     // 1. DYNAMIC DARK MODE TOGGLE INJECTION
     const $navbarRight = $('.navbar .ms-auto');
-    if ($navbarRight.length && !$('#darkModeToggle').length) {
-        const isDark = localStorage.getItem('theme') === 'dark';
+    if ($navbarRight.length && !$('#darkModeToggle, #themeToggleBtn').length) {
+        const isDark = localStorage.getItem('theme') === 'dark' || document.documentElement.classList.contains('dark-mode');
         const iconClass = isDark ? 'fa-sun' : 'fa-moon';
         const toggleHtml = `
-            <button type="button" id="darkModeToggle" class="btn btn-link text-dark nav-link me-3 p-0" title="Alternar Modo Oscuro" style="border: none; background: none; font-size: 1.25rem;">
+            <button type="button" id="darkModeToggle" class="btn btn-link text-dark nav-link me-3 p-0 no-caret d-flex align-items-center justify-content-center" title="Alternar Modo Oscuro" style="border: none; background: none; font-size: 1.2rem; width: 36px; height: 36px; text-decoration: none;">
                 <i class="fa-solid ${iconClass}"></i>
             </button>
         `;
-        // Prepend inside the right-aligned container of navbar
         $navbarRight.prepend(toggleHtml);
         
-        // Make sure the toggle icon matches theme changes in other tabs/reloads
         if (isDark) {
             $('#darkModeToggle').addClass('text-light').removeClass('text-dark');
         }
     }
 
     // Toggle click handler
-    $(document).on('click', '#darkModeToggle', function(e) {
+    $(document).on('click', '#darkModeToggle, #themeToggleBtn', function(e) {
         e.preventDefault();
         const $body = $('body');
         const $icon = $(this).find('i');
-        const isDark = $body.hasClass('dark-mode');
+        const isDark = $body.hasClass('dark-mode') || document.documentElement.classList.contains('dark-mode');
 
         if (isDark) {
             $body.removeClass('dark-mode');
@@ -99,6 +113,84 @@ $(document).ready(function() {
             $(this).removeClass('text-dark').addClass('text-light');
         }
     });
+
+    // =========================================================================
+    // 2. CENTRO GLOBAL DE NOTIFICACIONES
+    // =========================================================================
+    function initGlobalNotifications() {
+        const $notifMenu = $('#notificacionesMenu');
+        if (!$notifMenu.length) return;
+
+        // Determinar endpoint
+        let endpoint = '/DRC/public/api/notifications.php';
+        const pathname = window.location.pathname;
+        if (pathname.includes('/modules/')) {
+            endpoint = '../../public/api/notifications.php';
+        } else if (pathname.includes('/public/')) {
+            endpoint = 'api/notifications.php';
+        }
+
+        function refreshNotifications() {
+            $.ajax({
+                url: endpoint,
+                type: 'GET',
+                dataType: 'json',
+                success: function(resp) {
+                    if (!resp || resp.status !== 'success' || !Array.isArray(resp.notifications)) return;
+
+                    const notifs = resp.notifications;
+                    const $badge = $('#notifBadge');
+                    const $total = $('#notifTotal');
+                    const $empty = $('#notifEmpty');
+                    const $list = $('#notifList');
+
+                    $list.find('li.notif-item').remove();
+
+                    if (notifs.length > 0) {
+                        $badge.text(notifs.length > 99 ? '99+' : notifs.length).show();
+                        $total.text(notifs.length);
+                        $empty.hide();
+
+                        notifs.forEach(function(item) {
+                            const url = item.url || '#';
+                            const urgentBorder = item.is_urgent ? 'notif-unread' : '';
+                            const dlAttr = item.is_download ? 'download' : '';
+                            
+                            const html = `
+                                <li class="notif-item border-bottom ${urgentBorder}">
+                                    <a class="dropdown-item p-3 d-flex align-items-start" href="${url}" ${dlAttr} style="white-space: normal;">
+                                        <div class="me-3 mt-1 flex-shrink-0">
+                                            <i class="fa-solid ${item.icon || 'fa-info-circle'} ${item.color || 'text-primary'} fa-lg"></i>
+                                        </div>
+                                        <div class="flex-grow-1" style="min-width: 0;">
+                                            <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                                <h6 class="mb-0 fw-bold small text-dark text-truncate">${item.title}</h6>
+                                                <small class="text-muted ms-2 text-nowrap" style="font-size: 0.68rem;">${item.time}</small>
+                                            </div>
+                                            <p class="mb-0 text-muted small text-break" style="font-size: 0.8rem; line-height: 1.35;">${item.desc}</p>
+                                        </div>
+                                    </a>
+                                </li>
+                            `;
+                            $list.append(html);
+                        });
+                    } else {
+                        $badge.hide();
+                        $total.text('0');
+                        $empty.show();
+                    }
+                },
+                error: function() {
+                    // Silencioso en caso de error
+                }
+            });
+        }
+
+        refreshNotifications();
+        setInterval(refreshNotifications, 30000);
+    }
+
+    initGlobalNotifications();
 
     // 2. KEYBOARD NAVIGATION
     // Move between inputs with Enter

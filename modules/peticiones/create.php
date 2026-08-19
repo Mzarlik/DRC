@@ -9,13 +9,21 @@ $db_link = ($current_module == 'public') ? 'index.php' : '../../public/index.php
 $logout_link = ($current_module == 'public') ? 'logout.php' : '../../public/logout.php';
 $profile_link = ($current_module == 'public') ? 'perfil.php' : '../../public/perfil.php';
 $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../public/api/notifications.php';
+
+// Parámetros opcionales de escalamiento desde Ventanilla Rápida
+$escalado_ciudadano_id = intval($_GET['ciudadano_id'] ?? 0);
+$escalado_solicitante = htmlspecialchars(trim($_GET['solicitante'] ?? ''));
+$escalado_curp = htmlspecialchars(trim($_GET['curp'] ?? ''));
+$escalado_tipo = htmlspecialchars(trim($_GET['tipo'] ?? ''));
+$escalado_detalle = htmlspecialchars(trim($_GET['detalle'] ?? ''));
+$escalado_folio = htmlspecialchars(trim($_GET['folio_origen'] ?? ''));
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuevo Ticket - ERP DRC</title>
+    <title>Apertura de Expediente - Ventanilla de Seguimiento</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="../../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/vendor/fontawesome/css/all.min.css">
@@ -28,236 +36,109 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
 <div class="wrapper">
     <!-- Sidebar -->
-        <!-- Sidebar -->
-        <!-- Sidebar -->
-        <!-- Sidebar -->
     <nav id="sidebar" class="offcanvas-lg offcanvas-start" tabindex="-1">
         <div class="sidebar-header d-flex justify-content-between align-items-center">
             <span><i class="fa-solid fa-building-columns"></i> <span class="sidebar-text">ERP DRC</span></span>
             <button type="button" class="btn-close btn-close-white d-md-none" id="sidebarCloseMobile" aria-label="Close"></button>
         </div>
         <ul class="list-unstyled components">
-            <li class="<?php echo ($current_module == 'public' && basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : ''; ?>">
-                <a href="<?php echo $db_link; ?>"><i class="fa-solid fa-chart-line"></i> <span class="sidebar-text">Dashboard</span></a>
-            </li>
-            
-            <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>">
-                <a href="#catSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo ($current_module == 'ciudadanos') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">Catálogos</span>
-                </a>
-                <ul class="collapse list-unstyled <?php echo ($current_module == 'ciudadanos') ? 'show' : ''; ?>" id="catSubmenu">
-                    <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'ciudadanos') ? 'index.php' : $path_prefix . 'ciudadanos/index.php'; ?>"><i class="fa-solid fa-users"></i> <span class="sidebar-text">Ciudadanos</span></a></li>
-                </ul>
-            </li>
-
-            <!-- Registros de Actos (Oficialía) -->
-            <?php if (\Core\Auth::hasPermission('permiso_registro_nacimientos') || \Core\Auth::hasPermission('permiso_registro_matrimonios') || \Core\Auth::hasPermission('permiso_registro_divorcios') || \Core\Auth::hasPermission('permiso_registro_defunciones') || \Core\Auth::hasPermission('permiso_registro_inscripciones') || \Core\Auth::hasPermission('permiso_registro_reconocimientos')): ?>
-            <li class="<?php echo in_array($current_module, ['nacimientos', 'matrimonios', 'divorcios', 'defunciones', 'inscripciones', 'reconocimientos']) ? 'active' : ''; ?>">
-                <a href="#vitalesSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa-solid fa-heart-pulse"></i> <span class="sidebar-text">Registro de Actos</span>
-                </a>
-                <ul class="collapse list-unstyled <?php echo in_array($current_module, ['nacimientos', 'matrimonios', 'divorcios', 'defunciones', 'inscripciones', 'reconocimientos']) ? 'show' : ''; ?>" id="vitalesSubmenu">
-                    <?php if (\Core\Auth::hasPermission('permiso_registro_nacimientos')): ?>
-                    <li class="<?php echo ($current_module == 'nacimientos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'nacimientos') ? 'index.php' : $path_prefix . 'nacimientos/index.php'; ?>"><i class="fa-solid fa-baby"></i> <span class="sidebar-text">Nacimientos</span></a></li>
-                    <?php endif; ?>
-                    <?php if (\Core\Auth::hasPermission('permiso_registro_matrimonios')): ?>
-                    <li class="<?php echo ($current_module == 'matrimonios') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'matrimonios') ? 'index.php' : $path_prefix . 'matrimonios/index.php'; ?>"><i class="fa-solid fa-ring"></i> <span class="sidebar-text">Matrimonios</span></a></li>
-                    <?php endif; ?>
-                    <?php if (\Core\Auth::hasPermission('permiso_registro_divorcios')): ?>
-                    <li class="<?php echo ($current_module == 'divorcios') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'divorcios') ? 'index.php' : $path_prefix . 'divorcios/index.php'; ?>"><i class="fa-solid fa-heart-crack"></i> <span class="sidebar-text">Divorcios</span></a></li>
-                    <?php endif; ?>
-                    <?php if (\Core\Auth::hasPermission('permiso_registro_defunciones')): ?>
-                    <li class="<?php echo ($current_module == 'defunciones') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'defunciones') ? 'index.php' : $path_prefix . 'defunciones/index.php'; ?>"><i class="fa-solid fa-book-skull"></i> <span class="sidebar-text">Defunciones</span></a></li>
-                    <?php endif; ?>
-                    <?php if (\Core\Auth::hasPermission('permiso_registro_inscripciones')): ?>
-                    <li class="<?php echo ($current_module == 'inscripciones') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'inscripciones') ? 'index.php' : $path_prefix . 'inscripciones/index.php'; ?>"><i class="fa-solid fa-passport"></i> <span class="sidebar-text">Inscripciones</span></a></li>
-                    <?php endif; ?>
-                    <?php if (\Core\Auth::hasPermission('permiso_registro_reconocimientos')): ?>
-                    <li class="<?php echo ($current_module == 'reconocimientos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'reconocimientos') ? 'index.php' : $path_prefix . 'reconocimientos/index.php'; ?>"><i class="fa-solid fa-user-check"></i> <span class="sidebar-text">Reconocimientos</span></a></li>
-                    <?php endif; ?>
-                </ul>
-            </li>
-            <?php endif; ?>
-
-            <!-- Expedición de Actas -->
-            <?php if (\Core\Auth::hasPermission('permiso_actas_locales') || \Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
-            <li class="<?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'active' : ''; ?>">
-                <a href="#actasSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">Expedición de Actas</span>
-                </a>
-                <ul class="collapse list-unstyled <?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'show' : ''; ?>" id="actasSubmenu">
-                    <?php if (\Core\Auth::hasPermission('permiso_actas_locales')): ?>
-                    <li class="<?php echo ($current_module == 'actas_locales') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'actas_locales') ? 'index.php' : $path_prefix . 'actas_locales/index.php'; ?>"><i class="fa-solid fa-file-invoice"></i> <span class="sidebar-text">Actas Locales</span></a></li>
-                    <?php endif; ?>
-                    <?php if (\Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
-                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas Foráneas</span></a></li>
-                    <?php endif; ?>
-                </ul>
-            </li>
-            <?php endif; ?>
-
-            <!-- Constancias e Inexistencias -->
-            <?php if (\Core\Auth::hasPermission('permiso_constancias')): ?>
-            <li class="<?php echo ($current_module == 'inexistencias') ? 'active' : ''; ?>">
-                <a href="#constSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo ($current_module == 'inexistencias') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-file-signature"></i> <span class="sidebar-text">Constancias</span>
-                </a>
-                <ul class="collapse list-unstyled <?php echo ($current_module == 'inexistencias') ? 'show' : ''; ?>" id="constSubmenu">
-                    <li class="<?php echo ($current_module == 'inexistencias') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'inexistencias') ? 'index.php' : $path_prefix . 'inexistencias/index.php'; ?>"><i class="fa-solid fa-file-circle-exclamation"></i> <span class="sidebar-text">Inexistencia / No Deudor</span></a></li>
-                </ul>
-            </li>
-            <?php endif; ?>
-
-            <!-- Reportes Cruzados -->
-            <li class="<?php echo ($current_module == 'reportes') ? 'active' : ''; ?>">
-                <a href="<?php echo ($current_module == 'reportes') ? 'index.php' : $path_prefix . 'reportes/index.php'; ?>"><i class="fa-solid fa-file-excel"></i> <span class="sidebar-text">Reportes Cruzados</span></a>
-            </li>
-
-            <!-- Servicios CURP -->
-            <?php if (\Core\Auth::hasPermission('permiso_curp')): ?>
-            <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>">
-                <a href="#curpSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo ($current_module == 'curp') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-id-card"></i> <span class="sidebar-text">Servicios CURP</span>
-                </a>
-                <ul class="collapse list-unstyled <?php echo ($current_module == 'curp') ? 'show' : ''; ?>" id="curpSubmenu">
-                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">Trámites CURP</span></a></li>
-                </ul>
-            </li>
-            <?php endif; ?>
-
-            <!-- Mesa de Ayuda -->
-            <?php if (\Core\Auth::hasPermission('permiso_tickets')): ?>
-            <li class="<?php echo ($current_module == 'peticiones') ? 'active' : ''; ?>">
-                <a href="#ayudaSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo ($current_module == 'peticiones') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-headset"></i> <span class="sidebar-text">Mesa de Ayuda</span>
-                </a>
-                <ul class="collapse list-unstyled <?php echo ($current_module == 'peticiones') ? 'show' : ''; ?>" id="ayudaSubmenu">
-                    <li class="<?php echo ($current_module == 'peticiones') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'peticiones') ? 'index.php' : $path_prefix . 'peticiones/index.php'; ?>"><i class="fa-solid fa-ticket"></i> <span class="sidebar-text">Tickets / Peticiones</span></a></li>
-                </ul>
-            </li>
-            <?php endif; ?>
-
-            <!-- Administración (Admin / Supervisor) -->
-            <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
-            <!-- Ventanilla (Petición Rápida y Turnos) -->
-            <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas') || \Core\Auth::hasPermission('permiso_turnos')): ?>
-            <li class="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'active' : ''; ?>">
-                <a href="#ventanillaSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-user-clock"></i> <span class="sidebar-text">Ventanilla</span>
-                </a>
-                <ul class="collapse list-unstyled <?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'show' : ''; ?>" id="ventanillaSubmenu">
-                    <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
-                    <li class="<?php echo ($current_module == 'peticion_rapida') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'peticion_rapida') ? 'index.php' : $path_prefix . 'peticion_rapida/index.php'; ?>"><i class="fa-solid fa-bolt"></i> <span class="sidebar-text">Petición Rápida</span></a></li>
-                    <?php endif; ?>
-                    <?php if (\Core\Auth::hasPermission('permiso_turnos')): ?>
-                    <li class="<?php echo ($current_module == 'turnos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'turnos') ? 'index.php' : $path_prefix . 'turnos/index.php'; ?>"><i class="fa-solid fa-list-ol"></i> <span class="sidebar-text">Turnos de Atención</span></a></li>
-                    <?php endif; ?>
-                </ul>
-            </li>
-            <?php endif; ?>
-
-            <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
-                <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
-                </a>
-                <ul class="collapse list-unstyled <?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'show' : ''; ?>" id="adminSubmenu">
-                    <?php if (($_SESSION['user_rol'] ?? '') === 'ADMIN'): ?>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'usuarios.php' : '../../public/usuarios.php'; ?>"><i class="fa-solid fa-user-shield"></i> <span class="sidebar-text">Usuarios y Permisos</span></a></li>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">Auditoría y Errores</span></a></li>
-                    <?php endif; ?>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y Catálogos</span></a></li>
-                </ul>
-            </li>
-            <?php endif; ?>
+            <li><a href="<?php echo $db_link; ?>"><i class="fa-solid fa-chart-line"></i> <span class="sidebar-text">Dashboard</span></a></li>
+            <li><a href="../peticion_rapida/index.php"><i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">Petición Rápida</span></a></li>
+            <li><a href="../peticion_rapida/reporte_diario.php"><i class="fa-solid fa-file-invoice text-info"></i> <span class="sidebar-text">Reporte Diario</span></a></li>
+            <li class="active"><a href="index.php"><i class="fa-solid fa-folder-open text-primary"></i> <span class="sidebar-text">Ventanilla de Seguimiento</span></a></li>
         </ul>
     </nav>
 
     <!-- Page Content -->
     <div id="content">
-                <nav class="navbar navbar-expand-lg navbar-light">
+        <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
-                <button type="button" id="sidebarCollapse" class="btn btn-primary" style="background: var(--primary-color); border: none;">
+                <button type="button" id="sidebarCollapse" class="btn-sidebar-toggle">
                     <i class="fas fa-bars"></i>
                 </button>
-                                <div class="d-flex align-items-center ms-auto">
-                    <!-- Historial de Notificaciones -->
-                    <div class="dropdown me-3" id="notificacionesMenu">
-                        <a class="nav-link dropdown-toggle text-dark position-relative no-caret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa-solid fa-bell fa-lg"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifBadge" style="font-size: 0.65rem; display: none;">
-                                0
-                            </span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end py-0 shadow border-0" style="width: 320px; max-height: 400px; overflow-y: auto;" id="notifList">
-                            <li class="p-3 border-bottom bg-light">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="fw-bold">Historial de Notificaciones</span>
-                                    <span class="badge bg-primary rounded-pill" id="notifTotal">0</span>
-                                </div>
-                            </li>
-                            <li class="p-3 text-center text-muted" id="notifEmpty">
-                                <i class="fa-solid fa-bell-slash mb-2 fa-lg"></i>
-                                <p class="mb-0 small">No hay notificaciones recientes</p>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Perfil de Usuario -->
+                <div class="d-flex align-items-center ms-auto">
                     <div class="dropdown">
-                        <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">
-                            <?php echo \Core\Utils::getAvatarHtml(\Core\Auth::getUserName(), 32); ?>
-                            <?php echo htmlspecialchars(\Core\Auth::getUserName()); ?>
+                        <a class="nav-link dropdown-toggle text-dark d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                            <?php echo \Core\Utils::getAvatarHtml(\Core\Auth::getUserName(), 34); ?>
+                            <span class="fw-semibold ms-1"><?php echo htmlspecialchars(\Core\Auth::getUserName()); ?></span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="<?php echo $profile_link; ?>"><i class="fa-solid fa-user fa-sm me-2"></i> Perfil</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li><a class="dropdown-item py-2" href="<?php echo $profile_link; ?>"><i class="fa-solid fa-user fa-sm me-2 text-muted"></i> Perfil</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar Sesión</a></li>
+                            <li><a class="dropdown-item py-2 text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar Sesión</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
         </nav>
 
-        <div class="container-fluid">
+        <div class="container-fluid px-0">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Apertura de Ticket (Petición)</h2>
+                <div>
+                    <h2 class="fw-bold mb-1"><i class="fa-solid fa-folder-plus text-primary me-2"></i> Apertura de Expediente</h2>
+                    <p class="text-muted small mb-0">Ventanilla de Seguimiento — Casos especiales, dictámenes y trámites de largo plazo</p>
+                </div>
                 <a href="index.php" class="btn btn-secondary">
-                    <i class="fa-solid fa-arrow-left"></i> Volver al listado
+                    <i class="fa-solid fa-arrow-left me-1"></i> Volver a Expedientes
                 </a>
             </div>
-            
-            <div class="card border-dark border-top border-3">
-                <div class="card-body">
-                    <form id="formPeticion">
+
+            <?php if (!empty($escalado_folio)): ?>
+            <div class="alert alert-info border-0 shadow-sm mb-4 d-flex align-items-center">
+                <i class="fa-solid fa-link fa-lg me-3 text-info"></i>
+                <div>
+                    <strong>Trámite escalado desde Ventanilla Rápida (Folio: <?php echo $escalado_folio; ?>)</strong>
+                    <div class="small">Se han precargado los antecedentes para aperturar el expediente formal de seguimiento.</div>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form id="formSeguimiento">
                         <input type="hidden" name="csrf_token" value="<?php echo \Core\Auth::generateCSRF(); ?>">
-                        
-                        <div class="row mb-3">
+
+                        <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label for="ciudadano_id" class="form-label fw-bold">Ciudadano Solicitante</label>
-                                <select id="ciudadano_id" name="ciudadano_id" required placeholder="Buscar ciudadano..."></select>
+                                <label for="ciudadano_id" class="form-label fw-bold">
+                                    Ciudadano Titular del Expediente <span class="text-danger">*</span>
+                                </label>
+                                <select id="ciudadano_id" name="ciudadano_id" required placeholder="Buscar por CURP o nombre en el padrón..."></select>
+                                <div class="form-text">
+                                    ¿No está en el padrón? <a href="../ciudadanos/create.php" target="_blank" class="fw-semibold">Registrar ciudadano en padrón</a>.
+                                </div>
                             </div>
                             <div class="col-md-6">
-                                <label for="tipo_peticion" class="form-label fw-bold">Tipo de Petición</label>
+                                <label for="tipo_peticion" class="form-label fw-bold">
+                                    Materia / Tipo de Caso <span class="text-danger">*</span>
+                                </label>
                                 <select class="form-select" id="tipo_peticion" name="tipo_peticion" required>
-                                    <option value="">Seleccione...</option>
-                                    <option value="CORRECCION_ACTA">Corrección de Acta</option>
-                                    <option value="DIGITALIZACION">Digitalización / Alta en Base Nacional</option>
-                                    <option value="ACLARACION">Aclaración de Registros</option>
-                                    <option value="OTRO">Otro Trámite Especial</option>
+                                    <option value="">Seleccione la materia del caso...</option>
+                                    <option value="CORRECCION_ACTA">CORRECCIÓN ADMINISTRATIVA DE ACTA</option>
+                                    <option value="ACLARACION">ACLARACIÓN JURÍDICA / COTEJO DE LIBRO</option>
+                                    <option value="DIGITALIZACION">DIGITALIZACIÓN / ALTA EN BASE NACIONAL (RENAPO/SIDEC)</option>
+                                    <option value="REGISTRO_EXTEMPORANEO">SOLICITUD DE REGISTRO EXTEMPORÁNEO</option>
+                                    <option value="IDENTIDAD_GENERO">RECONOCIMIENTO DE IDENTIDAD DE GÉNERO</option>
+                                    <option value="OFICIO_DIR_GENERAL">TRÁMITE TURNADO A DIRECCIÓN GENERAL</option>
+                                    <option value="OTRO">OTRO TRÁMITE ESPECIAL EN SEGUIMIENTO</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <div class="col-12">
-                                <label for="descripcion" class="form-label fw-bold">Descripción del Problema o Solicitud</label>
-                                <textarea class="form-control text-uppercase-input" id="descripcion" name="descripcion" rows="4" placeholder="EJ: SE SOLICITA CORRECCIÓN DE APELLIDO MATERNO..." required></textarea>
+                                <label for="descripcion" class="form-label fw-bold">
+                                    Antecedentes, Motivo del Trámite y Dictamen Requerido <span class="text-danger">*</span>
+                                </label>
+                                <textarea class="form-control text-uppercase-input" id="descripcion" name="descripcion" rows="5" 
+                                          placeholder="EJ: SE RECIBE SOLICITUD DE RECTIFICACIÓN POR ERROR EN EL APELLIDO PATERNO DEL REGISTRADO EN EL LIBRO 2 ACTA 45 DEL AÑO 1980. SE TURNA A REVISIÓN DE ARCHIVO..." required><?php echo !empty($escalado_detalle) ? htmlspecialchars("TRÁMITE ESCALADO DESDE VENTANILLA RÁPIDA [FOLIO {$escalado_folio}]: {$escalado_detalle}") : ''; ?></textarea>
                             </div>
                         </div>
 
-                        <div class="text-end mt-4">
-                            <button type="submit" class="btn btn-dark" style="border: none;">
-                                <i class="fa-solid fa-paper-plane"></i> Generar Ticket
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="index.php" class="btn btn-secondary px-3">Cancelar</a>
+                            <button type="submit" class="btn btn-primary px-4 py-2" id="btnSubmit">
+                                <i class="fa-solid fa-folder-plus me-1"></i> Aperturar Expediente
                             </button>
                         </div>
                     </form>
@@ -273,90 +154,90 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 <script src="../../assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
 
 <script>
-    $(document).ready(function() {
-        // Cargar Notificaciones
-        function cargarNotificaciones() {
+$(document).ready(function() {
+    $(document).on('input', '.text-uppercase-input', function() {
+        $(this).val($(this).val().toUpperCase());
+    });
+
+    const tomCiudadano = new TomSelect("#ciudadano_id", {
+        valueField: 'id',
+        labelField: 'text',
+        searchField: 'text',
+        maxItems: 1,
+        load: function(query, callback) {
+            if (!query || query.length < 2) return callback();
             $.ajax({
-                url: '<?php echo $notif_api; ?>',
+                url: '../ciudadanos/search.php',
                 type: 'GET',
                 dataType: 'json',
-                success: function(response) {
-                    if (response.status === 'success' && response.notifications.length > 0) {
-                        $('#notifBadge').text(response.notifications.length).show();
-                        $('#notifTotal').text(response.notifications.length);
-                        $('#notifEmpty').hide();
-                        
-                        // Clear dynamic items
-                        $('#notifList li.notif-item').remove();
-                        
-                        response.notifications.forEach(function(notif) {
-                            let itemHtml = `
-                                <li class="notif-item border-bottom">
-                                    <a class="dropdown-item p-3 d-flex align-items-start" href="#" style="white-space: normal;">
-                                        <div class="me-3 mt-1">
-                                            <i class="fa-solid ${notif.icon} ${notif.color} fa-lg"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1 fw-bold small text-dark">${notif.title}</h6>
-                                            <p class="mb-1 text-muted small" style="line-height: 1.3;">${notif.desc}</p>
-                                            <small class="text-uppercase fw-bold text-muted" style="font-size: 0.65rem;">${notif.time}</small>
-                                        </div>
-                                    </a>
-                                </li>
-                            `;
-                            $('#notifList').append(itemHtml);
-                        });
-                    } else {
-                        $('#notifBadge').hide();
-                        $('#notifTotal').text('0');
-                        $('#notifEmpty').show();
-                    }
-                }
+                data: { q: query },
+                error: function() { callback(); },
+                success: function(res) { callback(res.results); }
             });
+        },
+        placeholder: 'Buscar ciudadano por CURP o Nombre...',
+        allowEmptyOption: false
+    });
+
+    // Si viene prellenado un ciudadano_id
+    <?php if ($escalado_ciudadano_id > 0): ?>
+    tomCiudadano.addOption({ id: <?php echo $escalado_ciudadano_id; ?>, text: '<?php echo $escalado_solicitante . (!empty($escalado_curp) ? " - {$escalado_curp}" : ""); ?>' });
+    tomCiudadano.setValue(<?php echo $escalado_ciudadano_id; ?>);
+    <?php endif; ?>
+
+    $('#formSeguimiento').on('submit', function(e) {
+        e.preventDefault();
+
+        const cid = $('#ciudadano_id').val();
+        const tipo = $('#tipo_peticion').val();
+        const desc = $('#descripcion').val().trim();
+
+        if (!cid) {
+            Swal.fire({ icon: 'warning', title: 'Ciudadano requerido', text: 'Seleccione al ciudadano titular del expediente.', confirmButtonColor: 'var(--secondary-color)' });
+            return;
         }
-        
-        cargarNotificaciones();
-        setInterval(cargarNotificaciones, 60000);
-        });
 
-        $(document).on('input', '.text-uppercase-input', function() {
-            $(this).val($(this).val().toUpperCase());
-        });
+        if (!tipo) {
+            Swal.fire({ icon: 'warning', title: 'Materia requerida', text: 'Seleccione el tipo de caso o materia del expediente.', confirmButtonColor: 'var(--secondary-color)' });
+            return;
+        }
 
-        new TomSelect("#ciudadano_id", {
-            valueField: 'id',
-            labelField: 'text',
-            searchField: 'text',
-            load: function(query, callback) {
-                if (!query.length) return callback();
-                $.ajax({
-                    url: '../ciudadanos/search.php',
-                    type: 'GET',
-                    dataType: 'json',
-                    data: { q: query },
-                    success: function(res) { callback(res.results); }
-                });
+        if (desc.length < 10) {
+            Swal.fire({ icon: 'warning', title: 'Descripción detallada', text: 'Escriba una descripción de antecedentes de al menos 10 caracteres.', confirmButtonColor: 'var(--secondary-color)' });
+            return;
+        }
+
+        const $btn = $('#btnSubmit');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> Aperturando...');
+
+        $.ajax({
+            url: 'save.php',
+            type: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function(response) {
+                $btn.prop('disabled', false).html('<i class="fa-solid fa-folder-plus me-1"></i> Aperturar Expediente');
+                if (response.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Expediente Aperturado',
+                        html: `Folio de seguimiento: <strong class="text-primary fs-4">${response.folio}</strong>`,
+                        confirmButtonText: '<i class="fa-solid fa-folder-open me-1"></i> Ir a Ventanilla de Seguimiento',
+                        confirmButtonColor: 'var(--secondary-color)'
+                    }).then(() => {
+                        window.location.href = 'index.php';
+                    });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: response.message, confirmButtonColor: 'var(--primary-color)' });
+                }
+            },
+            error: function() {
+                $btn.prop('disabled', false).html('<i class="fa-solid fa-folder-plus me-1"></i> Aperturar Expediente');
+                Swal.fire({ icon: 'error', title: 'Error de Conexión', text: 'No se pudo conectar con el servidor.', confirmButtonColor: 'var(--primary-color)' });
             }
         });
-
-        $('#formPeticion').on('submit', function(e) {
-            e.preventDefault();
-            
-            $.ajax({
-                url: 'save.php',
-                type: 'POST',
-                data: $(this).serialize(),
-                dataType: 'json',
-                success: function(response) {
-                    if(response.status === 'success') {
-                        window.location.href = 'index.php?toast=success&msg=' + encodeURIComponent('Operación realizada con éxito');
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: response.message });
-                    }
-                }
-            });
-        });
     });
+});
 </script>
 <script src="../../assets/js/global.js"></script>
 </body>

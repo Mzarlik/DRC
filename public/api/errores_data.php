@@ -12,7 +12,7 @@ require_once '../../core/Database.php';
 use Core\Database;
 
 try {
-    $pdo = Database::getConnection();
+    $pdo = Database::getReadConnection();
 
     $draw = isset($_GET['draw']) ? intval($_GET['draw']) : 1;
     $start = isset($_GET['start']) ? intval($_GET['start']) : 0;
@@ -21,7 +21,7 @@ try {
 
     $columns = [
         0 => 'e.id',
-        1 => 'e.fecha_hora',
+        1 => 'e.creado_en',
         2 => 'u.nombre',
         3 => 'e.mensaje',
         4 => 'e.archivo',
@@ -37,7 +37,7 @@ try {
     $baseQuery = " FROM error_logs e LEFT JOIN usuarios u ON e.usuario_id = u.id ";
                    
     $stmtCount = $pdo->query("SELECT COUNT(e.id) as allcount " . $baseQuery);
-    $recordsTotal = $stmtCount->fetchColumn();
+    $recordsTotal = (int)$stmtCount->fetchColumn();
 
     $searchQuery = "";
     $params = [];
@@ -48,9 +48,9 @@ try {
 
     $stmtCountFiltered = $pdo->prepare("SELECT COUNT(e.id) as allcount " . $baseQuery . $searchQuery);
     $stmtCountFiltered->execute($params);
-    $recordsFiltered = $stmtCountFiltered->fetchColumn();
+    $recordsFiltered = (int)$stmtCountFiltered->fetchColumn();
 
-    $sql = "SELECT e.id, e.fecha_hora, u.nombre as usuario, e.mensaje, e.archivo, e.linea, e.stack_trace, e.url " 
+    $sql = "SELECT e.id, e.creado_en as fecha_hora, u.nombre as usuario, e.mensaje, e.archivo, e.linea, e.stack_trace, e.url " 
             . $baseQuery . $searchQuery . " ORDER BY " . $columnName . " " . $columnSortOrder . " LIMIT :limit OFFSET :offset";
     
     $stmt = $pdo->prepare($sql);
@@ -69,10 +69,10 @@ try {
         $sanitizedData[] = [
             "id" => $row['id'],
             "fecha_hora" => htmlspecialchars($row['fecha_hora'] ?? '', ENT_QUOTES, 'UTF-8'),
-            "usuario" => htmlspecialchars($row['usuario'] ?? 'Sistema', ENT_QUOTES, 'UTF-8'),
+            "usuario" => htmlspecialchars($row['usuario'] ?? 'Sistema / Anónimo', ENT_QUOTES, 'UTF-8'),
             "mensaje" => htmlspecialchars($row['mensaje'] ?? '', ENT_QUOTES, 'UTF-8'),
             "archivo" => htmlspecialchars($row['archivo'] ?? '', ENT_QUOTES, 'UTF-8'),
-            "linea" => htmlspecialchars($row['linea'] ?? '', ENT_QUOTES, 'UTF-8'),
+            "linea" => $row['linea'],
             "stack_trace" => htmlspecialchars($row['stack_trace'] ?? '', ENT_QUOTES, 'UTF-8'),
             "url" => htmlspecialchars($row['url'] ?? '', ENT_QUOTES, 'UTF-8')
         ];
@@ -85,9 +85,10 @@ try {
         "aaData" => $sanitizedData
     ]);
 
-} catch (\PDOException $e) {
+} catch (\Throwable $e) {
+    error_log("api/errores_data: " . $e->getMessage());
     echo json_encode([
-        "draw" => 0,
+        "draw" => intval($_GET['draw'] ?? 0),
         "iTotalRecords" => 0,
         "iTotalDisplayRecords" => 0,
         "aaData" => [],

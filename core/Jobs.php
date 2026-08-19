@@ -5,12 +5,12 @@ namespace Core;
  * Clase de apoyo para la cola de trabajos (jobs) de exportaciones.
  * Centraliza el lanzamiento asíncrono del worker CLI de forma portable
  * (Windows con "start /B" / Unix con "nohup ... &") y resuelve el binario
- * de PHP desde .env (PHP_BIN) o PHP_BINARY del entorno.
+ * de PHP desde .env (PHP_BIN), XAMPP o PHP_BINARY del entorno.
  */
 class Jobs {
     /**
-     * Resuelve la ruta del binario de PHP.
-     * Prioridad: PHP_BIN del .env > constante PHP_BINARY > 'php' (PATH).
+     * Resuelve la ruta del binario de PHP ejecutable en CLI.
+     * Prioridad: PHP_BIN del .env > C:\xampp\php\php.exe > PHP_BINARY > 'php'.
      *
      * @return string
      */
@@ -22,9 +22,23 @@ class Jobs {
                 return trim($env['PHP_BIN']);
             }
         }
-        if (defined('PHP_BINARY') && PHP_BINARY !== '' && PHP_BINARY !== false) {
-            return PHP_BINARY;
+
+        // Si estamos en Windows con XAMPP común
+        if (PHP_OS_FAMILY === 'Windows') {
+            $xamppPhp = 'C:\\xampp\\php\\php.exe';
+            if (file_exists($xamppPhp)) {
+                return $xamppPhp;
+            }
         }
+
+        // Si PHP_BINARY es un binario CLI válido (no httpd.exe del servidor web)
+        if (defined('PHP_BINARY') && PHP_BINARY !== '' && PHP_BINARY !== false) {
+            $bin = strtolower(PHP_BINARY);
+            if (str_contains($bin, 'php') && !str_contains($bin, 'httpd') && !str_contains($bin, 'apache')) {
+                return PHP_BINARY;
+            }
+        }
+
         return 'php';
     }
 
@@ -34,17 +48,25 @@ class Jobs {
      * @return bool True si el proceso pudo lanzarse
      */
     public static function launchWorker() {
-        $php = escapeshellarg(self::getPhpBinary());
-        $worker = escapeshellarg(dirname(__DIR__) . '/core/Worker.php');
+        $phpBin = self::getPhpBinary();
+        $workerScript = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'core' . DIRECTORY_SEPARATOR . 'Worker.php';
+
         if (PHP_OS_FAMILY === 'Windows') {
-            $cmd = "start /B " . $php . " " . $worker . " > NUL 2>&1";
+            // En Windows cmd, el primer argumento entre comillas de 'start' se toma como título de la ventana.
+            // Por ello se pasa "" como título vacío inicial: start /B "" "php.exe" "Worker.php"
+            $cmd = 'cmd.exe /c start /B "" ' . escapeshellarg($phpBin) . ' ' . escapeshellarg($workerScript) . ' > NUL 2>&1';
+            $p = @popen($cmd, 'r');
+            if ($p) {
+                @pclose($p);
+                return true;
+            }
         } else {
-            $cmd = "nohup " . $php . " " . $worker . " > /dev/null 2>&1 &";
-        }
-        $handle = @popen($cmd, 'r');
-        if ($handle) {
-            @pclose($handle);
-            return true;
+            $cmd = 'nohup ' . escapeshellarg($phpBin) . ' ' . escapeshellarg($workerScript) . ' > /dev/null 2>&1 &';
+            $p = @popen($cmd, 'r');
+            if ($p) {
+                @pclose($p);
+                return true;
+            }
         }
         return false;
     }

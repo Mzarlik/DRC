@@ -12,7 +12,7 @@ require_once '../../core/Database.php';
 use Core\Database;
 
 try {
-    $pdo = Database::getConnection();
+    $pdo = Database::getReadConnection();
 
     $draw = isset($_GET['draw']) ? intval($_GET['draw']) : 1;
     $start = isset($_GET['start']) ? intval($_GET['start']) : 0;
@@ -23,7 +23,7 @@ try {
 
     $columns = [
         0 => 'a.id',
-        1 => 'a.fecha_hora',
+        1 => 'a.creado_en',
         2 => 'u.nombre',
         3 => 'a.modulo',
         4 => 'a.accion',
@@ -39,7 +39,7 @@ try {
     $baseQuery = " FROM auditoria_logs a LEFT JOIN usuarios u ON a.usuario_id = u.id ";
                    
     $stmtCount = $pdo->query("SELECT COUNT(a.id) as allcount " . $baseQuery);
-    $recordsTotal = $stmtCount->fetchColumn();
+    $recordsTotal = (int)$stmtCount->fetchColumn();
 
     $searchQuery = "";
     $params = [];
@@ -62,9 +62,9 @@ try {
 
     $stmtCountFiltered = $pdo->prepare("SELECT COUNT(a.id) as allcount " . $baseQuery . $searchQuery);
     $stmtCountFiltered->execute($params);
-    $recordsFiltered = $stmtCountFiltered->fetchColumn();
+    $recordsFiltered = (int)$stmtCountFiltered->fetchColumn();
 
-    $sql = "SELECT a.id, a.fecha_hora, u.nombre as usuario, a.modulo, a.accion, a.detalles, a.ip_address " 
+    $sql = "SELECT a.id, a.creado_en as fecha_hora, u.nombre as usuario, a.modulo, a.accion, a.detalles, a.ip_address, a.tipo_evento " 
             . $baseQuery . $searchQuery . " ORDER BY " . $columnName . " " . $columnSortOrder . " LIMIT :limit OFFSET :offset";
     
     $stmt = $pdo->prepare($sql);
@@ -93,7 +93,8 @@ try {
             "modulo" => htmlspecialchars($row['modulo'] ?? '', ENT_QUOTES, 'UTF-8'),
             "accion" => htmlspecialchars($row['accion'] ?? '', ENT_QUOTES, 'UTF-8'),
             "detalles" => htmlspecialchars($row['detalles'] ?? '', ENT_QUOTES, 'UTF-8'),
-            "ip_address" => htmlspecialchars($row['ip_address'] ?? '', ENT_QUOTES, 'UTF-8')
+            "ip_address" => htmlspecialchars($row['ip_address'] ?? '', ENT_QUOTES, 'UTF-8'),
+            "tipo_evento" => htmlspecialchars($row['tipo_evento'] ?? 'ESCRITURA', ENT_QUOTES, 'UTF-8')
         ];
     }
 
@@ -104,9 +105,10 @@ try {
         "aaData" => $sanitizedData
     ]);
 
-} catch (\PDOException $e) {
+} catch (\Throwable $e) {
+    error_log("api/auditoria_data: " . $e->getMessage());
     echo json_encode([
-        "draw" => 0,
+        "draw" => intval($_GET['draw'] ?? 0),
         "iTotalRecords" => 0,
         "iTotalDisplayRecords" => 0,
         "aaData" => [],

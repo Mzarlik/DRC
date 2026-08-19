@@ -121,37 +121,38 @@ $notif_api = '../../public/api/notifications.php';
             </li>
             <?php endif; ?>
 
-            <!-- Mesa de Ayuda -->
-            <?php if (\Core\Auth::hasPermission('permiso_tickets')): ?>
-            <li class="<?php echo ($current_module == 'peticiones') ? 'active' : ''; ?>">
-                <a href="#ayudaSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo ($current_module == 'peticiones') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-headset"></i> <span class="sidebar-text">Mesa de Ayuda</span>
+            <!-- Ventanilla y Seguimiento -->
+            <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas') || \Core\Auth::hasPermission('permiso_tickets')): ?>
+            <li class="<?php echo in_array($current_module, ['peticion_rapida', 'peticiones']) ? 'active' : ''; ?>">
+                <a href="#ventanillaSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo in_array($current_module, ['peticion_rapida', 'peticiones']) ? 'true' : 'false'; ?>" class="dropdown-toggle">
+                    <i class="fa-solid fa-person-shelter"></i> <span class="sidebar-text">Ventanilla</span>
                 </a>
-                <ul class="collapse list-unstyled <?php echo ($current_module == 'peticiones') ? 'show' : ''; ?>" id="ayudaSubmenu">
-                    <li class="<?php echo ($current_module == 'peticiones') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'peticiones') ? 'index.php' : $path_prefix . 'peticiones/index.php'; ?>"><i class="fa-solid fa-ticket"></i> <span class="sidebar-text">Tickets / Peticiones</span></a></li>
+                <ul class="collapse list-unstyled <?php echo in_array($current_module, ['peticion_rapida', 'peticiones']) ? 'show' : ''; ?>" id="ventanillaSubmenu">
+                    <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
+                    <li class="<?php echo ($current_module == 'peticion_rapida' && basename($_SERVER['PHP_SELF']) != 'reporte_diario.php') ? 'active' : ''; ?>">
+                        <a href="<?php echo ($current_module == 'peticion_rapida') ? 'index.php' : $path_prefix . 'peticion_rapida/index.php'; ?>">
+                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">Petición Rápida</span>
+                        </a>
+                    </li>
+                    <li class="<?php echo ($current_module == 'peticion_rapida' && basename($_SERVER['PHP_SELF']) == 'reporte_diario.php') ? 'active' : ''; ?>">
+                        <a href="<?php echo ($current_module == 'peticion_rapida') ? 'reporte_diario.php' : $path_prefix . 'peticion_rapida/reporte_diario.php'; ?>">
+                            <i class="fa-solid fa-file-invoice text-info"></i> <span class="sidebar-text">Reporte Diario</span>
+                        </a>
+                    </li>
+                    <?php endif; ?>
+                    <?php if (\Core\Auth::hasPermission('permiso_tickets')): ?>
+                    <li class="<?php echo ($current_module == 'peticiones') ? 'active' : ''; ?>">
+                        <a href="<?php echo ($current_module == 'peticiones') ? 'index.php' : $path_prefix . 'peticiones/index.php'; ?>">
+                            <i class="fa-solid fa-folder-open text-primary"></i> <span class="sidebar-text">Ventanilla de Seguimiento</span>
+                        </a>
+                    </li>
+                    <?php endif; ?>
                 </ul>
             </li>
             <?php endif; ?>
 
             <!-- Administración (Admin / Supervisor) -->
             <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
-            <!-- Ventanilla (Petición Rápida y Turnos) -->
-            <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas') || \Core\Auth::hasPermission('permiso_turnos')): ?>
-            <li class="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'active' : ''; ?>">
-                <a href="#ventanillaSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-user-clock"></i> <span class="sidebar-text">Ventanilla</span>
-                </a>
-                <ul class="collapse list-unstyled <?php echo in_array($current_module, ['peticion_rapida', 'turnos']) ? 'show' : ''; ?>" id="ventanillaSubmenu">
-                    <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
-                    <li class="<?php echo ($current_module == 'peticion_rapida') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'peticion_rapida') ? 'index.php' : $path_prefix . 'peticion_rapida/index.php'; ?>"><i class="fa-solid fa-bolt"></i> <span class="sidebar-text">Petición Rápida</span></a></li>
-                    <?php endif; ?>
-                    <?php if (\Core\Auth::hasPermission('permiso_turnos')): ?>
-                    <li class="<?php echo ($current_module == 'turnos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'turnos') ? 'index.php' : $path_prefix . 'turnos/index.php'; ?>"><i class="fa-solid fa-list-ol"></i> <span class="sidebar-text">Turnos de Atención</span></a></li>
-                    <?php endif; ?>
-                </ul>
-            </li>
-            <?php endif; ?>
-
             <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
                 <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
                     <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
@@ -239,32 +240,7 @@ $notif_api = '../../public/api/notifications.php';
                                 <th>Fecha Registro</th>
                             </tr>
                         </thead>
-                        <tbody class="table-skeleton">
-                            <tr>
-                                <td><span class="skeleton" style="width: 92%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 82%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 87%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 81%; height: 16px;"></span></td>
-                            </tr>
-                            <tr>
-                                <td><span class="skeleton" style="width: 76%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 94%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 93%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 64%; height: 16px;"></span></td>
-                            </tr>
-                            <tr>
-                                <td><span class="skeleton" style="width: 85%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 70%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 77%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 83%; height: 16px;"></span></td>
-                            </tr>
-                            <tr>
-                                <td><span class="skeleton" style="width: 73%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 75%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 61%; height: 16px;"></span></td>
-                                <td><span class="skeleton" style="width: 61%; height: 16px;"></span></td>
-                            </tr>
-                        </tbody>
+                        <tbody></tbody>
 
                     </table>
                 </div>
@@ -304,9 +280,7 @@ $notif_api = '../../public/api/notifications.php';
             "processing": true,
             "serverSide": true,
             "ajax": "data.php",
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-MX.json"
-            },
+            
             "columns": [
                 { "data": "numero_acta" },
                 { "data": "ciudadano" },

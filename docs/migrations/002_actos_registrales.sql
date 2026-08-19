@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS defunciones (
     fecha_registro DATE NOT NULL,
     lugar_defuncion VARCHAR(255) NOT NULL,
     causa_defuncion VARCHAR(255) NOT NULL,
+    causa_muerte VARCHAR(255) DEFAULT NULL,
     usuario_registro INT DEFAULT NULL,
     observaciones TEXT DEFAULT NULL,
     estado TINYINT(1) NOT NULL DEFAULT 1,
@@ -88,6 +89,8 @@ CREATE TABLE IF NOT EXISTS inscripciones (
     ciudadano_id INT NOT NULL,
     tipo_acto VARCHAR(50) NOT NULL,
     lugar_origen VARCHAR(255) NOT NULL,
+    pais_origen VARCHAR(100) DEFAULT NULL,
+    documento_extranjero VARCHAR(255) DEFAULT NULL,
     fecha_registro DATE NOT NULL,
     usuario_registro INT DEFAULT NULL,
     observaciones TEXT DEFAULT NULL,
@@ -122,8 +125,11 @@ CREATE TABLE IF NOT EXISTS inexistencias (
     id INT AUTO_INCREMENT PRIMARY KEY,
     folio VARCHAR(50) NOT NULL UNIQUE,
     nombre_solicitante VARCHAR(200) NOT NULL,
+    nombre_completo VARCHAR(200) DEFAULT NULL,
     tipo_acto ENUM('NACIMIENTO', 'MATRIMONIO', 'DEFUNCION') NOT NULL,
+    tipo_constancia VARCHAR(100) DEFAULT 'INEXISTENCIA',
     fecha_solicitud DATE NOT NULL,
+    fecha_tramite DATE DEFAULT NULL,
     fecha_llegada DATE NOT NULL,
     linea_pago VARCHAR(50) NOT NULL,
     estatus ENUM('PENDIENTE', 'BUSQUEDA', 'EXPEDIDA', 'ENTREGADA') NOT NULL DEFAULT 'PENDIENTE',
@@ -138,45 +144,66 @@ CREATE TABLE IF NOT EXISTS inexistencias (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 8. Actas Foráneas
-CREATE TABLE IF NOT EXISTS actas_foraneas (
+CREATE TABLE IF NOT EXISTS foraneas (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    folio VARCHAR(50) NOT NULL UNIQUE,
+    numero_acta VARCHAR(50) NOT NULL,
     ciudadano_id INT NOT NULL,
     estado_origen VARCHAR(100) NOT NULL,
     municipio_origen VARCHAR(150) NOT NULL,
     tipo_acto VARCHAR(50) NOT NULL,
-    fecha_solicitud DATE NOT NULL,
-    estatus ENUM('SOLICITADA', 'RECIBIDA', 'ENTREGADA', 'RECHAZADA') NOT NULL DEFAULT 'SOLICITADA',
+    fecha_recepcion DATE NOT NULL,
+    estatus ENUM('SOLICITADA', 'RECIBIDA', 'VALIDADA', 'ENTREGADA', 'RECHAZADA') NOT NULL DEFAULT 'SOLICITADA',
     usuario_registro INT DEFAULT NULL,
+    observaciones TEXT DEFAULT NULL,
     estado TINYINT(1) NOT NULL DEFAULT 1,
     deleted_at DATETIME DEFAULT NULL,
     deleted_by INT DEFAULT NULL,
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ciudadano_id) REFERENCES ciudadanos(id),
-    FOREIGN KEY (usuario_registro) REFERENCES usuarios(id) ON DELETE SET NULL
+    FOREIGN KEY (usuario_registro) REFERENCES usuarios(id) ON DELETE SET NULL,
+    INDEX idx_estatus_fecha (estatus, fecha_recepcion)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 9. Peticiones de Ventanilla y Tickets
+-- 9. Trámites CURP
+CREATE TABLE IF NOT EXISTS tramites_curp (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ciudadano_id INT NOT NULL,
+    tipo_solicitud VARCHAR(100) NOT NULL,
+    estatus ENUM('PENDIENTE', 'PROCESADO', 'ENTREGADO', 'CANCELADO') NOT NULL DEFAULT 'PENDIENTE',
+    fecha_registro DATE NOT NULL,
+    usuario_registro INT DEFAULT NULL,
+    observaciones TEXT DEFAULT NULL,
+    estado TINYINT(1) NOT NULL DEFAULT 1,
+    deleted_at DATETIME DEFAULT NULL,
+    deleted_by INT DEFAULT NULL,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ciudadano_id) REFERENCES ciudadanos(id),
+    FOREIGN KEY (usuario_registro) REFERENCES usuarios(id) ON DELETE SET NULL,
+    INDEX idx_estatus_fecha (estatus, fecha_registro)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 10. Peticiones de Ventanilla y Tickets
 CREATE TABLE IF NOT EXISTS peticiones (
     id INT AUTO_INCREMENT PRIMARY KEY,
     folio VARCHAR(50) NOT NULL UNIQUE,
     ciudadano_id INT DEFAULT NULL,
     tipo_tramite VARCHAR(100) NOT NULL,
     descripcion TEXT DEFAULT NULL,
-    estatus ENUM('PENDIENTE', 'EN_PROCESO', 'ATENDIDA', 'CANCELADA') NOT NULL DEFAULT 'PENDIENTE',
+    estatus ENUM('ABIERTA', 'EN_PROGRESO', 'PENDIENTE', 'EN_PROCESO', 'ATENDIDA', 'CANCELADA') NOT NULL DEFAULT 'ABIERTA',
     usuario_registro INT DEFAULT NULL,
     usuario_asignado INT DEFAULT NULL,
     estado TINYINT(1) NOT NULL DEFAULT 1,
     deleted_at DATETIME DEFAULT NULL,
     deleted_by INT DEFAULT NULL,
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ciudadano_id) REFERENCES ciudadanos(id) ON DELETE SET NULL,
     FOREIGN KEY (usuario_registro) REFERENCES usuarios(id) ON DELETE SET NULL,
     FOREIGN KEY (usuario_asignado) REFERENCES usuarios(id) ON DELETE SET NULL,
     INDEX idx_estatus_tramite (estatus, tipo_tramite)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 10. Turnos de Atención
+-- 11. Turnos de Atención
 CREATE TABLE IF NOT EXISTS turnos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     numero_turno VARCHAR(20) NOT NULL,
