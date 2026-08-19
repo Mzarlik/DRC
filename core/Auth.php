@@ -14,15 +14,18 @@ class Auth {
      * HttpOnly, SameSite=Lax y Secure cuando la petición llega por HTTPS.
      */
     public static function initSession() {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_set_cookie_params([
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+            @ini_set('session.use_strict_mode', '1');
+            @session_set_cookie_params([
                 'lifetime' => 0,
                 'path' => '/',
                 'httponly' => true,
                 'samesite' => 'Lax',
                 'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
             ]);
-            session_start();
+            @session_start();
+        } elseif (session_status() === PHP_SESSION_NONE) {
+            @session_start();
         }
     }
 

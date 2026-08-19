@@ -22,23 +22,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sexo = trim($_POST['sexo'] ?? '');
     $fecha_nacimiento = trim($_POST['fecha_nacimiento'] ?? '');
 
-    // CURP puede ser nulo en la BD
-    if ($curp === '') {
-        $curp = null;
-    } else {
-        $curp = \Core\Encryption::encrypt($curp);
+    // Procesamiento de CURP con Blind Index (HMAC) e IV aleatorio (AES-256)
+    $curp_encrypted = null;
+    $curp_bindex = null;
+    if ($curp !== '') {
+        $curp_bindex = \Core\Encryption::getBlindIndex($curp);
+        $curp_encrypted = \Core\Encryption::encrypt($curp);
     }
 
     try {
         $pdo = Database::getConnection();
 
-        $sql = "INSERT INTO ciudadanos (curp, nombre, apellido_paterno, apellido_materno, sexo, fecha_nacimiento, estado_vital) 
-                VALUES (:curp, :nombre, :apellido_paterno, :apellido_materno, :sexo, :fecha_nacimiento, 'VIVO')";
+        $sql = "INSERT INTO ciudadanos (curp, curp_bindex, curp_encrypted, nombre, apellido_paterno, apellido_materno, sexo, fecha_nacimiento, estado_vital) 
+                VALUES (:curp, :curp_bindex, :curp_encrypted, :nombre, :apellido_paterno, :apellido_materno, :sexo, :fecha_nacimiento, 'VIVO')";
         
         $stmt = $pdo->prepare($sql);
         
         $result = $stmt->execute([
-            ':curp' => $curp,
+            ':curp' => $curp_encrypted,
+            ':curp_bindex' => $curp_bindex,
+            ':curp_encrypted' => $curp_encrypted,
             ':nombre' => $nombre,
             ':apellido_paterno' => $apellido_paterno,
             ':apellido_materno' => $apellido_materno,

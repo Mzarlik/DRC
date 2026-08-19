@@ -50,4 +50,16 @@ class UtilsTest extends TestCase {
         $this->assertFalse(Utils::validarLineaPago('12345678901234567_')); // Contiene guión bajo
         $this->assertFalse(Utils::validarLineaPago('1234567890 1234567')); // Contiene espacio
     }
+
+    /**
+     * Prueba la generación de avatar con iniciales 100% offline.
+     */
+    public function testGetAvatarHtml() {
+        $html = Utils::getAvatarHtml('Juan Pérez González');
+        $this->assertStringContainsString('JP', $html);
+        $this->assertStringContainsString('avatar-initials', $html);
+
+        $htmlSingle = Utils::getAvatarHtml('Admin');
+        $this->assertStringContainsString('AD', $htmlSingle);
+    }
 }

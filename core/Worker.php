@@ -14,8 +14,28 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
+/**
+ * Obtiene la conexión PDO activa realizando un ping y reconectando automáticamente si expiró.
+ */
+function getActivePdo(): \PDO {
+    static $pdoInstance = null;
+
+    if ($pdoInstance !== null) {
+        try {
+            $pdoInstance->query("SELECT 1");
+            return $pdoInstance;
+        } catch (\Throwable $e) {
+            $pdoInstance = null;
+        }
+    }
+
+    $pdoInstance = Database::getConnection();
+    $pdoInstance->setAttribute(\PDO::ATTR_TIMEOUT, 5);
+    return $pdoInstance;
+}
+
 try {
-    $pdo = Database::getConnection();
+    $pdo = getActivePdo();
     
     // 1. Obtener trabajos pendientes
     $stmt = $pdo->prepare("SELECT * FROM jobs WHERE status = 'pending' ORDER BY id ASC LIMIT 5");

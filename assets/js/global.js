@@ -511,3 +511,62 @@ $(document).ready(function() {
     $(window).on('resize', setupMobileActionButtons);
 });
 
+/**
+ * Inicializa un selector TomSelect para búsqueda remota de ciudadanos (Vanilla JS).
+ * @param {string|HTMLElement} elementId ID o elemento DOM
+ * @param {Object} customConfig Opciones adicionales
+ * @returns {TomSelect|null}
+ */
+function initCiudadanoSelect(elementId, customConfig = {}) {
+    if (typeof TomSelect === 'undefined') return null;
+    const el = (typeof elementId === 'string') ? document.getElementById(elementId) : elementId;
+    if (!el) return null;
+
+    // Destruir instancia previa si ya existe
+    if (el.tomselect) {
+        el.tomselect.destroy();
+    }
+
+    const defaultUrl = customConfig.searchUrl || (
+        window.location.pathname.includes('/modules/') 
+            ? '../ciudadanos/search.php' 
+            : 'modules/ciudadanos/search.php'
+    );
+
+    return new TomSelect(el, Object.assign({
+        valueField: 'id',
+        labelField: 'nombre_completo',
+        searchField: ['nombre_completo', 'curp'],
+        maxItems: 1,
+        placeholder: customConfig.placeholder || 'Escriba nombre o CURP...',
+        loadThrottle: 300,
+        create: false,
+        plugins: ['clear_button'],
+        load: function(query, callback) {
+            if (query.length < 3) return callback();
+            
+            const sep = defaultUrl.includes('?') ? '&' : '?';
+            fetch(`${defaultUrl}${sep}q=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(json => {
+                    callback(json.data || []);
+                })
+                .catch(() => callback());
+        },
+        render: {
+            option: function(item, escape) {
+                return `<div class="py-2 px-3 border-bottom">
+                    <div class="fw-bold text-dark">${escape(item.nombre_completo)}</div>
+                    <small class="text-muted"><i class="fa-solid fa-id-card me-1 text-primary"></i>CURP: ${escape(item.curp || 'S/C')}</small>
+                </div>`;
+            },
+            item: function(item, escape) {
+                return `<div><strong>${escape(item.nombre_completo)}</strong> <span class="text-muted">(${escape(item.curp || 'S/C')})</span></div>`;
+            },
+            no_results: function(data, escape) {
+                return `<div class="p-2 text-muted small">No se encontraron ciudadanos con: "${escape(data.input)}"</div>`;
+            }
+        }
+    }, customConfig));
+}
+

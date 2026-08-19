@@ -15,9 +15,10 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ERP - Dirección de Registro Civil</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Assets Locales (No CDN / Offline) -->
+    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/vendor/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="../assets/vendor/sweetalert2/sweetalert2.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
     <script>if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark-mode');}</script>
 </head>
@@ -202,7 +203,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     <!-- Perfil de Usuario -->
                     <div class="dropdown">
                         <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">
-                            <img src="https://ui-avatars.com/api/?name=<?php echo urlencode(\Core\Auth::getUserName()); ?>&background=18bc9c&color=fff" class="rounded-circle me-2" width="32" height="32" alt="User">
+                            <?php echo \Core\Utils::getAvatarHtml(\Core\Auth::getUserName(), 32); ?>
                             <?php echo htmlspecialchars(\Core\Auth::getUserName()); ?>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -344,10 +345,12 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../assets/vendor/jquery/jquery-3.7.1.min.js"></script>
+<script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
+<script src="../assets/vendor/chartjs/chart.umd.min.js"></script>
+<script src="../assets/js/components-alpine.js"></script>
+<script src="../assets/vendor/alpine/alpine-csp.min.js" defer></script>
 
 <script>
     $(document).ready(function () {

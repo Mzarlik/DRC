@@ -10,20 +10,31 @@ class Auditoria {
      * @param string $accion La acción realizada (ej. 'CREAR', 'EDITAR', 'ELIMINAR')
      * @param string $detalles Descripción detallada de lo que se hizo
      */
-    public static function logAccion($modulo, $accion, $detalles = '') {
+    public static function logAccion($modulo, $accion, $detalles = '', $tipoEvento = 'ESCRITURA') {
         try {
             require_once __DIR__ . '/Database.php';
             $pdo = Database::getConnection();
             $usuario_id = $_SESSION['user_id'] ?? null;
-            $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+            $ip = $_SERVER['REMOTE_ADDR'] ?? 'CLI';
 
             if ($usuario_id) {
-                $stmt = $pdo->prepare("INSERT INTO auditoria_logs (usuario_id, modulo, accion, detalles, ip_address) VALUES (?, ?, ?, ?, ?)");
-                $stmt->execute([$usuario_id, $modulo, $accion, $detalles, $ip]);
+                $stmt = $pdo->prepare("INSERT INTO auditoria_logs (usuario_id, tipo_evento, modulo, accion, detalles, ip_address) VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$usuario_id, $tipoEvento, $modulo, $accion, $detalles, $ip]);
             }
         } catch (\Exception $e) {
             // Silencioso para no romper la ejecución si el log falla
         }
+    }
+
+    /**
+     * Registra una consulta de lectura o búsqueda de datos personales (Cumplimiento LGPDPPSO / INAI).
+     *
+     * @param string $modulo Módulo consultado (ej. 'Ciudadanos', 'Actas')
+     * @param string $accion Acción de lectura (ej. 'CONSULTA_CURP', 'BUSQUEDA_EXPEDIENTE')
+     * @param string $detalles Criterios de búsqueda o ID del ciudadano consultado
+     */
+    public static function logLectura($modulo, $accion, $detalles = '') {
+        self::logAccion($modulo, $accion, $detalles, 'LECTURA');
     }
 
     /**

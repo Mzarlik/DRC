@@ -191,4 +191,46 @@ class Database {
             throw $e;
         }
     }
+
+    /**
+     * Ejecuta una operación dentro de una transacción con reintentos automáticos
+     * ante condiciones de Deadlock (MySQL Error 1213 / SQLSTATE 40001) o Lock Wait Timeout (1205).
+     *
+     * @param callable $callback Función anónima function(\PDO $pdo)
+     * @param int $maxRetries Número máximo de intentos (por defecto 3)
+     * @return mixed Retorno del callback
+     * @throws \Throwable Si se agotan los reintentos o el error no es de concurrencia
+     */
+    public static function transactionWithRetry(callable $callback, int $maxRetries = 3) {
+        $pdo = self::getConnection();
+        $attempts = 0;
+
+        while ($attempts < $maxRetries) {
+            $attempts++;
+            try {
+                $pdo->beginTransaction();
+                $result = $callback($pdo);
+                $pdo->commit();
+                return $result;
+            } catch (\Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+
+                $msg = $e->getMessage();
+                $code = (string)$e->getCode();
+
+                // Detección de Deadlock (1213 / 40001) o Lock Timeout (1205)
+                $isDeadlock = ($code === '40001' || $code === '1213' || str_contains($msg, '1213') || str_contains($msg, 'Deadlock') || str_contains($msg, '1205'));
+
+                if ($isDeadlock && $attempts < $maxRetries) {
+                    // Backoff exponencial con jitter (20ms a 50ms * intento)
+                    usleep(rand(20000, 50000) * $attempts);
+                    continue;
+                }
+
+                throw $e;
+            }
+        }
+    }
 }
