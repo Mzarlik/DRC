@@ -268,7 +268,7 @@ $notif_api = 'api/notifications.php';
                     <div class="card border-0 shadow-sm mb-3">
                         <div class="card-body py-3">
                             <div class="row g-2 align-items-end">
-                                <div class="col-md-4">
+                                <div class="col-12 col-md-4">
                                     <label for="filtroModulo" class="form-label small fw-bold mb-1">Módulo</label>
                                     <select id="filtroModulo" class="form-select form-select-sm">
                                         <option value="">Todos los módulos</option>
@@ -277,7 +277,7 @@ $notif_api = 'api/notifications.php';
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-12 col-md-4">
                                     <label for="filtroAccion" class="form-label small fw-bold mb-1">Acción</label>
                                     <select id="filtroAccion" class="form-select form-select-sm">
                                         <option value="">Todas las acciones</option>
@@ -286,11 +286,11 @@ $notif_api = 'api/notifications.php';
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-6 col-md-2">
                                     <button id="btnFiltrar" class="btn btn-sm btn-primary w-100"><i class="fa-solid fa-filter me-1"></i> Filtrar</button>
                                 </div>
-                                <div class="col-md-2">
-                                    <button id="btnLimpiarFiltros" class="btn btn-sm btn-outline-secondary w-100">Limpiar</button>
+                                <div class="col-6 col-md-2">
+                                    <button id="btnLimpiarFiltros" class="btn btn-sm btn-outline-secondary w-100"><i class="fa-solid fa-rotate-left me-1"></i> Limpiar</button>
                                 </div>
                             </div>
                         </div>

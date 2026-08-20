@@ -605,6 +605,24 @@ $(document).ready(function() {
                 });
             }
         });
+        // Tab change listener to recalculate columns and rebuild mobile cards for visible tables
+        $(document).on('shown.bs.tab', 'button[data-bs-toggle="tab"], button[data-bs-toggle="pill"], a[data-bs-toggle="tab"], a[data-bs-toggle="pill"]', function() {
+            setTimeout(() => {
+                $.fn.dataTable.tables({ visible: true, api: true }).each(function() {
+                    this.columns.adjust();
+                    if (this.responsive) {
+                        this.responsive.recalc();
+                    }
+                    if ($(window).width() < 768) {
+                        const $wrapper = $(this.table().container());
+                        const $cardsContainer = $wrapper.next('.table-mobile-cards');
+                        if ($cardsContainer.length && !$cardsContainer.hasClass('d-none')) {
+                            this.draw(false);
+                        }
+                    }
+                });
+            }, 100);
+        });
     }
 
     // Helper function to setup responsiveness switcher and cards
@@ -652,18 +670,82 @@ $(document).ready(function() {
                     // Identify if it's the actions cell
                     if ($cell.find('.btn, a.btn').length || $cell.hasClass('actions-cell') || label.toLowerCase() === 'acciones') {
                         cardActions = valHtml;
-                    } else if (label.toLowerCase() === 'nombre' || label.toLowerCase() === 'nombre completo' || label.toLowerCase() === 'ciudadano' || label.toLowerCase() === 'usuario') {
+                    } else if (
+                        label.toLowerCase() === 'nombre' || 
+                        label.toLowerCase() === 'nombre completo' || 
+                        label.toLowerCase() === 'ciudadano' || 
+                        label.toLowerCase() === 'usuario' || 
+                        label.toLowerCase() === 'solicitante' ||
+                        label.toLowerCase() === 'finado' ||
+                        label.toLowerCase() === 'inscrito' ||
+                        label.toLowerCase() === 'reconocido' ||
+                        label.toLowerCase() === 'contrayente 1' ||
+                        label.toLowerCase() === 'divorciado 1' ||
+                        label.toLowerCase() === 'titular'
+                    ) {
                         cardTitle = valHtml;
-                    } else if (label.toLowerCase() === 'id' || label.toLowerCase() === 'no. acta' || label.toLowerCase() === 'número de acta' || label.toLowerCase() === 'numero_acta' || label.toLowerCase() === 'clave') {
+                    } else if (
+                        label.toLowerCase() === 'id' || 
+                        label.toLowerCase() === 'no. acta' || 
+                        label.toLowerCase() === 'número de acta' || 
+                        label.toLowerCase() === 'numero_acta' || 
+                        label.toLowerCase() === 'acta' || 
+                        label.toLowerCase() === 'clave' || 
+                        label.toLowerCase() === 'folio ventanilla' || 
+                        label.toLowerCase() === 'folio' ||
+                        label.toLowerCase() === 'ticket' ||
+                        label.toLowerCase() === 'turno'
+                    ) {
                         cardBadge = valText;
                     } else {
-                        cardDetails.push({ label: label, value: valHtml });
+                        // Limpiar nombres de etiqueta demasiado largos
+                        let cleanLabel = label;
+                        const lLow = label.toLowerCase();
+                        if (lLow.includes('tipo de constancia') || lLow.includes('tipo de trámite') || lLow.includes('tipo de acto') || lLow.includes('trámite solicitado')) cleanLabel = 'Tipo';
+                        else if (lLow.includes('línea de pago') || lLow.includes('linea de pago')) cleanLabel = 'Línea Pago';
+                        else if (lLow.includes('fecha de nacimiento')) cleanLabel = 'Fecha Nac.';
+                        else if (lLow.includes('fecha de defunción')) cleanLabel = 'Fecha Def.';
+                        else if (lLow.includes('fecha de registro') || lLow.includes('fecha registro')) cleanLabel = 'Fecha Reg.';
+                        else if (lLow.includes('lugar de nacimiento')) cleanLabel = 'Lugar Nac.';
+                        else if (lLow.includes('lugar de origen') || lLow.includes('estado origen')) cleanLabel = 'Origen';
+                        else if (lLow.includes('detalle / referencia')) cleanLabel = 'Detalle';
+                        else if (lLow.includes('curp / contacto')) cleanLabel = 'Contacto';
+                        
+                        cardDetails.push({ label: cleanLabel, value: valHtml });
                     }
                 });
 
+                // Detección y combinación de parejas de contrayentes / divorciados
+                const c1Idx = cardDetails.findIndex(d => d.label.toLowerCase().includes('primer contrayente') || d.label.toLowerCase().includes('contrayente 1'));
+                const c2Idx = cardDetails.findIndex(d => d.label.toLowerCase().includes('segundo contrayente') || d.label.toLowerCase().includes('contrayente 2'));
+                if (c1Idx !== -1 && c2Idx !== -1) {
+                    cardTitle = `${cardDetails[c1Idx].value} <span class="text-muted small">&</span> ${cardDetails[c2Idx].value}`;
+                    const firstIdx = Math.min(c1Idx, c2Idx);
+                    const secondIdx = Math.max(c1Idx, c2Idx);
+                    cardDetails.splice(secondIdx, 1);
+                    cardDetails.splice(firstIdx, 1);
+                }
+
+                const div1Idx = cardDetails.findIndex(d => d.label.toLowerCase().includes('divorciado 1'));
+                const div2Idx = cardDetails.findIndex(d => d.label.toLowerCase().includes('divorciado 2'));
+                if (div1Idx !== -1 && div2Idx !== -1) {
+                    cardTitle = `${cardDetails[div1Idx].value} <span class="text-muted small">y</span> ${cardDetails[div2Idx].value}`;
+                    const firstIdx = Math.min(div1Idx, div2Idx);
+                    const secondIdx = Math.max(div1Idx, div2Idx);
+                    cardDetails.splice(secondIdx, 1);
+                    cardDetails.splice(firstIdx, 1);
+                }
+
                 // If we didn't find a specific title, use the first detail
                 if (!cardTitle && cardDetails.length > 0) {
-                    const nameIdx = cardDetails.findIndex(d => d.label.toLowerCase().includes('nombre') || d.label.toLowerCase().includes('usuario'));
+                    const nameIdx = cardDetails.findIndex(d => 
+                        d.label.toLowerCase().includes('nombre') || 
+                        d.label.toLowerCase().includes('usuario') || 
+                        d.label.toLowerCase().includes('ciudadano') ||
+                        d.label.toLowerCase().includes('solicitante') ||
+                        d.label.toLowerCase().includes('concepto') ||
+                        d.label.toLowerCase().includes('descripción')
+                    );
                     if (nameIdx !== -1) {
                         cardTitle = cardDetails[nameIdx].value;
                         cardDetails.splice(nameIdx, 1);
@@ -673,28 +755,92 @@ $(document).ready(function() {
                     }
                 }
 
+                // Emparejar Fecha Trámite y Fecha Llegada en una sola fila compacta
+                const tramIdx = cardDetails.findIndex(d => d.label.toLowerCase().includes('trámite') || d.label.toLowerCase().includes('tramite'));
+                const llegIdx = cardDetails.findIndex(d => d.label.toLowerCase().includes('llegada'));
+                if (tramIdx !== -1 && llegIdx !== -1) {
+                    const tramVal = cardDetails[tramIdx].value;
+                    const llegVal = cardDetails[llegIdx].value;
+                    const pairedRow = {
+                        label: 'Fechas',
+                        value: `<span class="text-muted small me-1">Trámite:</span>${tramVal} <span class="text-muted small ms-2 me-1">Llegada:</span>${llegVal}`
+                    };
+                    const firstIdx = Math.min(tramIdx, llegIdx);
+                    const secondIdx = Math.max(tramIdx, llegIdx);
+                    cardDetails.splice(secondIdx, 1);
+                    cardDetails.splice(firstIdx, 1, pairedRow);
+                }
+
+                // Emparejar Sexo y Fecha Nac. (Ciudadanos)
+                const sexoIdx = cardDetails.findIndex(d => d.label.toLowerCase() === 'sexo');
+                const fnacIdx = cardDetails.findIndex(d => d.label.toLowerCase().includes('fecha nac'));
+                if (sexoIdx !== -1 && fnacIdx !== -1) {
+                    const sexoVal = cardDetails[sexoIdx].value;
+                    const fnacVal = cardDetails[fnacIdx].value;
+                    const pairedRow = {
+                        label: 'Datos',
+                        value: `<span class="badge bg-light text-dark border me-1">${sexoVal}</span><span class="small font-monospace">${fnacVal}</span>`
+                    };
+                    const firstIdx = Math.min(sexoIdx, fnacIdx);
+                    const secondIdx = Math.max(sexoIdx, fnacIdx);
+                    cardDetails.splice(secondIdx, 1);
+                    cardDetails.splice(firstIdx, 1, pairedRow);
+                }
+
+                // Emparejar Estado Vital y Estatus (Ciudadanos)
+                const vitalIdx = cardDetails.findIndex(d => d.label.toLowerCase().includes('estado vital'));
+                const estatusIdx = cardDetails.findIndex(d => d.label.toLowerCase() === 'estatus' || d.label.toLowerCase() === 'estado');
+                if (vitalIdx !== -1 && estatusIdx !== -1 && vitalIdx !== estatusIdx) {
+                    const vitalVal = cardDetails[vitalIdx].value;
+                    const estatusVal = cardDetails[estatusIdx].value;
+                    const pairedRow = {
+                        label: 'Estado',
+                        value: `${vitalVal} ${estatusVal}`
+                    };
+                    const firstIdx = Math.min(vitalIdx, estatusIdx);
+                    const secondIdx = Math.max(vitalIdx, estatusIdx);
+                    cardDetails.splice(secondIdx, 1);
+                    cardDetails.splice(firstIdx, 1, pairedRow);
+                }
+
+                // Detectar fila de estatus para acoplar acciones inline
+                const statusIdx = cardDetails.findIndex(d => d.label.toLowerCase().includes('estatus') || d.label.toLowerCase().includes('estado'));
+
                 // Build Card HTML
                 let cardHtml = `
-                    <div class="card mobile-record-card mb-3 border-1">
-                        <div class="card-header-mobile d-flex justify-content-between align-items-center p-3 border-bottom">
-                            <div class="fw-bold text-primary-theme small-title">${cardTitle}</div>
-                            ${cardBadge ? `<span class="badge bg-secondary-theme">${cardBadge}</span>` : ''}
+                    <div class="card mobile-record-card border-1">
+                        <div class="card-header-mobile">
+                            <div class="small-title">${cardTitle}</div>
+                            ${cardBadge ? `<span class="badge bg-primary text-white">${cardBadge}</span>` : ''}
                         </div>
-                        <div class="card-body p-3">
+                        <div class="card-body">
                 `;
 
-                cardDetails.forEach(function(detail) {
-                    cardHtml += `
-                        <div class="card-detail-row d-flex justify-content-between align-items-start mb-2 pb-2 border-bottom border-dashed">
-                            <span class="text-muted small fw-semibold me-3">${detail.label}</span>
-                            <span class="text-end text-dark-theme font-medium">${detail.value}</span>
-                        </div>
-                    `;
+                cardDetails.forEach(function(detail, idx) {
+                    if (idx === statusIdx && cardActions) {
+                        cardHtml += `
+                            <div class="card-detail-row align-items-center">
+                                <span class="card-detail-label">${detail.label}</span>
+                                <div class="card-detail-value d-flex align-items-center justify-content-end gap-2 flex-wrap">
+                                    <span>${detail.value}</span>
+                                    <div class="card-inline-actions">${cardActions}</div>
+                                </div>
+                            </div>
+                        `;
+                        cardActions = ''; // Integrado
+                    } else {
+                        cardHtml += `
+                            <div class="card-detail-row">
+                                <span class="card-detail-label">${detail.label}</span>
+                                <span class="card-detail-value">${detail.value}</span>
+                            </div>
+                        `;
+                    }
                 });
 
                 if (cardActions) {
                     cardHtml += `
-                        <div class="card-actions-row mt-3 pt-3 border-top text-center">
+                        <div class="card-actions-row">
                             ${cardActions}
                         </div>
                     `;
@@ -719,7 +865,7 @@ $(document).ready(function() {
         // Inject View Switcher control at the top of the DataTable wrapper
         const switcherId = 'switcher_' + ($table.attr('id') || Math.random().toString(36).substr(2, 9));
         const switcherHtml = `
-            <div class="view-switcher-container d-flex justify-content-end mb-3 d-md-none">
+            <div class="view-switcher-container d-flex justify-content-end mb-2 d-md-none">
                 <div class="btn-group btn-group-sm" role="group" aria-label="Toggle View">
                     <button type="button" class="btn btn-primary btn-view-cards active" id="btn_cards_${switcherId}" style="background: var(--secondary-color); border: 1px solid var(--secondary-color);">
                         <i class="fa-solid fa-table-cells-large me-1"></i> Tarjetas
@@ -805,30 +951,46 @@ $(document).ready(function() {
         }
     });
 
-    // 6. REUBICACIÓN DE BOTONES DE ACCIÓN EN MÓVILES (FAB)
+    // 6. REUBICACIÓN DE BOTONES DE ACCIÓN EN MÓVILES (BARRA FLOTANTE FIJA)
     function setupMobileActionButtons() {
         if ($(window).width() < 768) {
-            const $headerFlex = $('.container-fluid > .d-flex.justify-content-between.align-items-center');
-            if ($headerFlex.length) {
-                const $actionDiv = $headerFlex.find('div:has(.btn)');
-                if ($actionDiv.length && !$actionDiv.hasClass('mobile-action-bar-processed')) {
-                    $actionDiv.addClass('mobile-action-bar-processed');
-                    
-                    const $mobileBar = $('<div class="mobile-action-bar d-md-none"></div>');
-                    $actionDiv.children().appendTo($mobileBar);
+            const selectors = [
+                '.container-fluid > .d-flex.justify-content-between:first-child div:has(.btn)',
+                '.container-fluid > div:first-child.d-flex.justify-content-between div:has(.btn)',
+                '.page-header-responsive div:has(.btn)',
+                '.container-fluid > .d-flex.justify-content-end.mb-3:has(#btnExportAcciones, #btnExportErrores)'
+            ];
+            
+            const $actionContainers = $(selectors.join(', '));
+
+            if ($actionContainers.length && !$('.mobile-action-bar').length) {
+                const $mobileBar = $('<div class="mobile-action-bar d-md-none"></div>');
+                
+                $actionContainers.each(function() {
+                    const $div = $(this);
+                    if (!$div.hasClass('mobile-action-bar-processed')) {
+                        $div.addClass('mobile-action-bar-processed');
+                        $div.children('.btn, a.btn').appendTo($mobileBar);
+                        $div.addClass('d-none');
+                    }
+                });
+
+                if ($mobileBar.children().length) {
                     $('body').append($mobileBar);
-                    $actionDiv.addClass('d-none');
-                    $('body').css('padding-bottom', '95px');
+                    $('body').addClass('has-mobile-action-bar');
                 }
             }
         } else {
-            const $actionDiv = $('.mobile-action-bar-processed');
+            const $actionDivs = $('.mobile-action-bar-processed');
             const $mobileBar = $('.mobile-action-bar');
-            if ($actionDiv.length && $mobileBar.length) {
-                $mobileBar.children().appendTo($actionDiv);
+            if ($mobileBar.length) {
+                $actionDivs.each(function() {
+                    const $div = $(this);
+                    $mobileBar.children().appendTo($div);
+                    $div.removeClass('d-none mobile-action-bar-processed');
+                });
                 $mobileBar.remove();
-                $actionDiv.removeClass('d-none mobile-action-bar-processed');
-                $('body').css('padding-bottom', '');
+                $('body').removeClass('has-mobile-action-bar');
             }
         }
     }

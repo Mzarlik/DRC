@@ -4,6 +4,14 @@ Este documento registra todos los cambios notables, actualizaciones y correcione
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.5.0] - 2026-08-20
+### Añadido
+- **Diseño Móvil y Responsive Ultra-Compacto:** Optimización global en `assets/css/style.css` y `assets/js/global.js` reduciendo la altura vertical de las tarjetas móviles (`.mobile-record-card`) en más de un 55% (~150px vs ~380px previo), permitiendo visualizar de 2 a 3 registros simultáneos por pantalla.
+- **Barra de Acciones Flotante Inferior Ergonómica (`.mobile-action-bar`):** Fijación inferior moderna con desenfoque de cristal (*backdrop blur*), área segura móvil (*safe area inset*), sombra elevada y distribución proporcional de botones de acción rápida (*Exportar* y *+ Nuevo / Registrar*).
+- **Segmented Controls y Pestañas Responsivas:** Pestañas dobles (`.nav-pills`, `.nav-tabs`) con distribución automática 50%/50% en celulares y scroll horizontal táctil suave para menús multivariables.
+- **Distribución de Botones de Filtro 50/50:** Formularios de búsqueda y filtrado de auditoría y módulos con botones de *Filtrar* y *Limpiar* alineados en la misma fila en dispositivos móviles.
+- **Densidad Optimizada de Tablas:** Reducción del padding estándar de DataTables a `7px 12px` en celdas y `8px 12px` en encabezados para un aprovechamiento superior del espacio en escritorio y móvil.
+
 ## [1.4.0] - 2026-08-18
 ### Añadido
 - **Rol COORDINADOR y banderas de ventanilla/exportación:** migración `docs/migration_turnos_ventanilla.php` agrega el rol `COORDINADOR` y las banderas `permiso_exportar`, `permiso_peticiones_rapidas`, `permiso_turnos`; `update_usuario.php`/`usuarios.php` incorporan el nuevo rol y las banderas (ADMIN fuerza todas a 1; COORDINADOR/SUPERVISOR siempre exportan).

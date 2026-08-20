@@ -3,12 +3,12 @@
 require_once '../../core/Auth.php';
 \Core\Auth::check();
 
-$current_module = 'reportes';
-$path_prefix = '../../';
-$db_link = '../../public/index.php';
-$logout_link = '../../public/logout.php';
-$profile_link = '../../public/perfil.php';
-$notif_api = '../../public/api/notifications.php';
+$current_module = basename(dirname($_SERVER['SCRIPT_NAME']));
+$path_prefix = ($current_module == 'public') ? '../modules/' : '../';
+$db_link = ($current_module == 'public') ? 'index.php' : '../../public/index.php';
+$logout_link = ($current_module == 'public') ? 'logout.php' : '../../public/logout.php';
+$profile_link = ($current_module == 'public') ? 'perfil.php' : '../../public/perfil.php';
+$notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../public/api/notifications.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">

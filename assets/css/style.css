@@ -552,8 +552,8 @@ a:hover {
 }
 
 table.dataTable {
-    margin-top: 12px !important;
-    margin-bottom: 16px !important;
+    margin-top: 8px !important;
+    margin-bottom: 12px !important;
     border-collapse: collapse !important;
 }
 
@@ -561,18 +561,19 @@ table.dataTable thead th {
     background-color: var(--table-header-bg) !important;
     color: var(--text-muted) !important;
     font-weight: 700;
-    font-size: 0.8rem;
+    font-size: 0.775rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 14px 16px !important;
+    letter-spacing: 0.04em;
+    padding: 8px 12px !important;
     border-bottom: 1px solid var(--border-color) !important;
 }
 
 table.dataTable tbody td {
-    padding: 14px 16px !important;
+    padding: 7px 12px !important;
     vertical-align: middle;
     border-bottom: 1px solid var(--border-color);
-    font-size: 0.9rem;
+    font-size: 0.84rem;
+    line-height: 1.3;
 }
 
 table.dataTable tbody tr:hover {
@@ -710,16 +711,213 @@ table.dataTable tbody tr:hover {
 }
 
 /* ==========================================================================
+   Tarjetas Móviles de Registros (.mobile-record-card)
+   ========================================================================== */
+.table-mobile-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+}
+
+.mobile-record-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mobile-record-card:hover {
+    border-color: var(--secondary-color);
+}
+
+.mobile-record-card .card-header-mobile {
+    background-color: var(--bg-surface);
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+}
+
+.mobile-record-card .card-header-mobile .small-title {
+    font-size: 0.825rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dark-mode .mobile-record-card .card-header-mobile .small-title {
+    color: #F87171;
+}
+
+.mobile-record-card .card-header-mobile .badge {
+    font-size: 0.68rem;
+    padding: 2px 5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.mobile-record-card .card-body {
+    padding: 6px 10px;
+}
+
+.mobile-record-card .card-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 2.5px 0;
+    border-bottom: 1px dashed var(--border-color);
+    gap: 6px;
+    font-size: 0.78rem;
+}
+
+.mobile-record-card .card-detail-row:last-child {
+    border-bottom: none;
+}
+
+.mobile-record-card .card-detail-label {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.72rem;
+    flex: 0 0 25%;
+    max-width: 28%;
+    min-width: 50px;
+    line-height: 1.2;
+}
+
+.mobile-record-card .card-detail-value {
+    color: var(--text-main);
+    font-weight: 500;
+    text-align: right;
+    flex: 1;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.mobile-record-card .card-detail-value .badge {
+    font-size: 0.68rem;
+    padding: 2px 5px;
+    font-weight: 600;
+}
+
+.mobile-record-card .card-actions-row {
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.mobile-record-card .card-actions-row .btn,
+.mobile-record-card .card-actions-row a.btn,
+.mobile-record-card .card-inline-actions .btn,
+.mobile-record-card .card-inline-actions a.btn {
+    padding: 2px 6px !important;
+    font-size: 0.72rem !important;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+/* Conmutador de Vistas (Tarjetas / Tabla) */
+.view-switcher-container {
+    margin-bottom: 6px !important;
+}
+
+.view-switcher-container .btn-group {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.view-switcher-container .btn {
+    padding: 3px 8px !important;
+    font-size: 0.72rem !important;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   Barra Flotante de Acciones Móviles (.mobile-action-bar)
+   ========================================================================== */
+.mobile-action-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.12);
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+    z-index: 1040;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: stretch;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.dark-mode .mobile-action-bar {
+    background: rgba(30, 41, 59, 0.95);
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.4);
+}
+
+.mobile-action-bar .btn,
+.mobile-action-bar a.btn {
+    flex: 1 1 0 !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+    padding: 8px 6px !important;
+    border-radius: 8px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    gap: 4px !important;
+    min-height: 36px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.mobile-action-bar .btn-success,
+.mobile-action-bar .btn-excel,
+.mobile-action-bar .btn-outline-secondary {
+    flex: 1 1 0 !important;
+}
+
+.mobile-action-bar .btn-primary {
+    flex: 1.15 1 0 !important;
+}
+
+/* ==========================================================================
    Ajustes Globales Responsive (Móviles / Tablets)
    ========================================================================== */
 @media (max-width: 767.98px) {
+    body.has-mobile-action-bar {
+        padding-bottom: 85px !important;
+    }
+
     #content {
-        padding: 16px 14px !important;
+        padding: 12px 10px !important;
     }
 
     .navbar {
-        padding: 8px 12px !important;
-        margin-bottom: 18px !important;
+        padding: 6px 10px !important;
+        margin-bottom: 12px !important;
     }
 
     .navbar .container-fluid {
@@ -737,42 +935,237 @@ table.dataTable tbody tr:hover {
     }
 
     #darkModeToggle {
-        margin-right: 8px !important;
+        margin-right: 6px !important;
     }
 
     #notificacionesMenu {
-        margin-right: 8px !important;
+        margin-right: 6px !important;
     }
 
-    /* Apilar limpiamente cabeceras de módulos y botones de acción */
-    #content > .container-fluid > .d-flex.justify-content-between:first-child,
-    #content > .container-fluid > div:first-child.d-flex.justify-content-between,
-    .page-header-responsive {
+    /* Cabeceras de módulos */
+    .page-header-responsive,
+    #content > .container-fluid > .d-flex.justify-content-between.align-items-center:first-child,
+    #content > .container-fluid > div:first-child.d-flex.justify-content-between {
         flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 12px !important;
-        margin-bottom: 20px !important;
+        align-items: flex-start !important;
+        gap: 6px !important;
+        margin-bottom: 12px !important;
     }
 
-    #content > .container-fluid > .d-flex.justify-content-between:first-child > .btn,
-    #content > .container-fluid > .d-flex.justify-content-between:first-child > a.btn,
-    #content > .container-fluid > div:first-child.d-flex.justify-content-between > .btn,
-    #content > .container-fluid > div:first-child.d-flex.justify-content-between > a.btn,
-    #content > .container-fluid > .d-flex.justify-content-between:first-child > div:last-child .btn,
-    #content > .container-fluid > .d-flex.justify-content-between:first-child > div:last-child a.btn {
+    /* Pestañas de navegación responsivas (Pills y Tabs) con distribución 50/50 y texto fluido */
+    .nav-pills, .nav-tabs {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+        gap: 6px !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 10px !important;
+        border-bottom: none !important;
         width: 100% !important;
+        overflow: visible !important;
+    }
+
+    .nav-pills:has(> .nav-item:nth-child(2):last-child),
+    .nav-tabs:has(> .nav-item:nth-child(2):last-child) {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    .nav-pills .nav-item, .nav-tabs .nav-item {
+        min-width: 0 !important;
+        width: 100% !important;
+        flex: none !important;
+    }
+
+    .nav-pills .nav-link, .nav-tabs .nav-link {
+        padding: 6px 6px !important;
+        font-size: 0.76rem !important;
+        line-height: 1.15 !important;
+        min-height: 38px !important;
+        text-align: center !important;
+        border-radius: 8px !important;
+        border: 1px solid var(--border-color) !important;
+        background-color: var(--bg-surface);
+        color: var(--text-main);
+        white-space: normal !important;
+        word-break: normal !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        padding: 10px 16px !important;
-        white-space: nowrap !important;
+        gap: 4px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
 
-    #content > .container-fluid > .d-flex.justify-content-between:first-child .btn-group,
-    #content > .container-fluid > .d-flex.justify-content-between:first-child .d-flex {
+    .nav-pills .nav-link .badge, .nav-tabs .nav-link .badge {
+        font-size: 0.68rem !important;
+        padding: 2px 5px !important;
+        margin-left: 2px !important;
+    }
+
+    .nav-pills .nav-link.active, .nav-tabs .nav-link.active {
+        background-color: var(--secondary-color) !important;
+        border-color: var(--secondary-color) !important;
+        color: #FFFFFF !important;
+    }
+
+    /* Cards de filtros con margen reducido */
+    .card.mb-4 {
+        margin-bottom: 10px !important;
+    }
+    .card .card-header {
+        padding: 8px 12px !important;
+        font-size: 0.875rem !important;
+    }
+    .card .card-body {
+        padding: 10px 12px !important;
+    }
+
+    /* Distribución de Botones de Filtro (50% / 50%) */
+    .filter-actions-col,
+    .filter-actions-row,
+    .filter-btn-group {
+        display: flex !important;
+        gap: 6px !important;
         width: 100% !important;
-        flex-direction: column !important;
+    }
+
+    .filter-actions-col .btn,
+    .filter-actions-row .btn,
+    .filter-btn-group .btn {
+        flex: 1 1 0 !important;
+        padding: 6px 8px !important;
+        font-size: 0.78rem !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 4px !important;
+    }
+
+    /* Controles compactos de DataTables */
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 4px !important;
+    }
+
+    .dataTables_wrapper .dataTables_filter label {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        width: 100% !important;
+        font-size: 0.78rem !important;
+        font-weight: 600 !important;
+        margin-bottom: 4px !important;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        flex: 1 !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        height: 30px !important;
+        font-size: 0.78rem !important;
+        padding: 3px 8px !important;
+        border-radius: 6px !important;
+    }
+
+    .dataTables_wrapper .dataTables_length {
+        font-size: 0.78rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        margin-bottom: 6px !important;
+    }
+
+    .dataTables_wrapper .dataTables_length select {
+        padding: 2px 6px !important;
+        height: 28px !important;
+        font-size: 0.78rem !important;
+        margin: 0 4px !important;
+    }
+
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        font-size: 0.75rem !important;
+        margin-top: 6px !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 2px 6px !important;
+        font-size: 0.72rem !important;
+    }
+
+    /* Modal footer responsivo */
+    .modal-footer {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 6px !important;
+        padding: 8px 12px !important;
+    }
+
+    .modal-footer > * {
+        margin: 0 !important;
+        width: 100% !important;
+    }
+
+    /* Formularios de creación y peticiones en móvil */
+    .card .row.g-3,
+    .card .row.mb-3 {
+        margin-bottom: 8px !important;
+        --bs-gutter-y: 8px;
+        --bs-gutter-x: 8px;
+    }
+
+    .card .form-label {
+        font-size: 0.8rem !important;
+        margin-bottom: 2px !important;
+    }
+
+    .card .form-control,
+    .card .form-select {
+        font-size: 0.84rem !important;
+        padding: 6px 9px !important;
+        height: 36px !important;
+    }
+
+    .card .form-text {
+        font-size: 0.7rem !important;
+        margin-top: 2px !important;
+    }
+
+    .card hr {
+        margin: 10px 0 !important;
+    }
+
+    .card h5 {
+        font-size: 0.9rem !important;
+        margin-bottom: 6px !important;
+    }
+
+    .card form .text-end,
+    .card form .d-flex.justify-content-end {
+        display: flex !important;
         gap: 8px !important;
+        width: 100% !important;
+        margin-top: 12px !important;
+    }
+
+    .card form .text-end > *,
+    .card form .d-flex.justify-content-end > * {
+        flex: 1 1 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 8px 10px !important;
+        font-size: 0.8125rem !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-height: 38px !important;
+        border-radius: 8px !important;
+    }
+
+    .ts-wrapper .ts-control {
+        min-height: 36px !important;
+        padding: 5px 9px !important;
+        font-size: 0.84rem !important;
     }
 }
+
 
