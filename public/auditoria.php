@@ -516,6 +516,9 @@ $(document).ready(function() {
                         text: response.message,
                         confirmButtonColor: 'var(--secondary-color)'
                     });
+                    if (typeof window.refreshNotifications === 'function') {
+                        setTimeout(window.refreshNotifications, 2000);
+                    }
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -557,6 +560,9 @@ $(document).ready(function() {
                         text: response.message,
                         confirmButtonColor: 'var(--secondary-color)'
                     });
+                    if (typeof window.refreshNotifications === 'function') {
+                        setTimeout(window.refreshNotifications, 2000);
+                    }
                 } else {
                     Swal.fire({
                         icon: 'error',

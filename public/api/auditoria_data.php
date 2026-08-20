@@ -23,7 +23,7 @@ try {
 
     $columns = [
         0 => 'a.id',
-        1 => 'a.creado_en',
+        1 => 'a.fecha_hora',
         2 => 'u.nombre',
         3 => 'a.modulo',
         4 => 'a.accion',
@@ -64,7 +64,7 @@ try {
     $stmtCountFiltered->execute($params);
     $recordsFiltered = (int)$stmtCountFiltered->fetchColumn();
 
-    $sql = "SELECT a.id, a.creado_en as fecha_hora, u.nombre as usuario, a.modulo, a.accion, a.detalles, a.ip_address, a.tipo_evento " 
+    $sql = "SELECT a.id, a.fecha_hora, u.nombre as usuario, a.modulo, a.accion, a.detalles, a.ip_address " 
             . $baseQuery . $searchQuery . " ORDER BY " . $columnName . " " . $columnSortOrder . " LIMIT :limit OFFSET :offset";
     
     $stmt = $pdo->prepare($sql);
@@ -93,8 +93,7 @@ try {
             "modulo" => htmlspecialchars($row['modulo'] ?? '', ENT_QUOTES, 'UTF-8'),
             "accion" => htmlspecialchars($row['accion'] ?? '', ENT_QUOTES, 'UTF-8'),
             "detalles" => htmlspecialchars($row['detalles'] ?? '', ENT_QUOTES, 'UTF-8'),
-            "ip_address" => htmlspecialchars($row['ip_address'] ?? '', ENT_QUOTES, 'UTF-8'),
-            "tipo_evento" => htmlspecialchars($row['tipo_evento'] ?? 'ESCRITURA', ENT_QUOTES, 'UTF-8')
+            "ip_address" => htmlspecialchars($row['ip_address'] ?? '', ENT_QUOTES, 'UTF-8')
         ];
     }
 

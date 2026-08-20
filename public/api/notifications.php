@@ -78,30 +78,50 @@ try {
         }
     }
 
-    // 2. REPORTES Y EXPORTACIONES ASÍNCRONAS DEL USUARIO (export_jobs y jobs)
+    // 2. REPORTES Y EXPORTACIONES ASÍNCRONAS DEL USUARIO (jobs y export_jobs)
     try {
         $stmtJobs = $pdo->prepare("
-            SELECT id, modulo, formato, estado, archivo_ruta, archivo_nombre, creado_en
-            FROM export_jobs
-            WHERE usuario_id = ? AND estado IN ('COMPLETADO', 'ERROR')
+            SELECT id, type, status, file_path, error_message, created_at, updated_at
+            FROM jobs
+            WHERE user_id = ? AND status IN ('completed', 'failed') AND type LIKE 'export_%'
             ORDER BY id DESC
-            LIMIT 3
+            LIMIT 5
         ");
         $stmtJobs->execute([$userId]);
+        
+        $moduleNames = [
+            'export_general_report' => 'Reportes Cruzados',
+            'export_inexistencias'  => 'Inexistencias',
+            'export_ciudadanos'     => 'Ciudadanos',
+            'export_nacimientos'    => 'Nacimientos',
+            'export_matrimonios'    => 'Matrimonios',
+            'export_divorcios'      => 'Divorcios',
+            'export_defunciones'    => 'Defunciones',
+            'export_inscripciones'  => 'Inscripciones',
+            'export_reconocimientos'=> 'Reconocimientos',
+            'export_actas_locales'  => 'Actas Locales',
+            'export_foraneas'       => 'Actas Foráneas',
+            'export_usuarios'       => 'Usuarios',
+            'export_auditoria'      => 'Auditoría',
+            'export_errores'        => 'Errores'
+        ];
+
         while ($j = $stmtJobs->fetch(PDO::FETCH_ASSOC)) {
-            $isOk = ($j['estado'] === 'COMPLETADO');
-            $nomArchivo = $j['archivo_nombre'] ?: basename($j['archivo_ruta'] ?? 'reporte');
+            $isOk = ($j['status'] === 'completed');
+            $nomArchivo = basename($j['file_path'] ?? '');
+            $moduloLabel = $moduleNames[$j['type']] ?? ucfirst(str_replace(['export_', '_'], ['', ' '], $j['type']));
+
             $notifications[] = [
-                'id' => 'exp-' . $j['id'],
+                'id' => 'job-' . $j['id'],
                 'tipo' => 'exportacion',
-                'title' => $isOk ? 'Reporte Listo' : 'Error en Reporte',
+                'title' => $isOk ? 'Reporte Excel Listo' : 'Error en Reporte Excel',
                 'desc' => $isOk 
-                    ? "El reporte de " . htmlspecialchars($j['modulo']) . " está listo para descargar." 
-                    : "No se pudo generar el reporte de " . htmlspecialchars($j['modulo']) . ".",
-                'time' => $formatearTiempo($j['creado_en']),
+                    ? "El reporte de " . htmlspecialchars($moduloLabel) . " está listo para descargar." 
+                    : "No se pudo generar el reporte de " . htmlspecialchars($moduloLabel) . ".",
+                'time' => $formatearTiempo($j['updated_at'] ?: $j['created_at']),
                 'icon' => $isOk ? 'fa-file-excel' : 'fa-triangle-exclamation',
                 'color' => $isOk ? 'text-success' : 'text-danger',
-                'url' => $isOk ? '/DRC/public/api/download_export.php?file=' . urlencode($nomArchivo) : '#',
+                'url' => ($isOk && $nomArchivo) ? '/DRC/public/api/download_export.php?file=' . urlencode($nomArchivo) : '#',
                 'is_download' => $isOk
             ];
         }
@@ -135,7 +155,7 @@ try {
     // 4. INEXISTENCIAS PENDIENTES
     try {
         $stmtInex = $pdo->query("
-            SELECT id, numero_solicitud, tipo_acto, creado_en 
+            SELECT id, linea_pago, tipo_constancia, creado_en 
             FROM inexistencias 
             WHERE estatus = 'PENDIENTE' 
             ORDER BY id DESC 
@@ -146,7 +166,7 @@ try {
                 'id' => 'inx-' . $inx['id'],
                 'tipo' => 'inexistencia',
                 'title' => 'Inexistencia Pendiente',
-                'desc' => "Constancia de inexistencia de " . htmlspecialchars($inx['tipo_acto']) . " (Folio " . htmlspecialchars($inx['numero_solicitud']) . ").",
+                'desc' => "Constancia de " . htmlspecialchars($inx['tipo_constancia'] ?? 'Inexistencia') . " (Línea " . htmlspecialchars($inx['linea_pago']) . ").",
                 'time' => $formatearTiempo($inx['creado_en']),
                 'icon' => 'fa-file-circle-question',
                 'color' => 'text-info',
@@ -159,7 +179,7 @@ try {
     try {
         $stmtVen = $pdo->query("
             SELECT COUNT(*) FROM peticiones_ventanilla 
-            WHERE DATE(creado_en) = CURRENT_DATE() AND estatus = 'PENDIENTE' AND deleted_at IS NULL
+            WHERE DATE(creado_en) = CURRENT_DATE() AND estatus = 'PENDIENTE'
         ");
         $pendientesHoy = (int)$stmtVen->fetchColumn();
         if ($pendientesHoy > 0) {

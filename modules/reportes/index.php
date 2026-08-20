@@ -415,6 +415,9 @@ $notif_api = '../../public/api/notifications.php';
                             text: response.message,
                             confirmButtonColor: 'var(--secondary-color)'
                         });
+                        if (typeof window.refreshNotifications === 'function') {
+                            setTimeout(window.refreshNotifications, 2000);
+                        }
                     } else {
                         Swal.fire({
                             icon: 'error',

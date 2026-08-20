@@ -17,6 +17,8 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 
 ### Corregido
 - `docs/migration_turnos_ventanilla.php` insertaba el catálogo con columnas inexistentes (`nombre_visible`, `activo`) — ahora usa `descripcion`.
+- **Descarga de reportes Excel:** se corrigió `public/api/notifications.php` para consultar las tareas en `jobs` (en lugar de `export_jobs`), habilitando las notificaciones y los enlaces de descarga directa de los reportes generados.
+- **Error en DataTables de Auditoría y Errores:** se alinearon `public/api/auditoria_data.php`, `public/api/errores_data.php` y `core/Auditoria.php` con las columnas reales de la base de datos (`fecha_hora`), eliminando las advertencias y restaurando la visualización de bitácoras.
 
 ## [1.3.0] - 2026-08-18
 ### Añadido

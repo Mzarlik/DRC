@@ -187,6 +187,7 @@ $(document).ready(function() {
         }
 
         refreshNotifications();
+        window.refreshNotifications = refreshNotifications;
         setInterval(refreshNotifications, 30000);
     }
 

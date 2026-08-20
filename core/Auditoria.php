@@ -18,8 +18,8 @@ class Auditoria {
             $ip = $_SERVER['REMOTE_ADDR'] ?? 'CLI';
 
             if ($usuario_id) {
-                $stmt = $pdo->prepare("INSERT INTO auditoria_logs (usuario_id, tipo_evento, modulo, accion, detalles, ip_address) VALUES (?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$usuario_id, $tipoEvento, $modulo, $accion, $detalles, $ip]);
+                $stmt = $pdo->prepare("INSERT INTO auditoria_logs (usuario_id, modulo, accion, detalles, ip_address) VALUES (?, ?, ?, ?, ?)");
+                $stmt->execute([$usuario_id, $modulo, $accion, $detalles, $ip]);
             }
         } catch (\Exception $e) {
             // Silencioso para no romper la ejecución si el log falla

@@ -28,11 +28,15 @@ try {
     $stmt->execute(['%' . $fileName]);
     $job = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Si no está en jobs, buscar en export_jobs
+    // Si no está en jobs, intentar buscar en export_jobs como fallback
     if (!$job) {
-        $stmtExp = $pdo->prepare("SELECT id, usuario_id AS user_id, modulo AS type, estado AS status, archivo_ruta AS file_path FROM export_jobs WHERE (archivo_nombre = ? OR archivo_ruta LIKE ?) AND estado = 'COMPLETADO' ORDER BY id DESC LIMIT 1");
-        $stmtExp->execute([$fileName, '%' . $fileName]);
-        $job = $stmtExp->fetch(PDO::FETCH_ASSOC);
+        try {
+            $stmtExp = $pdo->prepare("SELECT id, usuario_id AS user_id, modulo AS type, estado AS status, archivo_ruta AS file_path FROM export_jobs WHERE (archivo_nombre = ? OR archivo_ruta LIKE ?) AND estado = 'COMPLETADO' ORDER BY id DESC LIMIT 1");
+            $stmtExp->execute([$fileName, '%' . $fileName]);
+            $job = $stmtExp->fetch(PDO::FETCH_ASSOC);
+        } catch (\Throwable $e) {
+            // Ignorar si la tabla export_jobs no existe
+        }
     }
 
     if (!$job) {
@@ -59,7 +63,7 @@ try {
     }
 
     $isOwner = (int)$job['user_id'] === (int)($_SESSION['user_id'] ?? 0);
-    $isAdmin = in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'SUPERVISOR'], true);
+    $isAdmin = in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'SUPERVISOR', 'COORDINADOR'], true) || \Core\Auth::canExportar();
     if (!$isOwner && !$isAdmin) {
         http_response_code(403);
         die('Error: No tiene autorización para descargar este archivo.');
