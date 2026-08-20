@@ -10,6 +10,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/Database.php';
 
 use Core\Database;
+use Core\Services\ExcelReportFormatter;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
@@ -62,7 +63,7 @@ try {
         $stmtUpdate->execute([$jobId]);
         
         try {
-            $payload = json_decode($job['payload'], true);
+            $payload = json_decode($job['payload'], true) ?? [];
             $filePath = '';
             
             if ($job['type'] === 'export_inexistencias') {
@@ -148,7 +149,32 @@ try {
 }
 
 /**
- * Genera el reporte Excel de inexistencias
+ * Neutraliza inyección de fórmulas en Excel: si el texto inicia con
+ * = + - @ o tabulador/salto, se antepone un apóstrofo para tratarlo como texto.
+ */
+function safeCell($value) {
+    if (is_string($value) && $value !== '' && preg_match('/^[=+\-@\t\r\n]/', $value)) {
+        return "'" . $value;
+    }
+    return $value;
+}
+
+/**
+ * Helper to style Excel headers uniformly (Mantenido para compatibilidad)
+ */
+function styleExcelHeader($sheet, $colMax) {
+    // Delegado al formateador institucional
+}
+
+/**
+ * Helper to auto-fit columns (Mantenido para compatibilidad)
+ */
+function autoFitColumns($sheet, $colMax) {
+    // Delegado al formateador institucional
+}
+
+/**
+ * Genera el reporte Excel de inexistencias y constancias
  */
 function generateInexistenciasReport($pdo, $payload, $jobId, $exportDir) {
     $tipo = $payload['tipo'] ?? '';
@@ -170,13 +196,10 @@ function generateInexistenciasReport($pdo, $payload, $jobId, $exportDir) {
     $sheet->setTitle('Reporte Inexistencias');
     
     // Headers
-    $headers = ['ID', 'Tipo Constancia', 'Línea de Pago', 'Nombre Completo', 'Fecha Trámite', 'Fecha Llegada', 'Estatus', 'Observaciones'];
+    $headers = ['ID', 'Tipo de Constancia', 'Línea de Pago', 'Nombre Completo', 'Fecha Trámite', 'Fecha Llegada', 'Estatus', 'Observaciones'];
     $col = 'A';
     foreach ($headers as $header) {
         $sheet->setCellValue($col . '1', $header);
-        $sheet->getStyle($col . '1')->getFont()->setBold(true);
-        $sheet->getStyle($col . '1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-              ->getStartColor()->setARGB('FFE9ECEF');
         $col++;
     }
     
@@ -184,11 +207,8 @@ function generateInexistenciasReport($pdo, $payload, $jobId, $exportDir) {
     $rowNum = 2;
     foreach ($records as $row) {
         $sheet->setCellValue('A' . $rowNum, $row['id']);
-        $sheet->setCellValue('B' . $rowNum, $row['tipo_constancia']);
-        
-        // Evita corrupción de números largos (formatea como string explícito)
+        $sheet->setCellValue('B' . $rowNum, ExcelReportFormatter::formatearNombreConstancia($row['tipo_constancia']));
         $sheet->setCellValueExplicit('C' . $rowNum, $row['linea_pago'], DataType::TYPE_STRING);
-        
         $sheet->setCellValue('D' . $rowNum, $row['nombre_completo']);
         $sheet->setCellValue('E' . $rowNum, $row['fecha_tramite']);
         $sheet->setCellValue('F' . $rowNum, $row['fecha_llegada']);
@@ -197,10 +217,23 @@ function generateInexistenciasReport($pdo, $payload, $jobId, $exportDir) {
         $rowNum++;
     }
     
-    // Autoajustar
-    foreach (range('A', 'H') as $columnID) {
-        $sheet->getColumnDimension($columnID)->setAutoSize(true);
-    }
+    // Formato Institucional
+    ExcelReportFormatter::aplicarFormatoInstitucional(
+        $sheet,
+        $rowNum - 1,
+        'H',
+        [
+            'A' => 'center',
+            'B' => 'left',
+            'C' => 'center',
+            'D' => 'left',
+            'E' => 'center',
+            'F' => 'center',
+            'G' => 'center',
+            'H' => 'left'
+        ],
+        'G'
+    );
     
     $fileName = 'Reporte_Inexistencias_' . $jobId . '_' . date('Ymd_His') . '.xlsx';
     $fullPath = $exportDir . '/' . $fileName;
@@ -208,7 +241,6 @@ function generateInexistenciasReport($pdo, $payload, $jobId, $exportDir) {
     $writer = new Xlsx($spreadsheet);
     $writer->save($fullPath);
     
-    // Retornamos la ruta web-relativa para descargar
     return 'public/exports/' . $fileName;
 }
 
@@ -266,7 +298,7 @@ function generateGeneralReport($pdo, $payload, $jobId, $exportDir) {
         ],
         'peticiones' => [
             'table' => 'peticiones p',
-            'modulo_label' => 'Petición / Ticket',
+            'modulo_label' => 'Petición / Seguimiento',
             'folio_col' => 'p.folio',
             'ref_col' => "CONCAT(c.nombre, ' ', c.apellido_paterno, ' ', COALESCE(c.apellido_materno, ''))",
             'fecha_col' => 'DATE(p.fecha_creacion)',
@@ -359,8 +391,6 @@ function generateGeneralReport($pdo, $payload, $jobId, $exportDir) {
         }
         
         $where_str = implode(" AND ", $where_clauses);
-        
-        // Left join to user table to display name
         $sql_parts[] = "SELECT {$select_fields} FROM {$conf['table']} {$conf['joins']} LEFT JOIN usuarios u ON {$conf['user_col']} = u.id WHERE {$where_str}";
     }
     
@@ -379,9 +409,6 @@ function generateGeneralReport($pdo, $payload, $jobId, $exportDir) {
     $col = 'A';
     foreach ($headers as $header) {
         $sheet->setCellValue($col . '1', $header);
-        $sheet->getStyle($col . '1')->getFont()->setBold(true);
-        $sheet->getStyle($col . '1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-              ->getStartColor()->setARGB('FFE9ECEF');
         $col++;
     }
     
@@ -389,10 +416,7 @@ function generateGeneralReport($pdo, $payload, $jobId, $exportDir) {
     $rowNum = 2;
     foreach ($records as $row) {
         $sheet->setCellValue('A' . $rowNum, $row['modulo']);
-        
-        // Formatear folio como string estrictamente para evitar que Excel corrompa números
-        $sheet->setCellValueExplicit('B' . $rowNum, $row['folio'], DataType::TYPE_STRING);
-        
+        $sheet->setCellValueExplicit('B' . $rowNum, $row['folio'] ?? '', DataType::TYPE_STRING);
         $sheet->setCellValue('C' . $rowNum, safeCell($row['referencia']));
         $sheet->setCellValue('D' . $rowNum, $row['fecha']);
         $sheet->setCellValue('E' . $rowNum, safeCell($row['operador'] ?? 'N/A'));
@@ -400,10 +424,21 @@ function generateGeneralReport($pdo, $payload, $jobId, $exportDir) {
         $rowNum++;
     }
     
-    // Autoajustar
-    foreach (range('A', 'F') as $columnID) {
-        $sheet->getColumnDimension($columnID)->setAutoSize(true);
-    }
+    // Formato Institucional
+    ExcelReportFormatter::aplicarFormatoInstitucional(
+        $sheet,
+        $rowNum - 1,
+        'F',
+        [
+            'A' => 'center',
+            'B' => 'center',
+            'C' => 'left',
+            'D' => 'center',
+            'E' => 'left',
+            'F' => 'center'
+        ],
+        'F'
+    );
     
     $fileName = 'Reporte_General_' . $jobId . '_' . date('Ymd_His') . '.xlsx';
     $fullPath = $exportDir . '/' . $fileName;
@@ -415,42 +450,8 @@ function generateGeneralReport($pdo, $payload, $jobId, $exportDir) {
 }
 
 /**
- * Helper to style Excel headers uniformly
+ * Reporte de Padrón de Ciudadanos
  */
-function styleExcelHeader($sheet, $colMax) {
-    $col = 'A';
-    while (true) {
-        $sheet->getStyle($col . '1')->getFont()->setBold(true);
-        $sheet->getStyle($col . '1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-              ->getStartColor()->setARGB('FFE9ECEF');
-        if ($col === $colMax) break;
-        $col++;
-    }
-}
-
-/**
- * Neutraliza inyección de fórmulas en Excel: si el texto inicia con
- * = + - @ o tabulador/salto, se antepone un apóstrofo para tratarlo como texto.
- */
-function safeCell($value) {
-    if (is_string($value) && $value !== '' && preg_match('/^[=+\-@\t\r\n]/', $value)) {
-        return "'" . $value;
-    }
-    return $value;
-}
-
-/**
- * Helper to auto-fit columns
- */
-function autoFitColumns($sheet, $colMax) {
-    $col = 'A';
-    while (true) {
-        $sheet->getColumnDimension($col)->setAutoSize(true);
-        if ($col === $colMax) break;
-        $col++;
-    }
-}
-
 function generateCiudadanosReport($pdo, $payload, $jobId, $exportDir) {
     $search = $payload['search'] ?? '';
     $sql = "SELECT curp, nombre, apellido_paterno, apellido_materno, sexo, fecha_nacimiento, estado_vital FROM ciudadanos WHERE estado = 1";
@@ -482,7 +483,6 @@ function generateCiudadanosReport($pdo, $payload, $jobId, $exportDir) {
         $col = chr(65 + $i);
         $sheet->setCellValue($col . '1', $header);
     }
-    styleExcelHeader($sheet, 'G');
 
     $rowNum = 2;
     foreach ($records as $row) {
@@ -496,7 +496,22 @@ function generateCiudadanosReport($pdo, $payload, $jobId, $exportDir) {
         $sheet->setCellValue('G' . $rowNum, $row['estado_vital']);
         $rowNum++;
     }
-    autoFitColumns($sheet, 'G');
+    
+    ExcelReportFormatter::aplicarFormatoInstitucional(
+        $sheet,
+        $rowNum - 1,
+        'G',
+        [
+            'A' => 'center',
+            'B' => 'left',
+            'C' => 'left',
+            'D' => 'left',
+            'E' => 'center',
+            'F' => 'center',
+            'G' => 'center'
+        ],
+        'G'
+    );
 
     $fileName = 'Reporte_Ciudadanos_' . $jobId . '_' . date('Ymd_His') . '.xlsx';
     $fullPath = $exportDir . '/' . $fileName;
@@ -505,6 +520,9 @@ function generateCiudadanosReport($pdo, $payload, $jobId, $exportDir) {
     return 'public/exports/' . $fileName;
 }
 
+/**
+ * Reporte de Actas de Nacimiento
+ */
 function generateNacimientosReport($pdo, $payload, $jobId, $exportDir) {
     $search = $payload['search'] ?? '';
     $sql = "SELECT n.numero_acta, n.fecha_registro, n.lugar_nacimiento, 
@@ -535,7 +553,6 @@ function generateNacimientosReport($pdo, $payload, $jobId, $exportDir) {
         $col = chr(65 + $i);
         $sheet->setCellValue($col . '1', $header);
     }
-    styleExcelHeader($sheet, 'F');
 
     $rowNum = 2;
     foreach ($records as $row) {
@@ -547,7 +564,20 @@ function generateNacimientosReport($pdo, $payload, $jobId, $exportDir) {
         $sheet->setCellValue('F' . $rowNum, $row['fecha_registro']);
         $rowNum++;
     }
-    autoFitColumns($sheet, 'F');
+    
+    ExcelReportFormatter::aplicarFormatoInstitucional(
+        $sheet,
+        $rowNum - 1,
+        'F',
+        [
+            'A' => 'center',
+            'B' => 'left',
+            'C' => 'left',
+            'D' => 'left',
+            'E' => 'left',
+            'F' => 'center'
+        ]
+    );
 
     $fileName = 'Reporte_Nacimientos_' . $jobId . '_' . date('Ymd_His') . '.xlsx';
     $fullPath = $exportDir . '/' . $fileName;
@@ -556,6 +586,9 @@ function generateNacimientosReport($pdo, $payload, $jobId, $exportDir) {
     return 'public/exports/' . $fileName;
 }
 
+/**
+ * Reporte de Actas de Matrimonio
+ */
 function generateMatrimoniosReport($pdo, $payload, $jobId, $exportDir) {
     $search = $payload['search'] ?? '';
     $sql = "SELECT m.numero_acta, m.regimen_patrimonial, m.fecha_registro, 
@@ -584,7 +617,6 @@ function generateMatrimoniosReport($pdo, $payload, $jobId, $exportDir) {
         $col = chr(65 + $i);
         $sheet->setCellValue($col . '1', $header);
     }
-    styleExcelHeader($sheet, 'E');
 
     $rowNum = 2;
     foreach ($records as $row) {
@@ -595,7 +627,19 @@ function generateMatrimoniosReport($pdo, $payload, $jobId, $exportDir) {
         $sheet->setCellValue('E' . $rowNum, $row['fecha_registro']);
         $rowNum++;
     }
-    autoFitColumns($sheet, 'E');
+    
+    ExcelReportFormatter::aplicarFormatoInstitucional(
+        $sheet,
+        $rowNum - 1,
+        'E',
+        [
+            'A' => 'center',
+            'B' => 'left',
+            'C' => 'left',
+            'D' => 'left',
+            'E' => 'center'
+        ]
+    );
 
     $fileName = 'Reporte_Matrimonios_' . $jobId . '_' . date('Ymd_His') . '.xlsx';
     $fullPath = $exportDir . '/' . $fileName;
@@ -604,11 +648,14 @@ function generateMatrimoniosReport($pdo, $payload, $jobId, $exportDir) {
     return 'public/exports/' . $fileName;
 }
 
+/**
+ * Reporte de Actas de Divorcio
+ */
 function generateDivorciosReport($pdo, $payload, $jobId, $exportDir) {
     $search = $payload['search'] ?? '';
     $sql = "SELECT d.numero_acta, d.tipo_divorcio, d.fecha_registro, 
-                   CONCAT_WS(' ', c1.nombre, c1.apellido_paterno, c1.apellido_materno) AS divorciado_1, 
-                   CONCAT_WS(' ', c2.nombre, c2.apellido_paterno, c2.apellido_materno) AS divorciado_2 
+                   CONCAT_WS(' ', c1.nombre, c1.apellido_paterno, c1.apellido_materno) AS ciudadano_1, 
+                   CONCAT_WS(' ', c2.nombre, c2.apellido_paterno, c2.apellido_materno) AS ciudadano_2 
             FROM divorcios d 
             JOIN ciudadanos c1 ON d.ciudadano_1_id = c1.id 
             JOIN ciudadanos c2 ON d.ciudadano_2_id = c2.id";
@@ -627,23 +674,34 @@ function generateDivorciosReport($pdo, $payload, $jobId, $exportDir) {
     $sheet = $spreadsheet->getActiveSheet();
     $sheet->setTitle('Divorcios');
 
-    $headers = ['No. Acta', 'Cónyuge 1', 'Cónyuge 2', 'Tipo Divorcio', 'Fecha Registro'];
+    $headers = ['No. Acta', 'Divorciado(a) 1', 'Divorciado(a) 2', 'Tipo Divorcio', 'Fecha Registro'];
     foreach ($headers as $i => $header) {
         $col = chr(65 + $i);
         $sheet->setCellValue($col . '1', $header);
     }
-    styleExcelHeader($sheet, 'E');
 
     $rowNum = 2;
     foreach ($records as $row) {
         $sheet->setCellValueExplicit('A' . $rowNum, $row['numero_acta'], DataType::TYPE_STRING);
-        $sheet->setCellValue('B' . $rowNum, safeCell($row['divorciado_1']));
-        $sheet->setCellValue('C' . $rowNum, safeCell($row['divorciado_2']));
-        $sheet->setCellValue('D' . $rowNum, $row['tipo_divorcio']);
+        $sheet->setCellValue('B' . $rowNum, safeCell($row['ciudadano_1']));
+        $sheet->setCellValue('C' . $rowNum, safeCell($row['ciudadano_2']));
+        $sheet->setCellValue('D' . $rowNum, safeCell($row['tipo_divorcio']));
         $sheet->setCellValue('E' . $rowNum, $row['fecha_registro']);
         $rowNum++;
     }
-    autoFitColumns($sheet, 'E');
+    
+    ExcelReportFormatter::aplicarFormatoInstitucional(
+        $sheet,
+        $rowNum - 1,
+        'E',
+        [
+            'A' => 'center',
+            'B' => 'left',
+            'C' => 'left',
+            'D' => 'center',
+            'E' => 'center'
+        ]
+    );
 
     $fileName = 'Reporte_Divorcios_' . $jobId . '_' . date('Ymd_His') . '.xlsx';
     $fullPath = $exportDir . '/' . $fileName;
@@ -652,12 +710,15 @@ function generateDivorciosReport($pdo, $payload, $jobId, $exportDir) {
     return 'public/exports/' . $fileName;
 }
 
+/**
+ * Reporte de Actas de Defunción
+ */
 function generateDefuncionesReport($pdo, $payload, $jobId, $exportDir) {
     $search = $payload['search'] ?? '';
-    $sql = "SELECT d.numero_acta, d.fecha_defuncion, d.fecha_registro, d.causa_muerte, 
-                   CONCAT_WS(' ', c.nombre, c.apellido_paterno, c.apellido_materno) AS nombre_completo 
+    $sql = "SELECT d.numero_acta, d.fecha_defuncion, d.causa_muerte, d.fecha_registro, 
+                   CONCAT_WS(' ', c.nombre, c.apellido_paterno, c.apellido_materno) AS finado 
             FROM defunciones d 
-            INNER JOIN ciudadanos c ON d.ciudadano_id = c.id";
+            JOIN ciudadanos c ON d.ciudadano_id = c.id";
     $params = [];
     if (!empty($search)) {
         $sql .= " WHERE (d.numero_acta LIKE ? OR c.nombre LIKE ? OR c.apellido_paterno LIKE ? OR d.causa_muerte LIKE ?) ";
@@ -673,23 +734,34 @@ function generateDefuncionesReport($pdo, $payload, $jobId, $exportDir) {
     $sheet = $spreadsheet->getActiveSheet();
     $sheet->setTitle('Defunciones');
 
-    $headers = ['No. Acta', 'Finado', 'Fecha Defunción', 'Causa Muerte', 'Fecha Registro'];
+    $headers = ['No. Acta', 'Finado(a)', 'Fecha Defunción', 'Causa de Muerte', 'Fecha Registro'];
     foreach ($headers as $i => $header) {
         $col = chr(65 + $i);
         $sheet->setCellValue($col . '1', $header);
     }
-    styleExcelHeader($sheet, 'E');
 
     $rowNum = 2;
     foreach ($records as $row) {
         $sheet->setCellValueExplicit('A' . $rowNum, $row['numero_acta'], DataType::TYPE_STRING);
-        $sheet->setCellValue('B' . $rowNum, safeCell($row['nombre_completo']));
+        $sheet->setCellValue('B' . $rowNum, safeCell($row['finado']));
         $sheet->setCellValue('C' . $rowNum, $row['fecha_defuncion']);
         $sheet->setCellValue('D' . $rowNum, safeCell($row['causa_muerte']));
         $sheet->setCellValue('E' . $rowNum, $row['fecha_registro']);
         $rowNum++;
     }
-    autoFitColumns($sheet, 'E');
+    
+    ExcelReportFormatter::aplicarFormatoInstitucional(
+        $sheet,
+        $rowNum - 1,
+        'E',
+        [
+            'A' => 'center',
+            'B' => 'left',
+            'C' => 'center',
+            'D' => 'left',
+            'E' => 'center'
+        ]
+    );
 
     $fileName = 'Reporte_Defunciones_' . $jobId . '_' . date('Ymd_His') . '.xlsx';
     $fullPath = $exportDir . '/' . $fileName;
@@ -698,6 +770,9 @@ function generateDefuncionesReport($pdo, $payload, $jobId, $exportDir) {
     return 'public/exports/' . $fileName;
 }
 
+/**
+ * Reporte de Inscripciones
+ */
 function generateInscripcionesReport($pdo, $payload, $jobId, $exportDir) {
     $search = $payload['search'] ?? '';
     $sql = "SELECT i.numero_acta, i.pais_origen, i.documento_extranjero, i.fecha_registro, 
@@ -724,7 +799,6 @@ function generateInscripcionesReport($pdo, $payload, $jobId, $exportDir) {
         $col = chr(65 + $i);
         $sheet->setCellValue($col . '1', $header);
     }
-    styleExcelHeader($sheet, 'E');
 
     $rowNum = 2;
     foreach ($records as $row) {
@@ -735,7 +809,19 @@ function generateInscripcionesReport($pdo, $payload, $jobId, $exportDir) {
         $sheet->setCellValue('E' . $rowNum, $row['fecha_registro']);
         $rowNum++;
     }
-    autoFitColumns($sheet, 'E');
+    
+    ExcelReportFormatter::aplicarFormatoInstitucional(
+        $sheet,
+        $rowNum - 1,
+        'E',
+        [
+            'A' => 'center',
+            'B' => 'left',
+            'C' => 'center',
+            'D' => 'left',
+            'E' => 'center'
+        ]
+    );
 
     $fileName = 'Reporte_Inscripciones_' . $jobId . '_' . date('Ymd_His') . '.xlsx';
     $fullPath = $exportDir . '/' . $fileName;
@@ -744,6 +830,9 @@ function generateInscripcionesReport($pdo, $payload, $jobId, $exportDir) {
     return 'public/exports/' . $fileName;
 }
 
+/**
+ * Reporte de Reconocimientos
+ */
 function generateReconocimientosReport($pdo, $payload, $jobId, $exportDir) {
     $search = $payload['search'] ?? '';
     $sql = "SELECT r.numero_acta, r.fecha_registro, 
@@ -772,7 +861,6 @@ function generateReconocimientosReport($pdo, $payload, $jobId, $exportDir) {
         $col = chr(65 + $i);
         $sheet->setCellValue($col . '1', $header);
     }
-    styleExcelHeader($sheet, 'D');
 
     $rowNum = 2;
     foreach ($records as $row) {
@@ -782,7 +870,18 @@ function generateReconocimientosReport($pdo, $payload, $jobId, $exportDir) {
         $sheet->setCellValue('D' . $rowNum, $row['fecha_registro']);
         $rowNum++;
     }
-    autoFitColumns($sheet, 'D');
+    
+    ExcelReportFormatter::aplicarFormatoInstitucional(
+        $sheet,
+        $rowNum - 1,
+        'D',
+        [
+            'A' => 'center',
+            'B' => 'left',
+            'C' => 'left',
+            'D' => 'center'
+        ]
+    );
 
     $fileName = 'Reporte_Reconocimientos_' . $jobId . '_' . date('Ymd_His') . '.xlsx';
     $fullPath = $exportDir . '/' . $fileName;
@@ -791,6 +890,9 @@ function generateReconocimientosReport($pdo, $payload, $jobId, $exportDir) {
     return 'public/exports/' . $fileName;
 }
 
+/**
+ * Reporte de Actas Locales
+ */
 function generateActasLocalesReport($pdo, $payload, $jobId, $exportDir) {
     $search = $payload['search'] ?? '';
     $filter_tipo = $payload['tipo_acta'] ?? '';
@@ -866,7 +968,6 @@ function generateActasLocalesReport($pdo, $payload, $jobId, $exportDir) {
         $col = chr(65 + $i);
         $sheet->setCellValue($col . '1', $header);
     }
-    styleExcelHeader($sheet, 'G');
 
     $rowNum = 2;
     foreach ($records as $row) {
@@ -883,7 +984,21 @@ function generateActasLocalesReport($pdo, $payload, $jobId, $exportDir) {
         $sheet->setCellValue('G' . $rowNum, $row['fecha_registro']);
         $rowNum++;
     }
-    autoFitColumns($sheet, 'G');
+    
+    ExcelReportFormatter::aplicarFormatoInstitucional(
+        $sheet,
+        $rowNum - 1,
+        'G',
+        [
+            'A' => 'center',
+            'B' => 'center',
+            'C' => 'left',
+            'D' => 'left',
+            'E' => 'center',
+            'F' => 'center',
+            'G' => 'center'
+        ]
+    );
 
     $fileName = 'Reporte_Actas_Locales_' . $jobId . '_' . date('Ymd_His') . '.xlsx';
     $fullPath = $exportDir . '/' . $fileName;
@@ -892,6 +1007,9 @@ function generateActasLocalesReport($pdo, $payload, $jobId, $exportDir) {
     return 'public/exports/' . $fileName;
 }
 
+/**
+ * Reporte de Actas Foráneas
+ */
 function generateForaneasReport($pdo, $payload, $jobId, $exportDir) {
     $search = $payload['search'] ?? '';
     $sql = "SELECT f.numero_acta, f.estado_origen, f.tipo_acta, f.fecha_recepcion, f.estatus, f.observaciones,
@@ -918,7 +1036,6 @@ function generateForaneasReport($pdo, $payload, $jobId, $exportDir) {
         $col = chr(65 + $i);
         $sheet->setCellValue($col . '1', $header);
     }
-    styleExcelHeader($sheet, 'G');
 
     $rowNum = 2;
     foreach ($records as $row) {
@@ -931,7 +1048,22 @@ function generateForaneasReport($pdo, $payload, $jobId, $exportDir) {
         $sheet->setCellValue('G' . $rowNum, safeCell($row['observaciones']));
         $rowNum++;
     }
-    autoFitColumns($sheet, 'G');
+    
+    ExcelReportFormatter::aplicarFormatoInstitucional(
+        $sheet,
+        $rowNum - 1,
+        'G',
+        [
+            'A' => 'center',
+            'B' => 'left',
+            'C' => 'center',
+            'D' => 'center',
+            'E' => 'center',
+            'F' => 'center',
+            'G' => 'left'
+        ],
+        'F'
+    );
 
     $fileName = 'Reporte_Foraneas_' . $jobId . '_' . date('Ymd_His') . '.xlsx';
     $fullPath = $exportDir . '/' . $fileName;
@@ -940,6 +1072,9 @@ function generateForaneasReport($pdo, $payload, $jobId, $exportDir) {
     return 'public/exports/' . $fileName;
 }
 
+/**
+ * Reporte de Usuarios del Sistema
+ */
 function generateUsuariosReport($pdo, $payload, $jobId, $exportDir) {
     $search = $payload['search'] ?? '';
     $sql = "SELECT id, nombre, correo, rol, estatus, creado_en FROM usuarios";
@@ -965,7 +1100,6 @@ function generateUsuariosReport($pdo, $payload, $jobId, $exportDir) {
         $col = chr(65 + $i);
         $sheet->setCellValue($col . '1', $header);
     }
-    styleExcelHeader($sheet, 'F');
 
     $rowNum = 2;
     foreach ($records as $row) {
@@ -977,7 +1111,21 @@ function generateUsuariosReport($pdo, $payload, $jobId, $exportDir) {
         $sheet->setCellValue('F' . $rowNum, $row['creado_en']);
         $rowNum++;
     }
-    autoFitColumns($sheet, 'F');
+    
+    ExcelReportFormatter::aplicarFormatoInstitucional(
+        $sheet,
+        $rowNum - 1,
+        'F',
+        [
+            'A' => 'center',
+            'B' => 'left',
+            'C' => 'left',
+            'D' => 'center',
+            'E' => 'center',
+            'F' => 'center'
+        ],
+        'E'
+    );
 
     $fileName = 'Reporte_Usuarios_' . $jobId . '_' . date('Ymd_His') . '.xlsx';
     $fullPath = $exportDir . '/' . $fileName;
@@ -986,6 +1134,9 @@ function generateUsuariosReport($pdo, $payload, $jobId, $exportDir) {
     return 'public/exports/' . $fileName;
 }
 
+/**
+ * Reporte de Bitácora de Auditoría
+ */
 function generateAuditoriaReport($pdo, $payload, $jobId, $exportDir) {
     $search = $payload['search'] ?? '';
     $sql = "SELECT a.id, a.fecha_hora, u.nombre as usuario, a.modulo, a.accion, a.detalles, a.ip_address 
@@ -1011,7 +1162,6 @@ function generateAuditoriaReport($pdo, $payload, $jobId, $exportDir) {
         $col = chr(65 + $i);
         $sheet->setCellValue($col . '1', $header);
     }
-    styleExcelHeader($sheet, 'G');
 
     $rowNum = 2;
     foreach ($records as $row) {
@@ -1024,7 +1174,21 @@ function generateAuditoriaReport($pdo, $payload, $jobId, $exportDir) {
         $sheet->setCellValue('G' . $rowNum, $row['ip_address']);
         $rowNum++;
     }
-    autoFitColumns($sheet, 'G');
+    
+    ExcelReportFormatter::aplicarFormatoInstitucional(
+        $sheet,
+        $rowNum - 1,
+        'G',
+        [
+            'A' => 'center',
+            'B' => 'center',
+            'C' => 'left',
+            'D' => 'center',
+            'E' => 'center',
+            'F' => 'left',
+            'G' => 'center'
+        ]
+    );
 
     $fileName = 'Reporte_Auditoria_' . $jobId . '_' . date('Ymd_His') . '.xlsx';
     $fullPath = $exportDir . '/' . $fileName;
@@ -1033,6 +1197,9 @@ function generateAuditoriaReport($pdo, $payload, $jobId, $exportDir) {
     return 'public/exports/' . $fileName;
 }
 
+/**
+ * Reporte de Errores de Sistema
+ */
 function generateErroresReport($pdo, $payload, $jobId, $exportDir) {
     $search = $payload['search'] ?? '';
     $sql = "SELECT e.id, e.fecha_hora, u.nombre as usuario, e.mensaje, e.archivo, e.linea, e.stack_trace, e.url, e.ip_address 
@@ -1058,7 +1225,6 @@ function generateErroresReport($pdo, $payload, $jobId, $exportDir) {
         $col = chr(65 + $i);
         $sheet->setCellValue($col . '1', $header);
     }
-    styleExcelHeader($sheet, 'I');
 
     $rowNum = 2;
     foreach ($records as $row) {
@@ -1073,7 +1239,23 @@ function generateErroresReport($pdo, $payload, $jobId, $exportDir) {
         $sheet->setCellValue('I' . $rowNum, safeCell($row['stack_trace']));
         $rowNum++;
     }
-    autoFitColumns($sheet, 'I');
+    
+    ExcelReportFormatter::aplicarFormatoInstitucional(
+        $sheet,
+        $rowNum - 1,
+        'I',
+        [
+            'A' => 'center',
+            'B' => 'center',
+            'C' => 'left',
+            'D' => 'left',
+            'E' => 'left',
+            'F' => 'center',
+            'G' => 'left',
+            'H' => 'center',
+            'I' => 'left'
+        ]
+    );
 
     $fileName = 'Reporte_Errores_' . $jobId . '_' . date('Ymd_His') . '.xlsx';
     $fullPath = $exportDir . '/' . $fileName;
