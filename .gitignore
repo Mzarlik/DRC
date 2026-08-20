@@ -23,6 +23,11 @@ logs/
 tmp/
 temp/
 
+# Caché de Pruebas Unitarias (PHPUnit)
+.phpunit.cache/
+.phpunit.result.cache
+*.cache
+
 # Redundancias y Respaldos Locales
 /DRC/
 *~
