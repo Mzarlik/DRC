@@ -431,4 +431,130 @@ class PeticionRapidaService {
             'gran_total' => $granTotal
         ];
     }
+
+    /**
+     * Matriz de asignación de trámites de ventanilla a los módulos operativos correspondientes.
+     */
+    public const MODULOS_MAP = [
+        'inexistencias' => [
+            'CONSTANCIA_DESCENDENCIA',
+            'CONSTANCIA_DEUDOR_MOROSO',
+            'CONSTANCIA_INEXISTENCIA_MATRIMONIO',
+            'CONSTANCIA_INEXISTENCIA_NACIMIENTO',
+            'PASES_CAJA_CONSTANCIAS'
+        ],
+        'foraneas' => [
+            'ACTA_FORANEA',
+            'ACTAS_LOCALES_FORANEAS_ENTREGADAS'
+        ],
+        'actas_locales' => [
+            'COPIA_FIEL',
+            'COPIAS_CERTIFICADAS',
+            'ACTAS_ELABORADAS_ENTREGADAS'
+        ],
+        'curp' => [
+            'CORRECCIONES_CURP',
+            'ACTUALIZACIONES_CURP',
+            'CURP_BIOMETRICO'
+        ],
+        'nacimientos' => [
+            'REGISTRO_NACIMIENTO',
+            'REGISTRO_NACIMIENTO_HG',
+            'SOLICITUD_EXTEMPORANEO',
+            'ACTA_FIRMADA_EXTEMPORANEO',
+            'EXPEDIENTES_NACIMIENTO'
+        ],
+        'matrimonios' => [
+            'EXPEDIENTES_MATRIMONIO',
+            'BODAS_REALIZADAS'
+        ],
+        'divorcios' => [
+            'EXPEDIENTES_DIVORCIO',
+            'CAPTURA_DIVORCIO',
+            'DIVORCIO_ADMINISTRATIVO',
+            'DIVORCIO_JUDICIAL'
+        ],
+        'defunciones' => [
+            'REGISTRO_DEFUNCION',
+            'ACTA_CERTIFICADA_DEFUNCION'
+        ],
+        'inscripciones' => [
+            'INSCRIPCION_NACIMIENTO'
+        ],
+        'reconocimientos' => [
+            'IDENTIDAD_GENERO'
+        ],
+        'peticiones' => [
+            'CORRECCION_OFICIALES',
+            'CORRECCIONES_REALIZADAS',
+            'CORRECCIONES_ADMINISTRATIVAS',
+            'BUSQUEDA_ARCHIVO',
+            'BUSQUEDA_SISTEMA',
+            'ACTA_DIGITALIZADA',
+            'DOCUMENTO_ARCHIVADO',
+            'EXPEDIENTES_PENDIENTES',
+            'EXPEDICION_PASES_CAJA',
+            'ACTA_CAPTURISTA',
+            'ASESORIA_CIUDADANA',
+            'ATENCION_MODULO',
+            'CANALIZACION_INSTITUCIONAL',
+            'RECEPCION_OFICIOS',
+            'OFICIOS_RESPUESTA',
+            'ATENCION_GENERAL',
+            'CORREOS_OFICIALES',
+            'SOLICITUDES_DIRECCION_GENERAL',
+            'ASUNTOS_ADMINISTRATIVOS',
+            'COMUNICACIONES_OTRAS_DIRECCIONES',
+            'BRIGADAS_ACTIVIDADES',
+            'INVITACIONES',
+            'EVENTOS',
+            'REUNIONES',
+            'CASO_INCIDENCIA',
+            'FORMATOS_ENTREGADOS',
+            'INCIDENCIA_FORMATOS',
+            'OTRO'
+        ]
+    ];
+
+    /**
+     * Retorna los tipos de trámite pertenecientes a un módulo operativo.
+     */
+    public static function getTramitesPorModulo(string $modulo): array {
+        return self::MODULOS_MAP[$modulo] ?? [];
+    }
+
+    /**
+     * Retorna el nombre del módulo asignado a un tipo de trámite.
+     */
+    public static function getModuloPorTramite(string $tipoPeticion): string {
+        foreach (self::MODULOS_MAP as $modulo => $tramites) {
+            if (in_array($tipoPeticion, $tramites, true)) {
+                return $modulo;
+            }
+        }
+        return 'peticiones';
+    }
+
+    /**
+     * Retorna el conteo de peticiones activas (no entregadas/canceladas) para un módulo.
+     */
+    public static function getConteoPendientesPorModulo(string $modulo): int {
+        $tramites = self::getTramitesPorModulo($modulo);
+        if (empty($tramites)) {
+            return 0;
+        }
+
+        try {
+            $pdo = Database::getReadConnection();
+            $inClause = implode(',', array_fill(0, count($tramites), '?'));
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM peticiones_ventanilla 
+                                   WHERE tipo_peticion IN ($inClause) 
+                                     AND estatus IN ('PENDIENTE', 'EN_PROCESO') 
+                                     AND deleted_at IS NULL");
+            $stmt->execute($tramites);
+            return (int)$stmt->fetchColumn();
+        } catch (\Throwable $e) {
+            return 0;
+        }
+    }
 }

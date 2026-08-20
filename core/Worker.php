@@ -96,6 +96,8 @@ function processPendingJobs(): int {
                     $filePath = generateAuditoriaReport($pdo, $payload, $jobId, $exportDir);
                 } elseif ($job['type'] === 'export_errores') {
                     $filePath = generateErroresReport($pdo, $payload, $jobId, $exportDir);
+                } elseif ($job['type'] === 'export_peticiones_ventanilla') {
+                    $filePath = generatePeticionesVentanillaReport($pdo, $payload, $jobId, $exportDir);
                 } else {
                     throw new Exception("Tipo de trabajo desconocido: " . $job['type']);
                 }
@@ -1149,7 +1151,7 @@ function generateUsuariosReport($pdo, $payload, $jobId, $exportDir) {
  */
 function generateAuditoriaReport($pdo, $payload, $jobId, $exportDir) {
     $search = $payload['search'] ?? '';
-    $sql = "SELECT a.id, a.fecha_hora, u.nombre as usuario, a.modulo, a.accion, a.detalles, a.ip_address 
+    $sql = "SELECT a.id, a.creado_en as fecha_hora, u.nombre as usuario, a.modulo, a.accion, a.detalles, a.ip_address 
             FROM auditoria_logs a 
             LEFT JOIN usuarios u ON a.usuario_id = u.id";
     $params = [];
@@ -1212,7 +1214,7 @@ function generateAuditoriaReport($pdo, $payload, $jobId, $exportDir) {
  */
 function generateErroresReport($pdo, $payload, $jobId, $exportDir) {
     $search = $payload['search'] ?? '';
-    $sql = "SELECT e.id, e.fecha_hora, u.nombre as usuario, e.mensaje, e.archivo, e.linea, e.stack_trace, e.url, e.ip_address 
+    $sql = "SELECT e.id, e.creado_en as fecha_hora, u.nombre as usuario, e.mensaje, e.archivo, e.linea, e.stack_trace, e.url, e.ip_address 
             FROM error_logs e 
             LEFT JOIN usuarios u ON e.usuario_id = u.id";
     $params = [];
@@ -1268,6 +1270,84 @@ function generateErroresReport($pdo, $payload, $jobId, $exportDir) {
     );
 
     $fileName = 'Reporte_Errores_' . $jobId . '_' . date('Ymd_His') . '.xlsx';
+    $fullPath = $exportDir . '/' . $fileName;
+    $writer = new Xlsx($spreadsheet);
+    $writer->save($fullPath);
+    return 'public/exports/' . $fileName;
+}
+
+/**
+ * Reporte de Peticiones Rápidas de Ventanilla
+ */
+function generatePeticionesVentanillaReport($pdo, $payload, $jobId, $exportDir) {
+    $search = $payload['search'] ?? '';
+    $sql = "SELECT pv.folio, pv.solicitante_nombre, pv.solicitante_curp, pv.solicitante_telefono, 
+                   pv.tipo_peticion, pv.detalle, pv.estatus, pv.creado_en, u.nombre as operador
+            FROM peticiones_ventanilla pv
+            LEFT JOIN usuarios u ON pv.usuario_registro = u.id
+            WHERE pv.deleted_at IS NULL";
+    $params = [];
+    if (!empty($search)) {
+        $sql .= " AND (pv.folio LIKE ? OR pv.solicitante_nombre LIKE ? OR pv.solicitante_curp LIKE ? OR pv.detalle LIKE ?)";
+        $params = array_fill(0, 4, '%' . $search . '%');
+    }
+    $sql .= " ORDER BY pv.id DESC";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+    $sheet->setTitle('Peticiones Ventanilla');
+
+    $headers = ['Folio', 'Solicitante', 'CURP / Contacto', 'Tipo de Trámite', 'Detalle / Referencia', 'Estatus', 'Fecha Registro', 'Operador'];
+    foreach ($headers as $i => $header) {
+        $col = chr(65 + $i);
+        $sheet->setCellValue($col . '1', $header);
+    }
+
+    $rowNum = 2;
+    foreach ($records as $row) {
+        $tramites = \Core\Services\PeticionRapidaService::TRAMITES;
+        $tipoLabel = isset($tramites[$row['tipo_peticion']]) 
+            ? "[{$tramites[$row['tipo_peticion']]['codigo']}] {$tramites[$row['tipo_peticion']]['nombre']}"
+            : $row['tipo_peticion'];
+
+        $curpContacto = $row['solicitante_curp'] ?: '';
+        if ($row['solicitante_telefono']) {
+            $curpContacto .= ($curpContacto ? ' / Tel: ' : 'Tel: ') . $row['solicitante_telefono'];
+        }
+
+        $sheet->setCellValueExplicit('A' . $rowNum, $row['folio'], DataType::TYPE_STRING);
+        $sheet->setCellValue('B' . $rowNum, safeCell($row['solicitante_nombre']));
+        $sheet->setCellValue('C' . $rowNum, safeCell($curpContacto ?: 'N/A'));
+        $sheet->setCellValue('D' . $rowNum, $tipoLabel);
+        $sheet->setCellValue('E' . $rowNum, safeCell($row['detalle']));
+        $sheet->setCellValue('F' . $rowNum, $row['estatus']);
+        $sheet->setCellValue('G' . $rowNum, $row['creado_en']);
+        $sheet->setCellValue('H' . $rowNum, safeCell($row['operador'] ?? 'N/A'));
+        $rowNum++;
+    }
+
+    ExcelReportFormatter::aplicarFormatoInstitucional(
+        $sheet,
+        $rowNum - 1,
+        'H',
+        [
+            'A' => 'center',
+            'B' => 'left',
+            'C' => 'left',
+            'D' => 'left',
+            'E' => 'left',
+            'F' => 'center',
+            'G' => 'center',
+            'H' => 'left'
+        ],
+        'F'
+    );
+
+    $fileName = 'Reporte_Peticiones_Ventanilla_' . $jobId . '_' . date('Ymd_His') . '.xlsx';
     $fullPath = $exportDir . '/' . $fileName;
     $writer = new Xlsx($spreadsheet);
     $writer->save($fullPath);

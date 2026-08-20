@@ -1,5 +1,5 @@
 <?php
-require_once '../../core/Auth.php';
+require_once __DIR__ . '/../../core/Auth.php';
 \Core\Auth::check();
 
 if (($_SESSION['user_rol'] ?? '') !== 'ADMIN') {
@@ -8,7 +8,7 @@ if (($_SESSION['user_rol'] ?? '') !== 'ADMIN') {
 }
 
 header('Content-Type: application/json; charset=utf-8');
-require_once '../../core/Database.php';
+require_once __DIR__ . '/../../core/Database.php';
 use Core\Database;
 
 try {
@@ -23,7 +23,7 @@ try {
 
     $columns = [
         0 => 'a.id',
-        1 => 'a.fecha_hora',
+        1 => 'a.creado_en',
         2 => 'u.nombre',
         3 => 'a.modulo',
         4 => 'a.accion',
@@ -64,7 +64,7 @@ try {
     $stmtCountFiltered->execute($params);
     $recordsFiltered = (int)$stmtCountFiltered->fetchColumn();
 
-    $sql = "SELECT a.id, a.fecha_hora, u.nombre as usuario, a.modulo, a.accion, a.detalles, a.ip_address " 
+    $sql = "SELECT a.id, a.creado_en as fecha_hora, u.nombre as usuario, a.modulo, a.accion, a.detalles, a.ip_address " 
             . $baseQuery . $searchQuery . " ORDER BY " . $columnName . " " . $columnSortOrder . " LIMIT :limit OFFSET :offset";
     
     $stmt = $pdo->prepare($sql);

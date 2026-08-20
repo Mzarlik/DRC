@@ -1,10 +1,10 @@
 <?php
-require_once '../../core/Auth.php';
+require_once __DIR__ . '/../../core/Auth.php';
 \Core\Auth::check();
 
 // public/api/stats.php
 header('Content-Type: application/json; charset=utf-8');
-require_once '../../core/Database.php';
+require_once __DIR__ . '/../../core/Database.php';
 use Core\Database;
 
 try {

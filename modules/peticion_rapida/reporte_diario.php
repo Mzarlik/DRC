@@ -258,13 +258,16 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 </div>
                 <div class="d-flex gap-2">
                     <a href="index.php" class="btn btn-outline-secondary">
-                        <i class="fa-solid fa-arrow-left me-1"></i> Ventanilla
+                        <i class="fa-solid fa-arrow-left me-1"></i> Control de Peticiones
                     </a>
                     <button class="btn btn-secondary" onclick="window.print()">
-                        <i class="fa-solid fa-print me-1"></i> Imprimir Reporte
+                        <i class="fa-solid fa-print me-1"></i> Imprimir
                     </button>
-                    <button class="btn btn-success" id="btnExportarCsv">
-                        <i class="fa-solid fa-file-csv me-1"></i> Exportar CSV
+                    <a href="export_diario_excel.php?fecha=<?php echo urlencode($fecha); ?>" class="btn btn-success fw-bold" id="btnExportarExcel">
+                        <i class="fa-solid fa-file-excel me-1"></i> Exportar a Excel (.xlsx)
+                    </a>
+                    <button class="btn btn-outline-secondary btn-sm" id="btnExportarCsv" title="Exportar formato ligero CSV">
+                        <i class="fa-solid fa-file-csv me-1"></i> CSV
                     </button>
                 </div>
             </div>

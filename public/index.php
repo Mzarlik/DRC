@@ -309,14 +309,17 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         </div>
                         <div class="card-body d-flex flex-column justify-content-center">
                             <div class="d-grid gap-2">
+                                <a href="../modules/peticion_rapida/create.php" class="btn btn-outline-warning text-dark text-start py-2">
+                                    <i class="fa-solid fa-bolt text-warning me-2"></i> <strong>Petición Rápida</strong> (Captura)
+                                </a>
                                 <a href="../modules/peticion_rapida/index.php" class="btn btn-outline-primary text-start py-2">
-                                    <i class="fa-solid fa-bolt text-warning me-2"></i> Petición Rápida
+                                    <i class="fa-solid fa-table-list text-primary me-2"></i> Control de Peticiones
                                 </a>
                                 <a href="../modules/peticion_rapida/reporte_diario.php" class="btn btn-outline-info text-start py-2">
-                                    <i class="fa-solid fa-file-invoice me-2"></i> Reporte Diario Oficial
+                                    <i class="fa-solid fa-file-invoice text-info me-2"></i> Reporte Diario Oficial
                                 </a>
                                 <a href="../modules/peticiones/index.php" class="btn btn-outline-secondary text-start py-2">
-                                    <i class="fa-solid fa-folder-open text-primary me-2"></i> Ventanilla de Seguimiento
+                                    <i class="fa-solid fa-folder-open text-success me-2"></i> Ventanilla de Seguimiento
                                 </a>
                                 <a href="../modules/nacimientos/create.php" class="btn btn-outline-success text-start py-2">
                                     <i class="fa-solid fa-baby me-2"></i> Registrar Nacimiento

@@ -1,6 +1,5 @@
 <?php
-require_once '../../vendor/autoload.php';
-require_once '../../core/Auth.php';
+require_once __DIR__ . '/../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_constancias');
 \Core\Auth::check();
 
@@ -16,17 +15,13 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inexistencias - ERP DRC</title>
-    <!-- Google Fonts -->
+    <title>Constancias e Inexistencias - ERP DRC</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap 5 CSS -->
     <link href="../../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="../../assets/vendor/fontawesome/css/all.min.css">
-    <!-- DataTables CSS -->
     <link href="../../assets/vendor/datatables/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="../../assets/vendor/datatables/css/responsive.bootstrap5.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
+    <link href="../../assets/vendor/sweetalert2/sweetalert2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/style.css">
     <script>if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark-mode');}</script>
 </head>
@@ -34,10 +29,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
 <div class="wrapper">
     <!-- Sidebar -->
-        <!-- Sidebar -->
-        <!-- Sidebar -->
-        <!-- Sidebar -->
-        <nav id="sidebar" class="offcanvas-lg offcanvas-start" tabindex="-1">
+    <nav id="sidebar" class="offcanvas-lg offcanvas-start" tabindex="-1">
         <div class="sidebar-header d-flex justify-content-between align-items-center">
             <span><i class="fa-solid fa-building-columns"></i> <span class="sidebar-text">ERP DRC</span></span>
             <button type="button" class="btn-close btn-close-white d-md-none" id="sidebarCloseMobile" aria-label="Close"></button>
@@ -186,12 +178,12 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
     <!-- Page Content -->
     <div id="content">
-                <nav class="navbar navbar-expand-lg navbar-light">
+        <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container-fluid">
                 <button type="button" id="sidebarCollapse" class="btn btn-primary" style="background: var(--primary-color); border: none;">
                     <i class="fas fa-bars"></i>
                 </button>
-                                <div class="d-flex align-items-center ms-auto">
+                <div class="d-flex align-items-center ms-auto">
                     <!-- Historial de Notificaciones -->
                     <div class="dropdown me-3" id="notificacionesMenu">
                         <a class="nav-link dropdown-toggle text-dark position-relative no-caret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -231,67 +223,143 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         </nav>
 
         <div class="container-fluid">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Listado de Constancias</h2>
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <div>
+                    <h2 class="fw-bold mb-0"><i class="fa-solid fa-file-signature text-primary me-2"></i> Módulo de Constancias</h2>
+                    <p class="text-muted small mb-0">Gestión de inexistencias de matrimonio, nacimiento, no deudor y descendencia</p>
+                </div>
+                <div class="d-flex gap-2">
                     <?php if (\Core\Auth::canExportar()): ?>
-                    <button class="btn btn-success me-2" id="btnExportExcel">
-                        <i class="fa-solid fa-file-excel"></i> Exportar a Excel
+                    <button class="btn btn-success" id="btnExportExcel">
+                        <i class="fa-solid fa-file-excel me-1"></i> Exportar a Excel
                     </button>
                     <?php endif; ?>
-                    <button class="btn btn-primary" style="background: var(--secondary-color); border: none;" data-bs-toggle="modal" data-bs-target="#createInexistenciaModal">
-                        <i class="fa-solid fa-plus"></i> Nuevo Registro
+                    <button class="btn btn-primary fw-bold" style="background: var(--secondary-color); border: none;" data-bs-toggle="modal" data-bs-target="#createInexistenciaModal">
+                        <i class="fa-solid fa-plus me-1"></i> Nueva Constancia
                     </button>
                 </div>
             </div>
-            
-            <div class="card mb-4">
-                <div class="card-header bg-white fw-bold">
-                    Filtros de Búsqueda
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-5">
-                            <label for="filter_tipo" class="form-label fw-bold">Tipo de Constancia</label>
-                             <select class="form-select" id="filter_tipo">
-                                 <option value="">TODAS LAS CONSTANCIAS</option>
-                                 <?php
-                                 $opciones = \Core\Catalogo::getOpciones('tipo_constancia');
-                                 if (empty($opciones)) {
-                                     $opciones = [
-                                         ['clave' => 'INEXISTENCIA_DESCENDENCIA', 'valor' => 'CONSTANCIA DE DESCENDENCIA Y/O NO DESCENDENCIA'],
-                                         ['clave' => 'NO_DEUDOR', 'valor' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE DEUDOR ALIMENTARIO MOROSO'],
-                                         ['clave' => 'INEXISTENCIA_MATRIMONIO', 'valor' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE MATRIMONIO'],
-                                         ['clave' => 'INEXISTENCIA_NACIMIENTO', 'valor' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE NACIMIENTO']
-                                     ];
-                                 }
-                                 foreach ($opciones as $opc) {
-                                     echo '<option value="' . htmlspecialchars($opc['clave'], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($opc['valor'], ENT_QUOTES, 'UTF-8') . '</option>';
-                                 }
-                                 ?>
-                             </select>
+
+            <!-- Navegación por Pestañas -->
+            <ul class="nav nav-pills mb-3" id="constanciasTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-semibold" id="tab-registros-btn" data-bs-toggle="pill" data-bs-target="#tab-registros" type="button" role="tab">
+                        <i class="fa-solid fa-file-circle-check me-1"></i> Constancias Emitidas
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-semibold position-relative" id="tab-peticiones-btn" data-bs-toggle="pill" data-bs-target="#tab-peticiones" type="button" role="tab">
+                        <i class="fa-solid fa-bolt text-warning me-1"></i> Peticiones de Ventanilla
+                        <?php 
+                        $pendientesConst = \Core\Services\PeticionRapidaService::getConteoPendientesPorModulo('inexistencias');
+                        ?>
+                        <span class="badge bg-danger rounded-pill ms-1" id="badgePeticionesConst" style="<?php echo ($pendientesConst > 0) ? '' : 'display:none;'; ?>"><?php echo $pendientesConst; ?></span>
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="constanciasTabContent">
+                <!-- Pestaña 1: Registros Emitidos -->
+                <div class="tab-pane fade show active" id="tab-registros" role="tabpanel">
+                    <div class="card mb-4 border-0 shadow-sm">
+                        <div class="card-header bg-white fw-bold py-3">
+                            <i class="fa-solid fa-filter me-1 text-primary"></i> Filtros de Búsqueda
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <label for="filter_tipo" class="form-label fw-bold small text-muted">Tipo de Constancia</label>
+                                     <select class="form-select form-select-sm" id="filter_tipo">
+                                         <option value="">TODAS LAS CONSTANCIAS</option>
+                                         <?php
+                                         $opciones = \Core\Catalogo::getOpciones('tipo_constancia');
+                                         if (empty($opciones)) {
+                                             $opciones = [
+                                                 ['clave' => 'INEXISTENCIA_DESCENDENCIA', 'valor' => 'CONSTANCIA DE DESCENDENCIA Y/O NO DESCENDENCIA'],
+                                                 ['clave' => 'NO_DEUDOR', 'valor' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE DEUDOR ALIMENTARIO MOROSO'],
+                                                 ['clave' => 'INEXISTENCIA_MATRIMONIO', 'valor' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE MATRIMONIO'],
+                                                 ['clave' => 'INEXISTENCIA_NACIMIENTO', 'valor' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE NACIMIENTO']
+                                             ];
+                                         }
+                                         foreach ($opciones as $opc) {
+                                             echo '<option value="' . htmlspecialchars($opc['clave'], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($opc['valor'], ENT_QUOTES, 'UTF-8') . '</option>';
+                                         }
+                                         ?>
+                                     </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-3">
+                            <table id="inexistenciasTable" class="table table-striped dt-responsive nowrap w-100">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tipo</th>
+                                        <th>Línea de Pago</th>
+                                        <th>Nombre Completo</th>
+                                        <th>Fecha Trámite</th>
+                                        <th>Fecha Llegada</th>
+                                        <th>Estatus</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-body">
-                    <table id="inexistenciasTable" class="table table-striped dt-responsive nowrap w-100">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Tipo</th>
-                                <th>Línea de Pago</th>
-                                <th>Nombre Completo</th>
-                                <th>Fecha Trámite</th>
-                                <th>Fecha Llegada</th>
-                                <th>Estatus</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
 
-                    </table>
+                <!-- Pestaña 2: Peticiones de Ventanilla -->
+                <div class="tab-pane fade" id="tab-peticiones" role="tabpanel">
+                    <div class="card mb-4 border-0 shadow-sm">
+                        <div class="card-body p-3">
+                            <div class="row align-items-center g-2">
+                                <div class="col-auto">
+                                    <label for="filter_peticion_estatus" class="col-form-label fw-bold small text-muted">
+                                        <i class="fa-solid fa-filter text-primary me-1"></i> Filtrar por Estatus:
+                                    </label>
+                                </div>
+                                <div class="col-auto">
+                                    <select class="form-select form-select-sm" id="filter_peticion_estatus">
+                                        <option value="">TODOS LOS ESTATUS</option>
+                                        <option value="PENDIENTE" selected>PENDIENTES</option>
+                                        <option value="EN_PROCESO">EN PROCESO</option>
+                                        <option value="ENTREGADO">ENTREGADOS / CONCLUIDOS</option>
+                                        <option value="CANCELADO">CANCELADOS</option>
+                                    </select>
+                                </div>
+                                <div class="col-auto ms-auto">
+                                    <button class="btn btn-outline-primary btn-sm" id="btnRecargarPeticiones">
+                                        <i class="fa-solid fa-arrows-rotate me-1"></i> Actualizar Bandeja
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-3">
+                            <div class="table-responsive">
+                                <table id="peticionesVentanillaTable" class="table table-striped dt-responsive nowrap w-100">
+                                    <thead>
+                                        <tr>
+                                            <th>Folio Ventanilla</th>
+                                            <th>Solicitante</th>
+                                            <th>CURP / Contacto</th>
+                                            <th>Trámite Solicitado</th>
+                                            <th>Detalle / Referencia</th>
+                                            <th>Estatus</th>
+                                            <th>Fecha Ingreso</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -308,7 +376,18 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             </div>
             <form id="formInexistenciaModal">
                 <input type="hidden" name="csrf_token" value="<?php echo \Core\Auth::generateCSRF(); ?>">
+                <input type="hidden" name="peticion_folio_origen" id="modal_peticion_folio_origen" value="">
+                
                 <div class="modal-body">
+                    <!-- Banner de Precarga de Ventanilla -->
+                    <div class="alert alert-info py-2 px-3 mb-3 d-none align-items-center" id="alertPeticionOrigen">
+                        <i class="fa-solid fa-bolt text-warning me-2 fs-5"></i>
+                        <div>
+                            <small class="text-muted d-block">Trámite canalizado desde Ventanilla de Atención</small>
+                            <span class="fw-bold" id="lblPeticionOrigenInfo">Folio: VP-2026-00001</span>
+                        </div>
+                    </div>
+
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <label for="modal_tipo_constancia" class="form-label fw-bold">Tipo de Constancia</label>
@@ -372,8 +451,9 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
 <script>
     $(document).ready(function() {
-        // Cargar Notificaciones
+        const csrfToken = '<?php echo \Core\Auth::generateCSRF(); ?>';
 
+        // 1. Tabla Principal de Constancias Emitidas
         const table = $('#inexistenciasTable').DataTable({
             "processing": true,
             "serverSide": true,
@@ -383,7 +463,6 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     d.tipo_constancia = $('#filter_tipo').val();
                 }
             },
-            
             "columns": [
                 { "data": "id" },
                 { 
@@ -426,11 +505,177 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             const tipo = $('#filter_tipo').val();
             window.exportToExcelAsync('export_excel.php', {
                 tipo: tipo,
-                csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>'
+                csrf_token: csrfToken
             }, 'Exportando Inexistencias');
         });
 
-        // Calcular fecha de llegada automáticamente en el modal (Trámite + 15 días)
+        // 2. Tabla de Peticiones de Ventanilla para Constancias
+        const tramitesMap = {
+            'CONSTANCIA_DESCENDENCIA': 'CONSTANCIA DE DESCENDENCIA Y/O NO DESCENDENCIA',
+            'CONSTANCIA_DEUDOR_MOROSO': 'CONSTANCIA DE NO DEUDOR ALIMENTARIO MOROSO',
+            'CONSTANCIA_INEXISTENCIA_MATRIMONIO': 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE MATRIMONIO',
+            'CONSTANCIA_INEXISTENCIA_NACIMIENTO': 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE NACIMIENTO',
+            'PASES_CAJA_CONSTANCIAS': 'PASES DE CAJA PARA CONSTANCIAS'
+        };
+
+        const peticionesTable = $('#peticionesVentanillaTable').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                "url": "../peticion_rapida/modulo_peticiones_data.php?modulo=inexistencias",
+                "data": function(d) {
+                    d.estatus = $('#filter_peticion_estatus').val();
+                }
+            },
+            "columns": [
+                { 
+                    "data": "folio",
+                    "render": function(data) {
+                        return `<strong class="text-primary font-monospace">${data}</strong>`;
+                    }
+                },
+                { 
+                    "data": "solicitante_nombre",
+                    "render": function(data) {
+                        return `<span class="fw-bold">${data}</span>`;
+                    }
+                },
+                { 
+                    "data": "solicitante_curp",
+                    "render": function(data, type, row) {
+                        let curp = data ? `<span class="badge bg-secondary font-monospace">${data}</span>` : '';
+                        let tel = row.solicitante_telefono ? `<div class="small text-muted"><i class="fa-solid fa-phone fa-xs me-1"></i>${row.solicitante_telefono}</div>` : '';
+                        return curp + tel;
+                    }
+                },
+                { 
+                    "data": "tipo_peticion",
+                    "render": function(data) {
+                        let label = tramitesMap[data] || data;
+                        return `<span class="badge bg-light text-dark border" style="font-size: 0.75rem; white-space: normal;">${label}</span>`;
+                    }
+                },
+                { 
+                    "data": "detalle",
+                    "render": function(data) {
+                        return `<span class="text-truncate d-inline-block" style="max-width: 200px;" title="${data}">${data}</span>`;
+                    }
+                },
+                {
+                    "data": "estatus",
+                    "render": function(data) {
+                        let badgeClass = 'badge-pendiente';
+                        let label = data;
+                        if (data === 'ENTREGADO') { badgeClass = 'badge-vivo'; label = 'ENTREGADO'; }
+                        else if (data === 'EN_PROCESO') { badgeClass = 'badge-finalizado'; label = 'EN PROCESO'; }
+                        else if (data === 'CANCELADO') { badgeClass = 'badge-finado'; label = 'CANCELADO'; }
+                        return `<span class="badge-status ${badgeClass}">${label}</span>`;
+                    }
+                },
+                { 
+                    "data": "creado_en",
+                    "render": function(data) {
+                        return `<small class="text-muted">${data ? data.substring(0, 16) : ''}</small>`;
+                    }
+                },
+                {
+                    "data": null,
+                    "orderable": false,
+                    "render": function(data, type, row) {
+                        let html = `<div class="btn-group btn-group-sm" role="group">`;
+                        if (row.estatus === 'PENDIENTE' || row.estatus === 'EN_PROCESO') {
+                            html += `
+                                <button class="btn btn-warning text-dark btn-atender-peticion" 
+                                    data-id="${row.id}" 
+                                    data-folio="${row.folio}" 
+                                    data-solicitante="${row.solicitante_nombre.replace(/"/g, '&quot;')}"
+                                    data-curp="${row.solicitante_curp || ''}"
+                                    data-tipo="${row.tipo_peticion}"
+                                    data-detalle="${(row.detalle || '').replace(/"/g, '&quot;')}"
+                                    title="Atender Petición (Generar Constancia)">
+                                    <i class="fa-solid fa-bolt me-1"></i> Atender
+                                </button>
+                                <button class="btn btn-outline-success btn-entregar-peticion" data-id="${row.id}" title="Marcar como Entregada">
+                                    <i class="fa-solid fa-check"></i>
+                                </button>
+                            `;
+                        }
+                        html += `
+                            <button class="btn btn-outline-primary btn-ticket-peticion" data-id="${row.id}" title="Imprimir Ticket">
+                                <i class="fa-solid fa-print"></i>
+                            </button>
+                        </div>`;
+                        return html;
+                    }
+                }
+            ],
+            "order": [[0, "desc"]]
+        });
+
+        $('#filter_peticion_estatus, #btnRecargarPeticiones').on('change click', function() {
+            peticionesTable.draw();
+        });
+
+        // 3. Atender Petición: Precarga y abre el modal de constancias
+        $('#peticionesVentanillaTable').on('click', '.btn-atender-peticion', function() {
+            const btn = $(this);
+            const folio = btn.data('folio');
+            const solicitante = btn.data('solicitante');
+            const tipo = btn.data('tipo');
+            const detalle = btn.data('detalle');
+
+            // Mapeo tipo peticion ventanilla -> tipo constancia
+            let tipoConstancia = 'INEXISTENCIA_NACIMIENTO';
+            if (tipo === 'CONSTANCIA_DESCENDENCIA') tipoConstancia = 'INEXISTENCIA_DESCENDENCIA';
+            else if (tipo === 'CONSTANCIA_DEUDOR_MOROSO') tipoConstancia = 'NO_DEUDOR';
+            else if (tipo === 'CONSTANCIA_INEXISTENCIA_MATRIMONIO') tipoConstancia = 'INEXISTENCIA_MATRIMONIO';
+            else if (tipo === 'CONSTANCIA_INEXISTENCIA_NACIMIENTO') tipoConstancia = 'INEXISTENCIA_NACIMIENTO';
+
+            // Precargar campos del modal
+            $('#modal_peticion_folio_origen').val(folio);
+            $('#modal_tipo_constancia').val(tipoConstancia);
+            $('#modal_nombre_completo').val(solicitante);
+            $('#modal_observaciones').val(`Atención a Petición de Ventanilla ${folio}. ${detalle}`.trim());
+
+            $('#lblPeticionOrigenInfo').text(`Folio: ${folio} — Solicitante: ${solicitante}`);
+            $('#alertPeticionOrigen').removeClass('d-none').addClass('d-flex');
+
+            const modal = new bootstrap.Modal(document.getElementById('createInexistenciaModal'));
+            modal.show();
+        });
+
+        // Reset del modal al cerrarse
+        $('#createInexistenciaModal').on('hidden.bs.modal', function () {
+            $('#formInexistenciaModal')[0].reset();
+            $('#modal_peticion_folio_origen').val('');
+            $('#alertPeticionOrigen').addClass('d-none').removeClass('d-flex');
+        });
+
+        // 4. Marcar entregada desde la tabla de peticiones
+        $('#peticionesVentanillaTable').on('click', '.btn-entregar-peticion', function() {
+            const id = $(this).data('id');
+            $.ajax({
+                url: '../peticion_rapida/estado.php',
+                type: 'POST',
+                data: { id: id, estatus: 'ENTREGADO', csrf_token: csrfToken },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        window.showToast('success', '¡Listo!', response.message);
+                        peticionesTable.ajax.reload(null, false);
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: response.message, confirmButtonColor: 'var(--primary-color)' });
+                    }
+                }
+            });
+        });
+
+        // 5. Imprimir Ticket
+        $('#peticionesVentanillaTable').on('click', '.btn-ticket-peticion', function() {
+            window.open('../peticion_rapida/ticket.php?id=' + $(this).data('id'), '_blank');
+        });
+
+        // 6. Calcular fecha de llegada automáticamente en el modal (Trámite + 15 días)
         function calcularFechaLlegadaModal() {
             let fechaTramite = $('#modal_fecha_tramite').val();
             if(fechaTramite) {
@@ -452,7 +697,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             calcularFechaLlegadaModal();
         });
 
-        // Envío AJAX del formulario del Modal
+        // 7. Envío AJAX del formulario del Modal
         $('#formInexistenciaModal').on('submit', function(e) {
             e.preventDefault();
             const $form = $(this);
@@ -467,19 +712,15 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 success: function(response) {
                     $btn.prop('disabled', false);
                     if(response.status === 'success') {
-                        // Close Modal
                         const modalEl = document.getElementById('createInexistenciaModal');
                         const modalInstance = bootstrap.Modal.getInstance(modalEl);
                         if (modalInstance) {
                             modalInstance.hide();
                         }
                         $form[0].reset();
-                        
-                        // Reload Table
                         table.ajax.reload(null, false);
-                        
-                        // Show SweetAlert Toast
-                        window.showToast('success', '¡Guardado!', 'El registro se ha guardado exitosamente.');
+                        peticionesTable.ajax.reload(null, false);
+                        window.showToast('success', '¡Guardado!', 'El registro y la petición se han procesado exitosamente.');
                     } else {
                         Swal.fire({
                             icon: 'error',
@@ -499,6 +740,11 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     });
                 }
             });
+        });
+
+        // Ajustar columnas de DataTables al cambiar pestañas
+        $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function() {
+            $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
         });
     });
 </script>

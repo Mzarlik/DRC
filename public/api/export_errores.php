@@ -1,7 +1,7 @@
 <?php
 // public/api/export_errores.php
 header('Content-Type: application/json; charset=utf-8');
-require_once '../../core/Auth.php';
+require_once __DIR__ . '/../../core/Auth.php';
 \Core\Auth::check();
 \Core\Auth::checkExport('Errores');
 
@@ -10,8 +10,8 @@ if (($_SESSION['user_rol'] ?? '') !== 'ADMIN') {
     exit;
 }
 
-require_once '../../core/Database.php';
-require_once '../../core/Jobs.php';
+require_once __DIR__ . '/../../core/Database.php';
+require_once __DIR__ . '/../../core/Jobs.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

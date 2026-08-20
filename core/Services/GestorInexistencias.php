@@ -22,13 +22,14 @@ class GestorInexistencias {
      * @param string $observaciones Observaciones adicionales
      * @return array Resultado del proceso (status y mensaje)
      */
-    public static function registrarInexistencia($tipo_constancia, $linea_pago, $fecha_tramite, $fecha_llegada, $nombre_completo, $observaciones) {
+    public static function registrarInexistencia($tipo_constancia, $linea_pago, $fecha_tramite, $fecha_llegada, $nombre_completo, $observaciones, $peticion_origen = '') {
         $tipo_constancia = trim($tipo_constancia);
         $linea_pago = trim($linea_pago);
         $fecha_tramite = trim($fecha_tramite);
         $fecha_llegada = trim($fecha_llegada);
         $nombre_completo = mb_strtoupper(trim($nombre_completo), 'UTF-8');
         $observaciones = mb_strtoupper(trim($observaciones), 'UTF-8');
+        $peticion_origen = trim($peticion_origen);
 
         // Validación de tipo de constancia desde base de datos (Catálogos)
         require_once __DIR__ . '/../Catalogo.php';
@@ -90,7 +91,17 @@ class GestorInexistencias {
             ]);
 
             if ($result) {
-                \Core\Auditoria::logAccion('Inexistencias', 'CREAR', "Se registró una constancia de inexistencia ($tipo_constancia) para $nombre_completo. Línea de pago: $linea_pago");
+                // Si proviene de una petición de ventanilla, actualizar su estatus
+                if (!empty($peticion_origen)) {
+                    $stmtUpd = $pdo->prepare("UPDATE peticiones_ventanilla 
+                                              SET estatus = 'ENTREGADO', 
+                                                  detalle = CONCAT(COALESCE(detalle, ''), ' [CONSTANCIA EMITIDA - LP: ', ?, ']'), 
+                                                  actualizado_en = NOW() 
+                                              WHERE (folio = ? OR id = ?) AND estatus IN ('PENDIENTE', 'EN_PROCESO')");
+                    $stmtUpd->execute([$linea_pago, $peticion_origen, intval($peticion_origen)]);
+                }
+
+                \Core\Auditoria::logAccion('Inexistencias', 'CREAR', "Se registró una constancia de inexistencia ($tipo_constancia) para $nombre_completo. Línea de pago: $linea_pago" . (!empty($peticion_origen) ? " (Petición Origen: $peticion_origen)" : ""));
                 return ['status' => 'success'];
             } else {
                 return ['status' => 'error', 'message' => 'Error al guardar el registro en la base de datos.'];

@@ -23,9 +23,10 @@ logs/
 tmp/
 temp/
 
-# Caché de Pruebas Unitarias (PHPUnit)
+# Caché y Temporales
 .phpunit.cache/
 .phpunit.result.cache
+cache/
 *.cache
 
 # Redundancias y Respaldos Locales

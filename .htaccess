@@ -32,6 +32,15 @@ Options -Indexes
     RewriteEngine On
     RewriteRule ^(core|docs|logs|cache|scripts|\.agents)/ - [F,L,NC]
     RewriteRule ^public/(exports|reports)/.*\.xlsx$ - [F,L,NC]
+
+    # Redirección amigable si se omite el prefijo "modules/" (mantiene la coherencia de rutas relativas)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(ciudadanos|nacimientos|matrimonios|divorcios|defunciones|inscripciones|reconocimientos|actas_locales|foraneas|inexistencias|reportes|curp|peticion_rapida|peticiones|turnos)(.*)$ modules/$1$2 [R=302,QSA,L]
+
+    # Respaldo para peticiones de assets desde cualquier profundidad de URL
+    RewriteRule ^([^/]+)/assets/(.*)$ assets/$2 [L,NC]
+    RewriteRule ^modules/([^/]+)/assets/(.*)$ assets/$2 [L,NC]
 </IfModule>
 
 # 4. Cabeceras HTTP de Seguridad Perimetral

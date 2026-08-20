@@ -206,6 +206,9 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     <p class="text-muted small mb-0">Historial, búsqueda y seguimiento de trámites en mostrador</p>
                 </div>
                 <div class="d-flex gap-2">
+                    <button class="btn btn-success" id="btnExportExcel">
+                        <i class="fa-solid fa-file-excel me-1"></i> Exportar a Excel
+                    </button>
                     <a href="reporte_diario.php" class="btn btn-outline-primary">
                         <i class="fa-solid fa-file-invoice me-1"></i> Reporte Diario Oficial
                     </a>
@@ -370,6 +373,14 @@ $(document).ready(function() {
             }
         });
     }
+
+    $('#btnExportExcel').on('click', function() {
+        const search = pvTable.search();
+        window.exportToExcelAsync('export_excel.php', {
+            search: search,
+            csrf_token: csrfToken
+        }, 'Exportando Peticiones de Ventanilla');
+    });
 
     $('#pvTable').on('click', '.btn-entregar', function() {
         cambiarEstatus($(this).data('id'), 'ENTREGADO');

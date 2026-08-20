@@ -24,9 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fecha_llegada = $_POST['fecha_llegada'] ?? '';
     $observaciones = $_POST['observaciones'] ?? '';
     $tipo_constancia = $_POST['tipo_constancia'] ?? 'INEXISTENCIA_NACIMIENTO';
+    $peticion_folio_origen = trim($_POST['peticion_folio_origen'] ?? '');
 
     // 3. Delegar lógica de negocio al servicio
-    $res = GestorInexistencias::registrarInexistencia($tipo_constancia, $linea_pago, $fecha_tramite, $fecha_llegada, $nombre_completo, $observaciones);
+    $res = GestorInexistencias::registrarInexistencia($tipo_constancia, $linea_pago, $fecha_tramite, $fecha_llegada, $nombre_completo, $observaciones, $peticion_folio_origen);
     echo json_encode($res);
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Método no permitido.']);

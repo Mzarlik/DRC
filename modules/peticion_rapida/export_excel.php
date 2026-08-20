@@ -1,14 +1,10 @@
 <?php
-// public/api/export_usuarios.php
+// modules/peticion_rapida/export_excel.php
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../../core/Auth.php';
+\Core\Auth::checkPermission('permiso_peticiones_rapidas');
 \Core\Auth::check();
-\Core\Auth::checkExport('Usuarios');
-
-if (($_SESSION['user_rol'] ?? '') !== 'ADMIN') {
-    echo json_encode(["status" => "error", "message" => "No autorizado"]);
-    exit;
-}
+\Core\Auth::checkExport('PeticionRapida');
 
 require_once __DIR__ . '/../../core/Database.php';
 require_once __DIR__ . '/../../core/Jobs.php';
@@ -28,16 +24,17 @@ if (!\Core\Auth::validateCSRF($csrf_token)) {
 try {
     $pdo = Database::getConnection();
     
-    $search = $_POST['search'] ?? '';
+    $search = trim($_POST['search'] ?? '');
     
     $payload = json_encode([
         'search' => $search
     ]);
     
+    // Registrar el job en estatus 'pending'
     $stmt = $pdo->prepare("INSERT INTO jobs (user_id, type, payload, status) VALUES (?, ?, ?, ?)");
     $stmt->execute([
         $_SESSION['user_id'],
-        'export_usuarios',
+        'export_peticiones_ventanilla',
         $payload,
         'pending'
     ]);
@@ -48,7 +45,7 @@ try {
     echo json_encode([
         'status' => 'success',
         'job_id' => $jobId,
-        'message' => 'La exportación del catálogo de usuarios se está generando en segundo plano. Te notificaremos cuando esté listo.'
+        'message' => 'El reporte de peticiones de ventanilla se está generando en segundo plano.'
     ]);
     exit;
 

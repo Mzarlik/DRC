@@ -29,21 +29,31 @@ if ($id <= 0 || !in_array($estatus, ['ENTREGADO', 'CANCELADO'], true)) {
 
 try {
     $pdo = Database::getConnection();
-    $stmt = $pdo->prepare("SELECT folio, tipo_peticion FROM peticiones_ventanilla WHERE id = ? AND estatus = 'PENDIENTE'");
+    $stmt = $pdo->prepare("SELECT folio, tipo_peticion, estatus FROM peticiones_ventanilla WHERE id = ?");
     $stmt->execute([$id]);
     $pv = $stmt->fetch();
 
     if (!$pv) {
-        echo json_encode(['status' => 'error', 'message' => 'La petición no existe o ya fue finalizada.']);
+        echo json_encode(['status' => 'error', 'message' => 'La petición no existe o fue eliminada.']);
         exit;
     }
 
-    $pdo->prepare("UPDATE peticiones_ventanilla SET estatus = ? WHERE id = ?")->execute([$estatus, $id]);
-    \Core\Auditoria::logAccion('Petición Rápida', 'EDITAR', "Petición {$pv['folio']} marcada como $estatus.");
+    if ($pv['estatus'] === 'ENTREGADO' && $estatus === 'ENTREGADO') {
+        echo json_encode(['status' => 'error', 'message' => 'Esta petición ya fue entregada al solicitante.']);
+        exit;
+    }
+
+    if ($pv['estatus'] === 'CANCELADO') {
+        echo json_encode(['status' => 'error', 'message' => 'Esta petición se encuentra cancelada y no puede ser modificada.']);
+        exit;
+    }
+
+    $pdo->prepare("UPDATE peticiones_ventanilla SET estatus = ?, actualizado_en = NOW() WHERE id = ?")->execute([$estatus, $id]);
+    \Core\Auditoria::logAccion('Petición Rápida', 'EDITAR', "Petición {$pv['folio']} actualizada a estatus: $estatus.");
 
     $mensaje = ($estatus === 'ENTREGADO')
-        ? 'Petición marcada como entregada. La constancia/acta fue proporcionada al ciudadano.'
-        : 'Petición cancelada.';
+        ? '¡Petición marcada como entregada exitosamente! El trámite se completó en ventanilla.'
+        : 'Petición cancelada correctamente.';
 
     echo json_encode(['status' => 'success', 'message' => $mensaje]);
 } catch (\Throwable $e) {

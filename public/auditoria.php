@@ -1,5 +1,5 @@
 <?php
-require_once '../core/Auth.php';
+require_once __DIR__ . '/../core/Auth.php';
 \Core\Auth::check();
 
 if (($_SESSION['user_rol'] ?? '') !== 'ADMIN') {
@@ -7,7 +7,7 @@ if (($_SESSION['user_rol'] ?? '') !== 'ADMIN') {
     exit;
 }
 
-require_once '../core/Database.php';
+require_once __DIR__ . '/../core/Database.php';
 use Core\Database;
 $pdo = Database::getReadConnection();
 $modulosAuditoria = $pdo->query("SELECT DISTINCT modulo FROM auditoria_logs ORDER BY modulo")->fetchAll(PDO::FETCH_COLUMN);

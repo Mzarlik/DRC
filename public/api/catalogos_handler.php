@@ -2,8 +2,8 @@
 // public/api/catalogos_handler.php
 header('Content-Type: application/json; charset=utf-8');
 
-require_once '../../vendor/autoload.php';
-require_once '../../core/Auth.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../core/Auth.php';
 \Core\Auth::check();
 
 if (!in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'SUPERVISOR'])) {
