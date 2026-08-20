@@ -65,12 +65,14 @@ try {
 
     // Nacimiento: Sofía Valentina (hija de Juan Carlos y María Guadalupe)
     $stmtNac = $pdo->prepare("SELECT id FROM nacimientos WHERE numero_acta = 'NAC-2020-00101'");
+    $stmtNac->execute();
     if (!$stmtNac->fetchColumn()) {
         $pdo->prepare("INSERT INTO nacimientos (numero_acta, ciudadano_id, padre_id, madre_id, lugar_nacimiento, fecha_registro, usuario_registro) VALUES (?, ?, ?, ?, ?, ?, ?)")
             ->execute(['NAC-2020-00101', $ciudadanosIds[5], $ciudadanosIds[0], $ciudadanosIds[1], 'HOSPITAL MATERNO INFANTIL', '2020-01-20', $adminId]);
     }
     // Nacimiento: Mateo Alexander (hijo de Roberto y Ana Patricia)
     $stmtNac2 = $pdo->prepare("SELECT id FROM nacimientos WHERE numero_acta = 'NAC-2022-00205'");
+    $stmtNac2->execute();
     if (!$stmtNac2->fetchColumn()) {
         $pdo->prepare("INSERT INTO nacimientos (numero_acta, ciudadano_id, padre_id, madre_id, lugar_nacimiento, fecha_registro, usuario_registro) VALUES (?, ?, ?, ?, ?, ?, ?)")
             ->execute(['NAC-2022-00205', $ciudadanosIds[6], $ciudadanosIds[2], $ciudadanosIds[3], 'CLÍNICA CENTRAL', '2022-08-15', $adminId]);
@@ -78,12 +80,14 @@ try {
 
     // Matrimonio: Juan Carlos Hernández y María Guadalupe López
     $stmtMat = $pdo->prepare("SELECT id FROM matrimonios WHERE numero_acta = 'MAT-2018-00045'");
+    $stmtMat->execute();
     if (!$stmtMat->fetchColumn()) {
         $pdo->prepare("INSERT INTO matrimonios (numero_acta, contrayente_1_id, contrayente_2_id, regimen_patrimonial, fecha_registro, usuario_registro) VALUES (?, ?, ?, ?, ?, ?)")
             ->execute(['MAT-2018-00045', $ciudadanosIds[0], $ciudadanosIds[1], 'SOCIEDAD CONYUGAL', '2018-06-12', $adminId]);
     }
     // Matrimonio: Diego Alberto y Valeria
     $stmtMat2 = $pdo->prepare("SELECT id FROM matrimonios WHERE numero_acta = 'MAT-2024-00112'");
+    $stmtMat2->execute();
     if (!$stmtMat2->fetchColumn()) {
         $pdo->prepare("INSERT INTO matrimonios (numero_acta, contrayente_1_id, contrayente_2_id, regimen_patrimonial, fecha_registro, usuario_registro) VALUES (?, ?, ?, ?, ?, ?)")
             ->execute(['MAT-2024-00112', $ciudadanosIds[9], $ciudadanosIds[10], 'SEPARACIÓN DE BIENES', '2024-02-14', $adminId]);
@@ -91,6 +95,7 @@ try {
 
     // Divorcio: Roberto Martínez y Ana Patricia García
     $stmtDiv = $pdo->prepare("SELECT id FROM divorcios WHERE numero_acta = 'DIV-2025-00018'");
+    $stmtDiv->execute();
     if (!$stmtDiv->fetchColumn()) {
         $pdo->prepare("INSERT INTO divorcios (numero_acta, ciudadano_1_id, ciudadano_2_id, tipo_divorcio, fecha_registro, usuario_registro) VALUES (?, ?, ?, ?, ?, ?)")
             ->execute(['DIV-2025-00018', $ciudadanosIds[2], $ciudadanosIds[3], 'JUDICIAL', '2025-05-10', $adminId]);
@@ -98,12 +103,14 @@ try {
 
     // Defunción: Francisco Javier Morales
     $stmtDef = $pdo->prepare("SELECT id FROM defunciones WHERE numero_acta = 'DEF-2026-00012'");
+    $stmtDef->execute();
     if (!$stmtDef->fetchColumn()) {
         $pdo->prepare("INSERT INTO defunciones (numero_acta, ciudadano_id, fecha_defuncion, causa_muerte, fecha_registro, usuario_registro) VALUES (?, ?, ?, ?, ?, ?)")
             ->execute(['DEF-2026-00012', $ciudadanosIds[7], '2026-01-08', 'INFARTO AGUDO AL MIOCARDIO', '2026-01-10', $adminId]);
     }
     // Defunción: Elena Castillo
     $stmtDef2 = $pdo->prepare("SELECT id FROM defunciones WHERE numero_acta = 'DEF-2026-00034'");
+    $stmtDef2->execute();
     if (!$stmtDef2->fetchColumn()) {
         $pdo->prepare("INSERT INTO defunciones (numero_acta, ciudadano_id, fecha_defuncion, causa_muerte, fecha_registro, usuario_registro) VALUES (?, ?, ?, ?, ?, ?)")
             ->execute(['DEF-2026-00034', $ciudadanosIds[8], '2026-02-15', 'INSUFICIENCIA RESPIRATORIA AGUDA', '2026-02-17', $adminId]);
@@ -150,12 +157,12 @@ try {
     // 6. Sembrando Peticiones Rápidas de Ventanilla (peticiones_ventanilla)
     echo "[5/8] Sembrando Peticiones Rápidas de Mostrador...\n";
     $peticionesVentanilla = [
-        ['FOR-260819-001', $ciudadanosIds[0], 'JUAN CARLOS HERNÁNDEZ PÉREZ', 'HEPJ900514HDFRRN01', '5512345678', 'ACTA FORÁNEA', 'COPIA CERTIFICADA DE NACIMIENTO PROCEDENTE DE OAXACA (AÑO 1990).', 'PENDIENTE'],
-        ['BSI-260819-002', $ciudadanosIds[1], 'MARÍA GUADALUPE LÓPEZ GÓMEZ', 'LOGM920922MDFPZR03', '5523456789', 'BÚSQUEDA EN SISTEMA', 'BÚSQUEDA DE ANTECEDENTE MATRIMONIAL DEL AÑO 2018.', 'PENDIENTE'],
-        ['EXP-260819-003', $ciudadanosIds[2], 'ROBERTO MARTÍNEZ SÁNCHEZ', 'MASR850310HDFNNB02', '5534567890', 'EXPEDICIÓN URGENTE', '3 COPIAS CERTIFICADAS DE ACTA DE DIVORCIO CON SELLO INSTITUCIONAL.', 'ENTREGADO'],
-        ['COR-260819-004', $ciudadanosIds[3], 'ANA PATRICIA GARCÍA TORRES', 'GATA881130MDFRNR05', '5545678901', 'CORRECCIÓN DE DATOS', 'ACLARACIÓN EN APELLIDO MATERNO (CONCORDANCIA CON CURP NACIONAL).', 'EN_PROCESO'],
-        ['CON-260819-005', $ciudadanosIds[4], 'CARLOS EDUARDO RAMÍREZ CRUZ', 'RACC950718HDFMZL08', '5556789012', 'CONSTANCIA', 'CONSTANCIA DE NO DEUDOR ALIMENTARIO PARA CONCURSO PÚBLICO.', 'PENDIENTE'],
-        ['OTR-260819-006', null, 'VALENTINA MORALES LUNA', '', '5567890123', 'ASESORÍA CIUDADANA', 'INFORMES SOBRE REQUISITOS PARA MATRIMONIO CIVIL EN OFICIALÍA 01.', 'ENTREGADO']
+        ['FOR-260819-001', $ciudadanosIds[0], 'JUAN CARLOS HERNÁNDEZ PÉREZ', 'HEPJ900514HDFRRN01', '5512345678', 'ACTA_FORANEA', 'COPIA CERTIFICADA DE NACIMIENTO PROCEDENTE DE OAXACA (AÑO 1990).', 'PENDIENTE'],
+        ['BSI-260819-002', $ciudadanosIds[1], 'MARÍA GUADALUPE LÓPEZ GÓMEZ', 'LOGM920922MDFPZR03', '5523456789', 'BUSQUEDA_SISTEMA', 'BÚSQUEDA DE ANTECEDENTE MATRIMONIAL DEL AÑO 2018.', 'PENDIENTE'],
+        ['EXP-260819-003', $ciudadanosIds[2], 'ROBERTO MARTÍNEZ SÁNCHEZ', 'MASR850310HDFNNB02', '5534567890', 'COPIAS_CERTIFICADAS', '3 COPIAS CERTIFICADAS DE ACTA DE DIVORCIO CON SELLO INSTITUCIONAL.', 'ENTREGADO'],
+        ['COR-260819-004', $ciudadanosIds[3], 'ANA PATRICIA GARCÍA TORRES', 'GATA881130MDFRNR05', '5545678901', 'CORRECCION_OFICIALES', 'ACLARACIÓN EN APELLIDO MATERNO (CONCORDANCIA CON CURP NACIONAL).', 'EN_PROCESO'],
+        ['CON-260819-005', $ciudadanosIds[4], 'CARLOS EDUARDO RAMÍREZ CRUZ', 'RACC950718HDFMZL08', '5556789012', 'CONSTANCIA_DEUDOR_MOROSO', 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE DEUDOR ALIMENTARIO MOROSO PARA CONCURSO PÚBLICO.', 'PENDIENTE'],
+        ['OTR-260819-006', null, 'VALENTINA MORALES LUNA', '', '5567890123', 'ATENCION_PUBLICO', 'INFORMES SOBRE REQUISITOS PARA MATRIMONIO CIVIL EN OFICIALÍA 01.', 'ENTREGADO']
     ];
 
     foreach ($peticionesVentanilla as $pv) {

@@ -235,8 +235,17 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             <div class="col-md-12">
                                 <label for="tipo_constancia" class="form-label fw-bold">Tipo de Constancia</label>
                                 <select class="form-select" id="tipo_constancia" name="tipo_constancia" required>
+                                    <option value="">Seleccione tipo de constancia oficial...</option>
                                     <?php
                                     $opciones = \Core\Catalogo::getOpciones('tipo_constancia');
+                                    if (empty($opciones)) {
+                                        $opciones = [
+                                            ['clave' => 'INEXISTENCIA_DESCENDENCIA', 'valor' => 'CONSTANCIA DE DESCENDENCIA Y/O NO DESCENDENCIA'],
+                                            ['clave' => 'NO_DEUDOR', 'valor' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE DEUDOR ALIMENTARIO MOROSO'],
+                                            ['clave' => 'INEXISTENCIA_MATRIMONIO', 'valor' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE MATRIMONIO'],
+                                            ['clave' => 'INEXISTENCIA_NACIMIENTO', 'valor' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE NACIMIENTO']
+                                        ];
+                                    }
                                     foreach ($opciones as $opc) {
                                         echo '<option value="' . htmlspecialchars($opc['clave'], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($opc['valor'], ENT_QUOTES, 'UTF-8') . '</option>';
                                     }

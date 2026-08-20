@@ -93,30 +93,22 @@ class PeticionRapidaService {
             'nombre' => 'RECONOCIMIENTO DE IDENTIDAD DE GÉNERO'
         ],
 
-        // --- 2. CONSTANCIAS, INEXISTENCIAS (CIR) Y CERTIFICACIONES ---
-        'CIR_INEXISTENCIA_DEUDOR' => [
-            'codigo' => 'CID',
-            'nombre' => 'CIR DE INEXISTENCIA DE REGISTRO DE DEUDOR ALIMENTARIO'
-        ],
-        'CIR_MATRIMONIO' => [
-            'codigo' => 'CIM',
-            'nombre' => 'CIR DE MATRIMONIO'
-        ],
-        'CIR_NO_DESCENDENCIA' => [
+        // --- 2. CONSTANCIAS, INEXISTENCIAS Y CERTIFICACIONES OFICIALES ---
+        'CONSTANCIA_DESCENDENCIA' => [
             'codigo' => 'CND',
-            'nombre' => 'CIR DE NO DESCENDENCIA'
+            'nombre' => 'CONSTANCIA DE DESCENDENCIA Y/O NO DESCENDENCIA'
         ],
-        'CIR_NO_MATRIMONIO' => [
-            'codigo' => 'CNM',
-            'nombre' => 'CIR DE NO MATRIMONIO'
+        'CONSTANCIA_DEUDOR_MOROSO' => [
+            'codigo' => 'CID',
+            'nombre' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE DEUDOR ALIMENTARIO MOROSO'
         ],
-        'CIR_NACIMIENTO' => [
+        'CONSTANCIA_INEXISTENCIA_MATRIMONIO' => [
+            'codigo' => 'CIM',
+            'nombre' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE MATRIMONIO'
+        ],
+        'CONSTANCIA_INEXISTENCIA_NACIMIENTO' => [
             'codigo' => 'CIN',
-            'nombre' => 'CIR DE NACIMIENTO'
-        ],
-        'CONSTANCIA_INEXISTENCIA' => [
-            'codigo' => 'CON',
-            'nombre' => 'CONSTANCIA DE INEXISTENCIA (GENERAL)'
+            'nombre' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE NACIMIENTO'
         ],
         'COPIA_FIEL' => [
             'codigo' => 'CFI',

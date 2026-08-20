@@ -86,12 +86,24 @@ try {
     $stmt->execute();
     $data = $stmt->fetchAll();
 
+    $nombresOficiales = [
+        'INEXISTENCIA_DESCENDENCIA' => 'CONSTANCIA DE DESCENDENCIA Y/O NO DESCENDENCIA',
+        'CONSTANCIA_DESCENDENCIA' => 'CONSTANCIA DE DESCENDENCIA Y/O NO DESCENDENCIA',
+        'NO_DEUDOR' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE DEUDOR ALIMENTARIO MOROSO',
+        'INEXISTENCIA_DEUDOR' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE DEUDOR ALIMENTARIO MOROSO',
+        'INEXISTENCIA_MATRIMONIO' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE MATRIMONIO',
+        'INEXISTENCIA_NACIMIENTO' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE NACIMIENTO'
+    ];
+
     // Sanitizar salida para evitar XSS (Regla de Testing/Security)
     $sanitizedData = [];
     foreach($data as $row) {
+        $rawTipo = trim($row['tipo_constancia'] ?? '');
+        $tipoLabel = $nombresOficiales[$rawTipo] ?? $rawTipo;
+
         $sanitizedData[] = [
             "id" => htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8'),
-            "tipo_constancia" => htmlspecialchars($row['tipo_constancia'], ENT_QUOTES, 'UTF-8'),
+            "tipo_constancia" => htmlspecialchars($tipoLabel, ENT_QUOTES, 'UTF-8'),
             "linea_pago" => htmlspecialchars($row['linea_pago'], ENT_QUOTES, 'UTF-8'), // Mantenido como String
             "nombre_completo" => htmlspecialchars($row['nombre_completo'], ENT_QUOTES, 'UTF-8'),
             "fecha_tramite" => htmlspecialchars($row['fecha_tramite'], ENT_QUOTES, 'UTF-8'),

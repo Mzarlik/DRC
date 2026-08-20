@@ -246,18 +246,22 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-5">
                             <label for="filter_tipo" class="form-label fw-bold">Tipo de Constancia</label>
                              <select class="form-select" id="filter_tipo">
                                  <option value="">TODAS LAS CONSTANCIAS</option>
                                  <?php
                                  $opciones = \Core\Catalogo::getOpciones('tipo_constancia');
+                                 if (empty($opciones)) {
+                                     $opciones = [
+                                         ['clave' => 'INEXISTENCIA_DESCENDENCIA', 'valor' => 'CONSTANCIA DE DESCENDENCIA Y/O NO DESCENDENCIA'],
+                                         ['clave' => 'NO_DEUDOR', 'valor' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE DEUDOR ALIMENTARIO MOROSO'],
+                                         ['clave' => 'INEXISTENCIA_MATRIMONIO', 'valor' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE MATRIMONIO'],
+                                         ['clave' => 'INEXISTENCIA_NACIMIENTO', 'valor' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE NACIMIENTO']
+                                     ];
+                                 }
                                  foreach ($opciones as $opc) {
-                                     // Let's format the display text to be similar to the original hardcoded ones or keep the catalog value
-                                     // Original has "INEXISTENCIA DE NACIMIENTO" instead of "CONSTANCIA DE INEXISTENCIA DE NACIMIENTO"
-                                     // But since they can add new ones, we can just display the catalog value (which is clean and accurate)
-                                     $label = str_replace('CONSTANCIA DE ', '', $opc['valor']);
-                                     echo '<option value="' . htmlspecialchars($opc['clave'], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</option>';
+                                     echo '<option value="' . htmlspecialchars($opc['clave'], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($opc['valor'], ENT_QUOTES, 'UTF-8') . '</option>';
                                  }
                                  ?>
                              </select>
@@ -304,12 +308,10 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         <div class="col-md-12">
                             <label for="modal_tipo_constancia" class="form-label fw-bold">Tipo de Constancia</label>
                             <select class="form-select" id="modal_tipo_constancia" name="tipo_constancia" required>
-                                <option value="">Seleccione tipo...</option>
+                                <option value="">Seleccione tipo de constancia oficial...</option>
                                 <?php
-                                $opciones = \Core\Catalogo::getOpciones('tipo_constancia');
                                 foreach ($opciones as $opc) {
-                                    $label = str_replace('CONSTANCIA DE ', '', $opc['valor']);
-                                    echo '<option value="' . htmlspecialchars($opc['clave'], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</option>';
+                                    echo '<option value="' . htmlspecialchars($opc['clave'], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($opc['valor'], ENT_QUOTES, 'UTF-8') . '</option>';
                                 }
                                 ?>
                             </select>
