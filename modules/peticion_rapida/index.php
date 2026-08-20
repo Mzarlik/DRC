@@ -68,15 +68,15 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         <div class="container-fluid px-0">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h2 class="fw-bold mb-1"><i class="fa-solid fa-bolt text-warning me-2"></i> Petición Rápida de Ventanilla</h2>
-                    <p class="text-muted small mb-0">Control, atención ágil y seguimiento de tickets en ventanilla</p>
+                    <h2 class="fw-bold mb-1"><i class="fa-solid fa-table-list text-primary me-2"></i> Control de Peticiones de Ventanilla</h2>
+                    <p class="text-muted small mb-0">Historial, búsqueda y seguimiento de trámites en mostrador</p>
                 </div>
                 <div class="d-flex gap-2">
                     <a href="reporte_diario.php" class="btn btn-outline-primary">
                         <i class="fa-solid fa-file-invoice me-1"></i> Reporte Diario Oficial
                     </a>
-                    <a href="create.php" class="btn btn-primary">
-                        <i class="fa-solid fa-plus me-1"></i> Nueva Petición
+                    <a href="create.php" class="btn btn-warning text-dark fw-bold">
+                        <i class="fa-solid fa-bolt me-1"></i> + Nueva Petición Rápida
                     </a>
                 </div>
             </div>
