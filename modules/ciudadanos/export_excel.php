@@ -1,12 +1,12 @@
 <?php
 // modules/ciudadanos/export_excel.php
 header('Content-Type: application/json; charset=utf-8');
-require_once '../../core/Auth.php';
+require_once __DIR__ . '/../../core/Auth.php';
 \Core\Auth::check();
 \Core\Auth::checkExport('Ciudadanos');
 
-require_once '../../core/Database.php';
-require_once '../../core/Jobs.php';
+require_once __DIR__ . '/../../core/Database.php';
+require_once __DIR__ . '/../../core/Jobs.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -38,11 +38,13 @@ try {
         'pending'
     ]);
     
+    $jobId = (int)$pdo->lastInsertId();
     // Disparar el Worker asíncronamente en Windows sin bloquear la petición web
     \Core\Jobs::launchWorker();
     
     echo json_encode([
         'status' => 'success',
+        'job_id' => $jobId,
         'message' => 'La exportación del catálogo de ciudadanos se está generando en segundo plano. Te notificaremos cuando esté listo.'
     ]);
     exit;

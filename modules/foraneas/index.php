@@ -265,6 +265,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 <script src="../../assets/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
 <script src="../../assets/vendor/datatables/js/dataTables.responsive.min.js"></script>
 <script src="../../assets/vendor/datatables/js/responsive.bootstrap5.min.js"></script>
+<script src="../../assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
 
 <script>
     $(document).ready(function() {
@@ -299,42 +300,10 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         // Exportar a Excel
         $('#btnExportExcel').on('click', function() {
             const searchValue = table.search();
-            const $btn = $(this);
-            $btn.prop('disabled', true);
-            
-            $.ajax({
-                url: 'export_excel.php',
-                type: 'POST',
-                data: { search: searchValue, csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>' },
-                dataType: 'json',
-                success: function(response) {
-                    $btn.prop('disabled', false);
-                    if (response.status === 'success') {
-                        Swal.fire({
-                            icon: 'info',
-                            title: 'Generando Reporte',
-                            text: response.message,
-                            confirmButtonColor: 'var(--secondary-color)'
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.message,
-                            confirmButtonColor: 'var(--primary-color)'
-                        });
-                    }
-                },
-                error: function() {
-                    $btn.prop('disabled', false);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error Crítico',
-                        text: 'No se pudo conectar con el servidor para procesar la exportación.',
-                        confirmButtonColor: 'var(--primary-color)'
-                    });
-                }
-            });
+            window.exportToExcelAsync('export_excel.php', {
+                search: searchValue,
+                csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>'
+            }, 'Exportando Actas Foráneas');
         });
     });
 </script>

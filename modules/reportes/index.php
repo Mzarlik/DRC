@@ -391,52 +391,14 @@ $notif_api = '../../public/api/notifications.php';
 
         // AJAX background Excel exporter
         $('#btnExportGeneralExcel').on('click', function() {
-            const $btn = $(this);
-            $btn.prop('disabled', true);
-            
-            $.ajax({
-                url: 'export_excel.php',
-                type: 'POST',
-                data: {
-                    fecha_inicio: $('#filter_fecha_inicio').val(),
-                    fecha_fin: $('#filter_fecha_fin').val(),
-                    modulo: $('#filter_modulo').val(),
-                    estatus: $('#filter_estatus').val(),
-                    operador_id: $('#filter_operador').val(),
-                    csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>'
-                },
-                dataType: 'json',
-                success: function(response) {
-                    $btn.prop('disabled', false);
-                    if (response.status === 'success') {
-                        Swal.fire({
-                            icon: 'info',
-                            title: 'Generando Reporte General',
-                            text: response.message,
-                            confirmButtonColor: 'var(--secondary-color)'
-                        });
-                        if (typeof window.refreshNotifications === 'function') {
-                            setTimeout(window.refreshNotifications, 2000);
-                        }
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.message,
-                            confirmButtonColor: 'var(--primary-color)'
-                        });
-                    }
-                },
-                error: function() {
-                    $btn.prop('disabled', false);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error de Red',
-                        text: 'No se pudo conectar con el servidor para iniciar la generación asíncrona.',
-                        confirmButtonColor: 'var(--primary-color)'
-                    });
-                }
-            });
+            window.exportToExcelAsync('export_excel.php', {
+                fecha_inicio: $('#filter_fecha_inicio').val(),
+                fecha_fin: $('#filter_fecha_fin').val(),
+                modulo: $('#filter_modulo').val(),
+                estatus: $('#filter_estatus').val(),
+                operador_id: $('#filter_operador').val(),
+                csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>'
+            }, 'Exportando Reporte General Cruzado');
         });
     });
 </script>

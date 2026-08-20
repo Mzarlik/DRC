@@ -415,42 +415,10 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
         $('#btnExportExcel').on('click', function() {
             const tipo = $('#filter_tipo').val();
-            const $btn = $(this);
-            $btn.prop('disabled', true);
-            
-            $.ajax({
-                url: 'export_excel.php',
-                type: 'POST',
-                data: { tipo: tipo, csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>' },
-                dataType: 'json',
-                success: function(response) {
-                    $btn.prop('disabled', false);
-                    if (response.status === 'success') {
-                        Swal.fire({
-                            icon: 'info',
-                            title: 'Generando Reporte',
-                            text: response.message,
-                            confirmButtonColor: 'var(--secondary-color)'
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.message,
-                            confirmButtonColor: 'var(--primary-color)'
-                        });
-                    }
-                },
-                error: function() {
-                    $btn.prop('disabled', false);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error Crítico',
-                        text: 'No se pudo conectar con el servidor para procesar la cola de exportación.',
-                        confirmButtonColor: 'var(--primary-color)'
-                    });
-                }
-            });
+            window.exportToExcelAsync('export_excel.php', {
+                tipo: tipo,
+                csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>'
+            }, 'Exportando Inexistencias');
         });
 
         // Calcular fecha de llegada automáticamente en el modal (Trámite + 15 días)

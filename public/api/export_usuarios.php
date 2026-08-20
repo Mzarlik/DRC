@@ -42,10 +42,12 @@ try {
         'pending'
     ]);
     
+    $jobId = (int)$pdo->lastInsertId();
     \Core\Jobs::launchWorker();
     
     echo json_encode([
         'status' => 'success',
+        'job_id' => $jobId,
         'message' => 'La exportación del catálogo de usuarios se está generando en segundo plano. Te notificaremos cuando esté listo.'
     ]);
     exit;

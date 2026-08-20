@@ -193,6 +193,129 @@ $(document).ready(function() {
 
     initGlobalNotifications();
 
+    /**
+     * Motor global para exportación asíncrona a Excel con descarga automática instantánea.
+     * Muestra loader, solicita generación, sondea estado del job y descarga el archivo automáticamente.
+     */
+    window.exportToExcelAsync = function(exportUrl, postData, customTitle) {
+        if (typeof Swal === 'undefined') {
+            alert('Generando archivo...');
+            return;
+        }
+
+        Swal.fire({
+            title: customTitle || 'Generando Reporte Excel',
+            html: '<div class="my-3"><div class="spinner-border text-success" role="status"></div></div><p class="text-muted small mb-0">Procesando y compilando archivo Excel en el servidor...</p>',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                $.ajax({
+                    url: exportUrl,
+                    type: 'POST',
+                    data: postData,
+                    dataType: 'json',
+                    success: function(resp) {
+                        if (resp && resp.status === 'success' && resp.job_id) {
+                            pollExportJob(resp.job_id, 0);
+                        } else if (resp && resp.status === 'success') {
+                            if (typeof window.refreshNotifications === 'function') {
+                                window.refreshNotifications();
+                            }
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Reporte en Proceso',
+                                text: resp.message || 'El reporte se está procesando. Revisa la campana de notificaciones.',
+                                confirmButtonColor: 'var(--secondary-color)'
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: (resp && resp.message) ? resp.message : 'No se pudo generar la exportación.',
+                                confirmButtonColor: 'var(--primary-color)'
+                            });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de Red',
+                            text: 'No se pudo conectar con el servidor para iniciar la exportación.',
+                            confirmButtonColor: 'var(--primary-color)'
+                        });
+                    }
+                });
+            }
+        });
+
+        function pollExportJob(jobId, attempts) {
+            if (attempts >= 20) {
+                if (typeof window.refreshNotifications === 'function') {
+                    window.refreshNotifications();
+                }
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Generación en Progreso',
+                    text: 'El archivo sigue generándose en segundo plano. Podrás descargarlo desde la campana de notificaciones en la barra superior en unos instantes.',
+                    confirmButtonColor: 'var(--secondary-color)'
+                });
+                return;
+            }
+
+            let statusEndpoint = '/DRC/public/api/export_status.php';
+            const pathname = window.location.pathname;
+            if (pathname.includes('/modules/')) {
+                statusEndpoint = '../../public/api/export_status.php';
+            } else if (pathname.includes('/public/')) {
+                statusEndpoint = 'api/export_status.php';
+            }
+
+            setTimeout(function() {
+                $.ajax({
+                    url: statusEndpoint,
+                    type: 'GET',
+                    data: { job_id: jobId },
+                    dataType: 'json',
+                    success: function(statusResp) {
+                        if (statusResp && statusResp.status === 'completed' && statusResp.download_url) {
+                            if (typeof window.refreshNotifications === 'function') {
+                                window.refreshNotifications();
+                            }
+
+                            // Iniciar descarga automáticamente creando elemento ancla
+                            const link = document.createElement('a');
+                            link.href = statusResp.download_url;
+                            link.setAttribute('download', statusResp.file_name || 'reporte.xlsx');
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Descarga Lista!',
+                                html: `<p class="mb-2">Tu reporte <strong>${statusResp.file_name || 'Excel'}</strong> se ha generado exitosamente y se está descargando.</p><a href="${statusResp.download_url}" class="btn btn-sm btn-success mt-2" download><i class="fa-solid fa-download me-1"></i> Volver a descargar</a>`,
+                                confirmButtonColor: 'var(--secondary-color)',
+                                confirmButtonText: 'Aceptar'
+                            });
+                        } else if (statusResp && statusResp.status === 'error') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error al Generar',
+                                text: statusResp.message || 'Ocurrió un error al procesar el archivo.',
+                                confirmButtonColor: 'var(--primary-color)'
+                            });
+                        } else {
+                            pollExportJob(jobId, attempts + 1);
+                        }
+                    },
+                    error: function() {
+                        pollExportJob(jobId, attempts + 1);
+                    }
+                });
+            }, 600);
+        }
+    };
+
     // 2. KEYBOARD NAVIGATION
     // Move between inputs with Enter
     $(document).on('keydown', 'input, select, textarea', function(e) {

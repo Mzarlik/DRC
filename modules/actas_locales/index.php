@@ -350,42 +350,11 @@ $notif_api = '../../public/api/notifications.php';
         $('#btnExportExcel').on('click', function() {
             const searchValue = table.search();
             const tipoActa = $('#filter_tipo').val();
-            const $btn = $(this);
-            $btn.prop('disabled', true);
-            
-            $.ajax({
-                url: 'export_excel.php',
-                type: 'POST',
-                data: { search: searchValue, tipo_acta: tipoActa, csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>' },
-                dataType: 'json',
-                success: function(response) {
-                    $btn.prop('disabled', false);
-                    if (response.status === 'success') {
-                        Swal.fire({
-                            icon: 'info',
-                            title: 'Generando Reporte',
-                            text: response.message,
-                            confirmButtonColor: 'var(--secondary-color)'
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.message,
-                            confirmButtonColor: 'var(--primary-color)'
-                        });
-                    }
-                },
-                error: function() {
-                    $btn.prop('disabled', false);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error Crítico',
-                        text: 'No se pudo conectar con el servidor para procesar la exportación.',
-                        confirmButtonColor: 'var(--primary-color)'
-                    });
-                }
-            });
+            window.exportToExcelAsync('export_excel.php', {
+                search: searchValue,
+                tipo_acta: tipoActa,
+                csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>'
+            }, 'Exportando Actas Locales');
         });
 
         // Detalle de Acta mediante SweetAlert2 o Offcanvas en móvil

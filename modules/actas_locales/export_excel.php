@@ -1,13 +1,13 @@
 <?php
 // modules/actas_locales/export_excel.php
 header('Content-Type: application/json; charset=utf-8');
-require_once '../../core/Auth.php';
+require_once __DIR__ . '/../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_actas_locales');
 \Core\Auth::check();
 \Core\Auth::checkExport('Actas Locales');
 
-require_once '../../core/Database.php';
-require_once '../../core/Jobs.php';
+require_once __DIR__ . '/../../core/Database.php';
+require_once __DIR__ . '/../../core/Jobs.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -25,7 +25,7 @@ try {
     $pdo = Database::getConnection();
     
     $search = $_POST['search'] ?? '';
-    $tipo_acta = $_GET['tipo_acta'] ?? '';
+    $tipo_acta = $_POST['tipo_acta'] ?? $_GET['tipo_acta'] ?? '';
     
     $payload = json_encode([
         'search' => $search,
@@ -40,10 +40,12 @@ try {
         'pending'
     ]);
     
-\Core\Jobs::launchWorker();
+    $jobId = (int)$pdo->lastInsertId();
+    \Core\Jobs::launchWorker();
     
     echo json_encode([
         'status' => 'success',
+        'job_id' => $jobId,
         'message' => 'La exportación del registro de actas locales se está generando en segundo plano. Te notificaremos cuando esté listo.'
     ]);
     exit;

@@ -1,13 +1,13 @@
 <?php
 // modules/reconocimientos/export_excel.php
 header('Content-Type: application/json; charset=utf-8');
-require_once '../../core/Auth.php';
+require_once __DIR__ . '/../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_registro_reconocimientos');
 \Core\Auth::check();
 \Core\Auth::checkExport('Reconocimientos');
 
-require_once '../../core/Database.php';
-require_once '../../core/Jobs.php';
+require_once __DIR__ . '/../../core/Database.php';
+require_once __DIR__ . '/../../core/Jobs.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -38,10 +38,12 @@ try {
         'pending'
     ]);
     
+    $jobId = (int)$pdo->lastInsertId();
     \Core\Jobs::launchWorker();
     
     echo json_encode([
         'status' => 'success',
+        'job_id' => $jobId,
         'message' => 'La exportación del registro de reconocimientos se está generando en segundo plano. Te notificaremos cuando esté listo.'
     ]);
     exit;

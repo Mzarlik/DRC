@@ -499,89 +499,19 @@ $(document).ready(function() {
     // Exportar Acciones
     $('#btnExportAcciones').on('click', function() {
         const searchValue = accionesTable.search();
-        const $btn = $(this);
-        $btn.prop('disabled', true);
-        
-        $.ajax({
-            url: 'api/export_auditoria.php',
-            type: 'POST',
-            data: { search: searchValue, csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>' },
-            dataType: 'json',
-            success: function(response) {
-                $btn.prop('disabled', false);
-                if (response.status === 'success') {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Generando Reporte',
-                        text: response.message,
-                        confirmButtonColor: 'var(--secondary-color)'
-                    });
-                    if (typeof window.refreshNotifications === 'function') {
-                        setTimeout(window.refreshNotifications, 2000);
-                    }
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.message,
-                        confirmButtonColor: 'var(--primary-color)'
-                    });
-                }
-            },
-            error: function() {
-                $btn.prop('disabled', false);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error Crítico',
-                    text: 'No se pudo conectar con el servidor para procesar la exportación.',
-                    confirmButtonColor: 'var(--primary-color)'
-                });
-            }
-        });
+        window.exportToExcelAsync('api/export_auditoria.php', {
+            search: searchValue,
+            csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>'
+        }, 'Exportando Bitácora de Auditoría');
     });
 
     // Exportar Errores
     $('#btnExportErrores').on('click', function() {
         const searchValue = erroresTable.search();
-        const $btn = $(this);
-        $btn.prop('disabled', true);
-        
-        $.ajax({
-            url: 'api/export_errores.php',
-            type: 'POST',
-            data: { search: searchValue, csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>' },
-            dataType: 'json',
-            success: function(response) {
-                $btn.prop('disabled', false);
-                if (response.status === 'success') {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Generando Reporte',
-                        text: response.message,
-                        confirmButtonColor: 'var(--secondary-color)'
-                    });
-                    if (typeof window.refreshNotifications === 'function') {
-                        setTimeout(window.refreshNotifications, 2000);
-                    }
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.message,
-                        confirmButtonColor: 'var(--primary-color)'
-                    });
-                }
-            },
-            error: function() {
-                $btn.prop('disabled', false);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error Crítico',
-                    text: 'No se pudo conectar con el servidor para procesar la exportación.',
-                    confirmButtonColor: 'var(--primary-color)'
-                });
-            }
-        });
+        window.exportToExcelAsync('api/export_errores.php', {
+            search: searchValue,
+            csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>'
+        }, 'Exportando Bitácora de Errores');
     });
 });
 </script>

@@ -52,14 +52,23 @@ class Jobs {
         $workerScript = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'core' . DIRECTORY_SEPARATOR . 'Worker.php';
 
         if (PHP_OS_FAMILY === 'Windows') {
-            // En Windows cmd, el primer argumento entre comillas de 'start' se toma como título de la ventana.
-            // Por ello se pasa "" como título vacío inicial: start /B "" "php.exe" "Worker.php"
-            $cmd = 'cmd.exe /c start /B "" ' . escapeshellarg($phpBin) . ' ' . escapeshellarg($workerScript) . ' > NUL 2>&1';
+            if (class_exists('COM')) {
+                try {
+                    $wsh = new \COM("WScript.Shell");
+                    $wsh->Run(escapeshellarg($phpBin) . ' ' . escapeshellarg($workerScript), 0, false);
+                    return true;
+                } catch (\Throwable $e) {
+                    // Fallback
+                }
+            }
+            $cmd = 'cmd.exe /c start /min "" ' . escapeshellarg($phpBin) . ' ' . escapeshellarg($workerScript);
             $p = @popen($cmd, 'r');
             if ($p) {
                 @pclose($p);
                 return true;
             }
+            @exec($cmd);
+            return true;
         } else {
             $cmd = 'nohup ' . escapeshellarg($phpBin) . ' ' . escapeshellarg($workerScript) . ' > /dev/null 2>&1 &';
             $p = @popen($cmd, 'r');

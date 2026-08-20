@@ -572,42 +572,9 @@ $(document).ready(function() {
 
     // Exportar a Excel
     $('#btnExportExcel').on('click', function() {
-        const $btn = $(this);
-        $btn.prop('disabled', true);
-        
-        $.ajax({
-            url: 'api/export_usuarios.php',
-            type: 'POST',
-            data: { csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>' },
-            dataType: 'json',
-            success: function(response) {
-                $btn.prop('disabled', false);
-                if (response.status === 'success') {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Generando Reporte',
-                        text: response.message,
-                        confirmButtonColor: 'var(--secondary-color)'
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.message,
-                        confirmButtonColor: 'var(--primary-color)'
-                    });
-                }
-            },
-            error: function() {
-                $btn.prop('disabled', false);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error Crítico',
-                    text: 'No se pudo conectar con el servidor para procesar la exportación.',
-                    confirmButtonColor: 'var(--primary-color)'
-                });
-            }
-        });
+        window.exportToExcelAsync('api/export_usuarios.php', {
+            csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>'
+        }, 'Exportando Catálogo de Usuarios');
     });
 });
 </script>
