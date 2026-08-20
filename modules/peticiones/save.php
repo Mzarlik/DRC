@@ -1,11 +1,11 @@
 <?php
-require_once '../../core/Auth.php';
+require_once __DIR__ . '/../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_tickets');
 \Core\Auth::check();
 
 // modules/peticiones/save.php
 header('Content-Type: application/json; charset=utf-8');
-require_once '../../core/Database.php';
+require_once __DIR__ . '/../../core/Database.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

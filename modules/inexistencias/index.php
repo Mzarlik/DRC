@@ -37,7 +37,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         <!-- Sidebar -->
         <!-- Sidebar -->
         <!-- Sidebar -->
-    <nav id="sidebar" class="offcanvas-lg offcanvas-start" tabindex="-1">
+        <nav id="sidebar" class="offcanvas-lg offcanvas-start" tabindex="-1">
         <div class="sidebar-header d-flex justify-content-between align-items-center">
             <span><i class="fa-solid fa-building-columns"></i> <span class="sidebar-text">ERP DRC</span></span>
             <button type="button" class="btn-close btn-close-white d-md-none" id="sidebarCloseMobile" aria-label="Close"></button>
@@ -390,10 +390,12 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     "data": "tipo_constancia",
                     "render": function(data) {
                         const types = {
-                            'INEXISTENCIA_NACIMIENTO': 'INEXISTENCIA NACIMIENTO',
-                            'INEXISTENCIA_MATRIMONIO': 'INEXISTENCIA MATRIMONIO',
-                            'INEXISTENCIA_DESCENDENCIA': 'INEXISTENCIA DESCENDENCIA',
-                            'NO_DEUDOR': 'NO DEUDOR ALIMENTARIO'
+                            'INEXISTENCIA_DESCENDENCIA': 'CONSTANCIA DE DESCENDENCIA Y/O NO DESCENDENCIA',
+                            'CONSTANCIA_DESCENDENCIA': 'CONSTANCIA DE DESCENDENCIA Y/O NO DESCENDENCIA',
+                            'NO_DEUDOR': 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE DEUDOR ALIMENTARIO MOROSO',
+                            'INEXISTENCIA_DEUDOR': 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE DEUDOR ALIMENTARIO MOROSO',
+                            'INEXISTENCIA_MATRIMONIO': 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE MATRIMONIO',
+                            'INEXISTENCIA_NACIMIENTO': 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE NACIMIENTO'
                         };
                         return types[data] || data;
                     }

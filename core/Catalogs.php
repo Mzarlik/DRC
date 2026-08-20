@@ -75,10 +75,10 @@ class Catalogs {
         }
 
         $tipos = [
-            'INEXISTENCIA_NACIMIENTO' => 'Constancia de Inexistencia de Nacimiento',
-            'INEXISTENCIA_MATRIMONIO' => 'Constancia de Inexistencia de Matrimonio',
-            'INEXISTENCIA_DESCENDENCIA' => 'Constancia de Inexistencia de Descendencia',
-            'NO_DEUDOR' => 'Constancia de No Deudor Alimentario'
+            'INEXISTENCIA_DESCENDENCIA' => 'CONSTANCIA DE DESCENDENCIA Y/O NO DESCENDENCIA',
+            'NO_DEUDOR' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE DEUDOR ALIMENTARIO MOROSO',
+            'INEXISTENCIA_MATRIMONIO' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE MATRIMONIO',
+            'INEXISTENCIA_NACIMIENTO' => 'CONSTANCIA DE INEXISTENCIA DE REGISTRO DE NACIMIENTO'
         ];
 
         Cache::set($cacheKey, $tipos, 86400);

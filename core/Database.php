@@ -171,11 +171,37 @@ class Database {
             $stmt->execute([$modulo]);
             $row = $stmt->fetch();
 
+            $next = $row ? ((int)$row['ultimo_folio'] + 1) : 1;
+
+            // Verificación de no colisión con registros preexistentes o sembrados
+            $maxIter = 10000;
+            while ($maxIter-- > 0) {
+                $candidateFolio = $prefix . str_pad($next, $padding, '0', STR_PAD_LEFT);
+                $exists = false;
+
+                if (str_starts_with($modulo, 'seguimiento_') || str_starts_with($prefix, 'SEG-')) {
+                    $chk = $pdo->prepare("SELECT COUNT(*) FROM peticiones WHERE folio = ?");
+                    $chk->execute([$candidateFolio]);
+                    if ($chk->fetchColumn() > 0) {
+                        $exists = true;
+                    }
+                } elseif (str_starts_with($modulo, 'pv_') || str_starts_with($modulo, 'peticion_')) {
+                    $chk = $pdo->prepare("SELECT COUNT(*) FROM peticiones_ventanilla WHERE folio = ?");
+                    $chk->execute([$candidateFolio]);
+                    if ($chk->fetchColumn() > 0) {
+                        $exists = true;
+                    }
+                }
+
+                if (!$exists) {
+                    break;
+                }
+                $next++;
+            }
+
             if ($row) {
-                $next = $row['ultimo_folio'] + 1;
                 $pdo->prepare("UPDATE folios_secuencia SET ultimo_folio = ? WHERE modulo = ?")->execute([$next, $modulo]);
             } else {
-                $next = 1;
                 $pdo->prepare("INSERT INTO folios_secuencia (modulo, ultimo_folio) VALUES (?, ?)")->execute([$modulo, $next]);
             }
 

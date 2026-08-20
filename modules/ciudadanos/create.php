@@ -29,7 +29,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         <!-- Sidebar -->
         <!-- Sidebar -->
         <!-- Sidebar -->
-    <nav id="sidebar" class="offcanvas-lg offcanvas-start" tabindex="-1">
+        <nav id="sidebar" class="offcanvas-lg offcanvas-start" tabindex="-1">
         <div class="sidebar-header d-flex justify-content-between align-items-center">
             <span><i class="fa-solid fa-building-columns"></i> <span class="sidebar-text">ERP DRC</span></span>
             <button type="button" class="btn-close btn-close-white d-md-none" id="sidebarCloseMobile" aria-label="Close"></button>
