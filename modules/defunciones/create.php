@@ -284,9 +284,6 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
 <script>
     $(document).ready(function() {
-        // Cargar Notificaciones
-        });
-
         $(document).on('input', '.text-uppercase-input', function() {
             $(this).val($(this).val().toUpperCase());
         });
@@ -318,13 +315,33 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
         $('#formDefuncion').on('submit', function(e) {
             e.preventDefault();
+            const form = this;
             
-            window.location.href = 'index.php?toast=success&msg=' + encodeURIComponent('El estado del ciudadano se actualizará a FINADO permanentemente.');
+            Swal.fire({
+                title: '¿Confirmar Registro?',
+                text: 'El estado del ciudadano se actualizará a FINADO permanentemente en el padrón.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: 'var(--primary-color)',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, registrar defunción',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: 'save.php',
+                        type: 'POST',
+                        data: $(form).serialize(),
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                window.location.href = 'index.php?toast=success&msg=' + encodeURIComponent('El acta de defunción se ha registrado exitosamente.');
                             } else {
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Error',
-                                    text: response.message || 'Ocurrió un error al procesar la solicitud.'
+                                    text: response.message || 'Ocurrió un error al procesar la solicitud.',
+                                    confirmButtonColor: 'var(--primary-color)'
                                 });
                             }
                         },
@@ -332,7 +349,8 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error Crítico',
-                                text: 'No se pudo conectar con el servidor.'
+                                text: 'No se pudo conectar con el servidor.',
+                                confirmButtonColor: 'var(--primary-color)'
                             });
                         }
                     });

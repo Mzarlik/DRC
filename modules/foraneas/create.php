@@ -296,9 +296,6 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
 <script>
     $(document).ready(function() {
-        // Cargar Notificaciones
-        });
-
         $(document).on('input', '.text-uppercase-input', function() {
             $(this).val($(this).val().toUpperCase());
         });

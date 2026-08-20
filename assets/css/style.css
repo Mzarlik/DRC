@@ -665,3 +665,33 @@ table.dataTable tbody tr:hover {
     border-left: 3px solid var(--primary-color);
 }
 
+/* Botón de acceso rápido para registro de ciudadano */
+.btn-quick-add-citizen {
+    font-size: 0.75rem;
+    padding: 3px 9px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    margin-left: 8px;
+    vertical-align: middle;
+    transition: all 0.15s ease;
+    border: 1px solid var(--secondary-color);
+    color: var(--secondary-color);
+    background: transparent;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+}
+
+.btn-quick-add-citizen:hover {
+    background: var(--secondary-color);
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+}
+
+.btn-quick-add-citizen:active {
+    transform: translateY(0);
+}
+

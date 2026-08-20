@@ -896,3 +896,306 @@ function initCiudadanoSelect(elementId, customConfig = {}) {
     }, customConfig));
 }
 
+// =========================================================================
+// 6. MODAL UNIVERSAL DE REGISTRO RÁPIDO DE CIUDADANOS
+// =========================================================================
+function initQuickCitizenModal() {
+    // 1. Inyectar HTML del Modal si no existe en la página
+    if (!$('#modalQuickCiudadano').length) {
+        const modalHtml = `
+        <div class="modal fade" id="modalQuickCiudadano" tabindex="-1" aria-labelledby="modalQuickCiudadanoLabel" aria-hidden="true" style="z-index: 1060;">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-primary text-white py-3">
+                        <h5 class="modal-title fw-bold" id="modalQuickCiudadanoLabel">
+                            <i class="fa-solid fa-user-plus me-2"></i> Registrar Nuevo Ciudadano en Padrón
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <form id="formQuickCiudadano" autocomplete="off">
+                        <input type="hidden" name="csrf_token" id="quick_csrf_token" value="">
+                        <input type="hidden" id="quick_target_select" value="">
+                        <div class="modal-body p-4">
+                            <div class="alert alert-light border d-flex align-items-center mb-3 py-2 px-3">
+                                <i class="fa-solid fa-circle-info text-primary fa-lg me-3"></i>
+                                <div class="small">
+                                    El ciudadano quedará registrado en el padrón oficial y será <strong>seleccionado automáticamente</strong> en el formulario actual sin recargar la página.
+                                </div>
+                            </div>
+                            
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold small">Nombre(s) <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control text-uppercase-input" id="quick_nombre" name="nombre" placeholder="EJ: JUAN CARLOS" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold small">Primer Apellido <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control text-uppercase-input" id="quick_apellido_paterno" name="apellido_paterno" placeholder="EJ: PÉREZ" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold small">Segundo Apellido</label>
+                                    <input type="text" class="form-control text-uppercase-input" id="quick_apellido_materno" name="apellido_materno" placeholder="EJ: LÓPEZ">
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-2">
+                                <div class="col-md-5">
+                                    <label class="form-label fw-bold small">CURP (Opcional)</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control text-uppercase-input" id="quick_curp" name="curp" maxlength="18" placeholder="18 CARACTERES">
+                                        <span class="input-group-text d-none" id="quickCurpFeedback"><i class="fa-solid fa-check text-success"></i></span>
+                                    </div>
+                                    <div class="form-text" id="quickCurpHelp" style="font-size: 0.75rem;">Dejar vacío si es recién nacido o alta de CURP.</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold small">Sexo <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="quick_sexo" name="sexo" required>
+                                        <option value="">Seleccione...</option>
+                                        <option value="H">HOMBRE (H)</option>
+                                        <option value="M">MUJER (M)</option>
+                                        <option value="X">NO BINARIO / OTRO (X)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold small">Fecha de Nacimiento <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="quick_fecha_nacimiento" name="fecha_nacimiento" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light px-4 py-3">
+                            <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success px-4" id="btnQuickGuardar" style="background: var(--secondary-color); border: none;">
+                                <i class="fa-solid fa-save me-1"></i> Guardar y Seleccionar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>`;
+        $('body').append(modalHtml);
+    }
+
+    // 2. Inyectar automáticamente botones "[ + Registrar Ciudadano ]" en los selectores de ciudadanos de la vista
+    const citizenSelectSelectors = [
+        '.select-citizen',
+        'select#ciudadano_id',
+        'select#padre_id',
+        'select#madre_id',
+        'select#contrayente_1_id',
+        'select#contrayente_2_id',
+        'select#ciudadano_1_id',
+        'select#ciudadano_2_id',
+        'select#reconocido_id',
+        'select#reconocedor_id',
+        'select#inscrito_id',
+        'select#interesado_id',
+        'select#titular_id'
+    ];
+
+    $(citizenSelectSelectors.join(', ')).each(function() {
+        const $select = $(this);
+        const selectId = $select.attr('id') || $select.attr('name');
+        if (!selectId) return;
+
+        // Evitar duplicar botón
+        if ($select.closest('.mb-3, .col-md-6, .col-md-4, .col-12, .col-md-12').find(`.btn-quick-add-citizen[data-target-select="${selectId}"]`).length) {
+            return;
+        }
+
+        // Buscar label asociado
+        let $label = $(`label[for="${selectId}"]`);
+        if (!$label.length) {
+            $label = $select.prev('label');
+        }
+        if (!$label.length) {
+            $label = $select.closest('.col-md-6, .col-md-4, .col-12, .mb-3').find('label').first();
+        }
+
+        const btnHtml = `<button type="button" class="btn-quick-add-citizen" data-target-select="${selectId}" title="Registrar nuevo ciudadano al padrón e insertarlo en este campo">
+            <i class="fa-solid fa-user-plus"></i> + Registrar Ciudadano
+        </button>`;
+
+        if ($label.length) {
+            $label.append(btnHtml);
+        } else {
+            $select.before(btnHtml);
+        }
+    });
+
+    // 3. Regex oficial de CURP para validación en tiempo real dentro del modal
+    const regexCurp = /^[A-Z]{4}[0-9]{6}[HM][A-Z]{2}[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9][0-9]$/;
+    $('#quick_curp').on('input', function() {
+        const curp = $(this).val().trim().toUpperCase();
+        const $icon = $('#quickCurpFeedback');
+        const $help = $('#quickCurpHelp');
+
+        if (curp.length === 0) {
+            $(this).removeClass('is-valid is-invalid');
+            $icon.addClass('d-none');
+            $help.text('Dejar vacío si es recién nacido o alta de CURP.').removeClass('text-danger text-success');
+        } else if (curp.length === 18 && regexCurp.test(curp)) {
+            $(this).removeClass('is-invalid').addClass('is-valid');
+            $icon.removeClass('d-none').html('<i class="fa-solid fa-check text-success"></i>');
+            $help.text('CURP con estructura oficial válida.').removeClass('text-danger').addClass('text-success fw-bold');
+        } else {
+            $(this).removeClass('is-valid').addClass('is-invalid');
+            $icon.removeClass('d-none').html('<i class="fa-solid fa-triangle-exclamation text-danger"></i>');
+            $help.text(`Formato incompleto o no válido (${curp.length}/18 caracteres).`).removeClass('text-success').addClass('text-danger fw-bold');
+        }
+    });
+
+    // 4. Abrir modal al hacer clic en el botón "+ Registrar Ciudadano"
+    $(document).on('click', '.btn-quick-add-citizen', function(e) {
+        e.preventDefault();
+        const targetSelectId = $(this).data('target-select');
+        $('#quick_target_select').val(targetSelectId);
+
+        // Obtener CSRF token del formulario principal
+        const mainCsrf = $('input[name="csrf_token"]').first().val() || '';
+        $('#quick_csrf_token').val(mainCsrf);
+
+        // Limpiar campos del modal
+        $('#formQuickCiudadano')[0].reset();
+        $('#quick_curp').removeClass('is-valid is-invalid');
+        $('#quickCurpFeedback').addClass('d-none');
+        $('#quickCurpHelp').text('Dejar vacío si es recién nacido o alta de CURP.').removeClass('text-danger text-success');
+
+        const modalEl = document.getElementById('modalQuickCiudadano');
+        if (modalEl && typeof bootstrap !== 'undefined') {
+            const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            bsModal.show();
+            setTimeout(() => $('#quick_nombre').focus(), 400);
+        }
+    });
+
+    // 5. Envío y Registro AJAX
+    $('#formQuickCiudadano').on('submit', function(e) {
+        e.preventDefault();
+
+        const nombre = $('#quick_nombre').val().trim().toUpperCase();
+        const apePat = $('#quick_apellido_paterno').val().trim().toUpperCase();
+        const apeMat = $('#quick_apellido_materno').val().trim().toUpperCase();
+        const curp = $('#quick_curp').val().trim().toUpperCase();
+        const sexo = $('#quick_sexo').val();
+        const fechaNac = $('#quick_fecha_nacimiento').val();
+        const csrfToken = $('#quick_csrf_token').val() || $('input[name="csrf_token"]').first().val();
+        const targetSelectId = $('#quick_target_select').val();
+
+        if (nombre.length < 2 || apePat.length < 2) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({ icon: 'warning', title: 'Datos incompletos', text: 'Ingrese el nombre y primer apellido completos.', confirmButtonColor: 'var(--secondary-color)' });
+            } else {
+                alert('Ingrese el nombre y primer apellido completos.');
+            }
+            return;
+        }
+
+        if (curp.length > 0 && (curp.length !== 18 || !regexCurp.test(curp))) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({ icon: 'warning', title: 'CURP Inválida', text: 'La CURP debe tener 18 caracteres válidos según formato RENAPO o dejarse vacía.', confirmButtonColor: 'var(--secondary-color)' });
+            } else {
+                alert('La CURP debe tener 18 caracteres válidos o dejarse vacía.');
+            }
+            return;
+        }
+
+        const $btn = $('#btnQuickGuardar');
+        const originalBtnHtml = $btn.html();
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> Guardando...');
+
+        const saveUrl = window.location.pathname.includes('/modules/') 
+            ? '../ciudadanos/save.php' 
+            : 'modules/ciudadanos/save.php';
+
+        $.ajax({
+            url: saveUrl,
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                csrf_token: csrfToken,
+                nombre: nombre,
+                apellido_paterno: apePat,
+                apellido_materno: apeMat,
+                curp: curp,
+                sexo: sexo,
+                fecha_nacimiento: fechaNac
+            },
+            success: function(res) {
+                $btn.prop('disabled', false).html(originalBtnHtml);
+
+                if (res && res.status === 'success') {
+                    const nuevoId = res.id;
+                    const nuevoText = res.text || `${nombre} ${apePat} ${apeMat}` + (curp ? ` - CURP: ${curp}` : '');
+
+                    // Buscar el elemento select de destino
+                    const targetSelector = targetSelectId.startsWith('#') ? targetSelectId : `#${targetSelectId}`;
+                    const $target = $(targetSelector);
+
+                    if ($target.length) {
+                        const domSelect = $target[0];
+                        if (domSelect.tomselect) {
+                            // Soporte TomSelect
+                            domSelect.tomselect.addOption({
+                                id: nuevoId,
+                                text: nuevoText,
+                                nombre_completo: `${nombre} ${apePat} ${apeMat}`,
+                                curp: curp || 'S/C'
+                            });
+                            domSelect.tomselect.setValue(nuevoId);
+                        } else {
+                            // Select nativo / Select2
+                            $target.append(new Option(nuevoText, nuevoId, true, true)).val(nuevoId).trigger('change');
+                        }
+                    }
+
+                    // Cerrar modal
+                    const modalEl = document.getElementById('modalQuickCiudadano');
+                    if (modalEl && typeof bootstrap !== 'undefined') {
+                        const bsModal = bootstrap.Modal.getInstance(modalEl);
+                        if (bsModal) bsModal.hide();
+                    }
+
+                    // Notificación Toast de éxito
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Ciudadano registrado y seleccionado',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                    }
+                } else {
+                    const errMsg = (res && res.message) ? res.message : 'No se pudo registrar el ciudadano.';
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'error', title: 'Error', text: errMsg, confirmButtonColor: 'var(--primary-color)' });
+                    } else {
+                        alert(errMsg);
+                    }
+                }
+            },
+            error: function(xhr) {
+                $btn.prop('disabled', false).html(originalBtnHtml);
+                let msg = 'Error de comunicación con el servidor al registrar ciudadano.';
+                try {
+                    const json = JSON.parse(xhr.responseText);
+                    if (json && json.message) msg = json.message;
+                } catch(e) {}
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'error', title: 'Error', text: msg, confirmButtonColor: 'var(--primary-color)' });
+                } else {
+                    alert(msg);
+                }
+            }
+        });
+    });
+}
+
+// Inicializar al cargar el documento
+$(document).ready(function() {
+    initQuickCitizenModal();
+});
+
+

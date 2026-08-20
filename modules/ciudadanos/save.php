@@ -1,11 +1,11 @@
 <?php
-require_once '../../vendor/autoload.php';
-require_once '../../core/Auth.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../core/Auth.php';
 \Core\Auth::check();
 
 // modules/ciudadanos/save.php
 header('Content-Type: application/json; charset=utf-8');
-require_once '../../core/Database.php';
+require_once __DIR__ . '/../../core/Database.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -19,7 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $apellido_paterno = mb_strtoupper(trim($_POST['apellido_paterno'] ?? ''), 'UTF-8');
     $apellido_materno = mb_strtoupper(trim($_POST['apellido_materno'] ?? ''), 'UTF-8');
     $curp = mb_strtoupper(trim($_POST['curp'] ?? ''), 'UTF-8');
-    $sexo = trim($_POST['sexo'] ?? '');
+    $rawSexo = strtoupper(trim($_POST['sexo'] ?? 'M'));
+    $sexo = ($rawSexo === 'H' || $rawSexo === 'MASCULINO') ? 'M' : (($rawSexo === 'F' || $rawSexo === 'MUJER' || $rawSexo === 'FEMENINO') ? 'F' : 'X');
     $fecha_nacimiento = trim($_POST['fecha_nacimiento'] ?? '');
 
     // Procesamiento de CURP con Blind Index (HMAC) e IV aleatorio (AES-256)
@@ -33,25 +34,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo = Database::getConnection();
 
-        $sql = "INSERT INTO ciudadanos (curp, curp_bindex, curp_encrypted, nombre, apellido_paterno, apellido_materno, sexo, fecha_nacimiento, estado_vital) 
-                VALUES (:curp, :curp_bindex, :curp_encrypted, :nombre, :apellido_paterno, :apellido_materno, :sexo, :fecha_nacimiento, 'VIVO')";
-        
-        $stmt = $pdo->prepare($sql);
-        
-        $result = $stmt->execute([
-            ':curp' => $curp_encrypted,
-            ':curp_bindex' => $curp_bindex,
-            ':curp_encrypted' => $curp_encrypted,
-            ':nombre' => $nombre,
-            ':apellido_paterno' => $apellido_paterno,
-            ':apellido_materno' => $apellido_materno,
-            ':sexo' => $sexo,
-            ':fecha_nacimiento' => $fecha_nacimiento
-        ]);
+        // Verificar si existen columnas complementarias de blind index
+        $hasBindex = false;
+        try {
+            $pdo->query("SELECT curp_bindex FROM ciudadanos LIMIT 0");
+            $hasBindex = true;
+        } catch (\Throwable $e) {
+            $hasBindex = false;
+        }
+
+        if ($hasBindex) {
+            $sql = "INSERT INTO ciudadanos (curp, curp_bindex, curp_encrypted, nombre, apellido_paterno, apellido_materno, sexo, fecha_nacimiento, estado_vital) 
+                    VALUES (:curp, :curp_bindex, :curp_encrypted, :nombre, :apellido_paterno, :apellido_materno, :sexo, :fecha_nacimiento, 'VIVO')";
+            $stmt = $pdo->prepare($sql);
+            $result = $stmt->execute([
+                ':curp' => $curp_encrypted,
+                ':curp_bindex' => $curp_bindex,
+                ':curp_encrypted' => $curp_encrypted,
+                ':nombre' => $nombre,
+                ':apellido_paterno' => $apellido_paterno,
+                ':apellido_materno' => $apellido_materno,
+                ':sexo' => $sexo,
+                ':fecha_nacimiento' => $fecha_nacimiento
+            ]);
+        } else {
+            $sql = "INSERT INTO ciudadanos (curp, nombre, apellido_paterno, apellido_materno, sexo, fecha_nacimiento, estado_vital) 
+                    VALUES (:curp, :nombre, :apellido_paterno, :apellido_materno, :sexo, :fecha_nacimiento, 'VIVO')";
+            $stmt = $pdo->prepare($sql);
+            $result = $stmt->execute([
+                ':curp' => $curp_encrypted,
+                ':nombre' => $nombre,
+                ':apellido_paterno' => $apellido_paterno,
+                ':apellido_materno' => $apellido_materno,
+                ':sexo' => $sexo,
+                ':fecha_nacimiento' => $fecha_nacimiento
+            ]);
+        }
 
         if ($result) {
-            \Core\Auditoria::logAccion('Ciudadanos', 'CREAR', "Se registró un nuevo ciudadano: $nombre $apellido_paterno $apellido_materno");
-        echo json_encode(['status' => 'success']);
+            $nuevoId = (int)$pdo->lastInsertId();
+            $nombreCompleto = trim("$nombre $apellido_paterno $apellido_materno");
+            $curpDisplay = $curp !== '' ? " - CURP: $curp" : '';
+            $displayText = $nombreCompleto . $curpDisplay;
+
+            \Core\Auditoria::logAccion('Ciudadanos', 'CREAR', "Se registró un nuevo ciudadano: $nombreCompleto (ID: $nuevoId)");
+            echo json_encode([
+                'status' => 'success',
+                'id' => $nuevoId,
+                'nombre_completo' => $nombreCompleto,
+                'curp' => $curp,
+                'text' => $displayText,
+                'message' => 'Ciudadano registrado exitosamente.'
+            ]);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al guardar el registro.']);
         }
