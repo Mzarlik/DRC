@@ -35,117 +35,127 @@ function getActivePdo(): \PDO {
     return $pdoInstance;
 }
 
-try {
-    $pdo = getActivePdo();
-    
-    // 1. Obtener trabajos pendientes
-    $stmt = $pdo->prepare("SELECT * FROM jobs WHERE status = 'pending' ORDER BY id ASC LIMIT 5");
-    $stmt->execute();
-    $jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    if (empty($jobs)) {
-        echo "No hay trabajos pendientes para procesar.\n";
-        exit;
-    }
-    
-    // Crear el directorio de exportaciones si no existe
-    $exportDir = __DIR__ . '/../public/exports';
-    if (!is_dir($exportDir)) {
-        mkdir($exportDir, 0755, true);
-    }
-    
-    foreach ($jobs as $job) {
-        $jobId = $job['id'];
-        echo "Procesando Job ID: $jobId (Tipo: {$job['type']})\n";
+function processPendingJobs(): int {
+    $processedCount = 0;
+    try {
+        $pdo = getActivePdo();
         
-        // Actualizar estatus a 'processing'
-        $stmtUpdate = $pdo->prepare("UPDATE jobs SET status = 'processing', updated_at = NOW() WHERE id = ?");
-        $stmtUpdate->execute([$jobId]);
+        // 1. Obtener trabajos pendientes
+        $stmt = $pdo->prepare("SELECT * FROM jobs WHERE status = 'pending' ORDER BY id ASC LIMIT 5");
+        $stmt->execute();
+        $jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        try {
-            $payload = json_decode($job['payload'], true) ?? [];
-            $filePath = '';
-            
-            if ($job['type'] === 'export_inexistencias') {
-                $filePath = generateInexistenciasReport($pdo, $payload, $jobId, $exportDir);
-            } elseif ($job['type'] === 'export_general_report') {
-                $filePath = generateGeneralReport($pdo, $payload, $jobId, $exportDir);
-            } elseif ($job['type'] === 'export_ciudadanos') {
-                $filePath = generateCiudadanosReport($pdo, $payload, $jobId, $exportDir);
-            } elseif ($job['type'] === 'export_nacimientos') {
-                $filePath = generateNacimientosReport($pdo, $payload, $jobId, $exportDir);
-            } elseif ($job['type'] === 'export_matrimonios') {
-                $filePath = generateMatrimoniosReport($pdo, $payload, $jobId, $exportDir);
-            } elseif ($job['type'] === 'export_divorcios') {
-                $filePath = generateDivorciosReport($pdo, $payload, $jobId, $exportDir);
-            } elseif ($job['type'] === 'export_defunciones') {
-                $filePath = generateDefuncionesReport($pdo, $payload, $jobId, $exportDir);
-            } elseif ($job['type'] === 'export_inscripciones') {
-                $filePath = generateInscripcionesReport($pdo, $payload, $jobId, $exportDir);
-            } elseif ($job['type'] === 'export_reconocimientos') {
-                $filePath = generateReconocimientosReport($pdo, $payload, $jobId, $exportDir);
-            } elseif ($job['type'] === 'export_actas_locales') {
-                $filePath = generateActasLocalesReport($pdo, $payload, $jobId, $exportDir);
-            } elseif ($job['type'] === 'export_foraneas') {
-                $filePath = generateForaneasReport($pdo, $payload, $jobId, $exportDir);
-            } elseif ($job['type'] === 'export_usuarios') {
-                $filePath = generateUsuariosReport($pdo, $payload, $jobId, $exportDir);
-            } elseif ($job['type'] === 'export_auditoria') {
-                $filePath = generateAuditoriaReport($pdo, $payload, $jobId, $exportDir);
-            } elseif ($job['type'] === 'export_errores') {
-                $filePath = generateErroresReport($pdo, $payload, $jobId, $exportDir);
-            } else {
-                throw new Exception("Tipo de trabajo desconocido: " . $job['type']);
-            }
-
-            // Limpieza automática de reportes con antigüedad superior a 48 horas
-            $files = glob($exportDir . '/*.xlsx');
-            $now = time();
-            $threshold = 48 * 3600;
-            foreach ($files as $file) {
-                if (is_file($file) && ($now - filemtime($file)) > $threshold) {
-                    @unlink($file);
-                }
-            }
-            
-            // Actualizar a completed
-            $stmtComplete = $pdo->prepare("UPDATE jobs SET status = 'completed', file_path = ?, updated_at = NOW() WHERE id = ?");
-            $stmtComplete->execute([$filePath, $jobId]);
-            
-            // Spoof session variables for Audit logger
-            if (session_status() === PHP_SESSION_NONE && php_sapi_name() !== 'cli') {
-                session_start();
-            }
-            if (!isset($_SESSION)) {
-                $_SESSION = [];
-            }
-            $_SESSION['user_id'] = $job['user_id'];
-            $_SERVER['REMOTE_ADDR'] = 'CLI-Worker';
-            
-            \Core\Auditoria::logAccion('Reportes', 'EXPORTAR', 'Generación de reporte Excel asíncrono completado. Job ID: ' . $jobId);
-            echo "Job ID: $jobId completado exitosamente.\n";
-            
-        } catch (Exception $e) {
-            echo "Error procesando Job ID $jobId: " . $e->getMessage() . "\n";
-            // Actualizar a failed
-            $stmtFail = $pdo->prepare("UPDATE jobs SET status = 'failed', error_message = ?, updated_at = NOW() WHERE id = ?");
-            $stmtFail->execute([$e->getMessage(), $jobId]);
-            
-            // Log in audit
-            if (session_status() === PHP_SESSION_NONE && php_sapi_name() !== 'cli') {
-                session_start();
-            }
-            if (!isset($_SESSION)) {
-                $_SESSION = [];
-            }
-            $_SESSION['user_id'] = $job['user_id'];
-            $_SERVER['REMOTE_ADDR'] = 'CLI-Worker';
-            \Core\Auditoria::logAccion('Reportes', 'EXPORTAR_ERROR', 'Fallo al generar reporte asíncrono. Job ID: ' . $jobId . '. Error: ' . $e->getMessage());
+        if (empty($jobs)) {
+            echo "No hay trabajos pendientes para procesar.\n";
+            return 0;
         }
+        
+        // Crear el directorio de exportaciones si no existe
+        $exportDir = __DIR__ . '/../public/exports';
+        if (!is_dir($exportDir)) {
+            mkdir($exportDir, 0755, true);
+        }
+        
+        foreach ($jobs as $job) {
+            $jobId = $job['id'];
+            echo "Procesando Job ID: $jobId (Tipo: {$job['type']})\n";
+            
+            // Actualizar estatus a 'processing'
+            $stmtUpdate = $pdo->prepare("UPDATE jobs SET status = 'processing', updated_at = NOW() WHERE id = ?");
+            $stmtUpdate->execute([$jobId]);
+            
+            try {
+                $payload = json_decode($job['payload'], true) ?? [];
+                $filePath = '';
+                
+                if ($job['type'] === 'export_inexistencias') {
+                    $filePath = generateInexistenciasReport($pdo, $payload, $jobId, $exportDir);
+                } elseif ($job['type'] === 'export_general_report') {
+                    $filePath = generateGeneralReport($pdo, $payload, $jobId, $exportDir);
+                } elseif ($job['type'] === 'export_ciudadanos') {
+                    $filePath = generateCiudadanosReport($pdo, $payload, $jobId, $exportDir);
+                } elseif ($job['type'] === 'export_nacimientos') {
+                    $filePath = generateNacimientosReport($pdo, $payload, $jobId, $exportDir);
+                } elseif ($job['type'] === 'export_matrimonios') {
+                    $filePath = generateMatrimoniosReport($pdo, $payload, $jobId, $exportDir);
+                } elseif ($job['type'] === 'export_divorcios') {
+                    $filePath = generateDivorciosReport($pdo, $payload, $jobId, $exportDir);
+                } elseif ($job['type'] === 'export_defunciones') {
+                    $filePath = generateDefuncionesReport($pdo, $payload, $jobId, $exportDir);
+                } elseif ($job['type'] === 'export_inscripciones') {
+                    $filePath = generateInscripcionesReport($pdo, $payload, $jobId, $exportDir);
+                } elseif ($job['type'] === 'export_reconocimientos') {
+                    $filePath = generateReconocimientosReport($pdo, $payload, $jobId, $exportDir);
+                } elseif ($job['type'] === 'export_actas_locales') {
+                    $filePath = generateActasLocalesReport($pdo, $payload, $jobId, $exportDir);
+                } elseif ($job['type'] === 'export_foraneas') {
+                    $filePath = generateForaneasReport($pdo, $payload, $jobId, $exportDir);
+                } elseif ($job['type'] === 'export_usuarios') {
+                    $filePath = generateUsuariosReport($pdo, $payload, $jobId, $exportDir);
+                } elseif ($job['type'] === 'export_auditoria') {
+                    $filePath = generateAuditoriaReport($pdo, $payload, $jobId, $exportDir);
+                } elseif ($job['type'] === 'export_errores') {
+                    $filePath = generateErroresReport($pdo, $payload, $jobId, $exportDir);
+                } else {
+                    throw new Exception("Tipo de trabajo desconocido: " . $job['type']);
+                }
+
+                // Limpieza automática de reportes con antigüedad superior a 48 horas
+                $files = glob($exportDir . '/*.xlsx');
+                $now = time();
+                $threshold = 48 * 3600;
+                foreach ($files as $file) {
+                    if (is_file($file) && ($now - filemtime($file)) > $threshold) {
+                        @unlink($file);
+                    }
+                }
+                
+                // Actualizar a completed
+                $stmtComplete = $pdo->prepare("UPDATE jobs SET status = 'completed', file_path = ?, updated_at = NOW() WHERE id = ?");
+                $stmtComplete->execute([$filePath, $jobId]);
+                
+                // Spoof session variables for Audit logger
+                if (session_status() === PHP_SESSION_NONE && php_sapi_name() !== 'cli') {
+                    session_start();
+                }
+                if (!isset($_SESSION)) {
+                    $_SESSION = [];
+                }
+                $_SESSION['user_id'] = $job['user_id'];
+                $_SERVER['REMOTE_ADDR'] = 'CLI-Worker';
+                
+                \Core\Auditoria::logAccion('Reportes', 'EXPORTAR', 'Generación de reporte Excel asíncrono completado. Job ID: ' . $jobId);
+                echo "Job ID: $jobId completado exitosamente.\n";
+                $processedCount++;
+                
+            } catch (Exception $e) {
+                echo "Error procesando Job ID $jobId: " . $e->getMessage() . "\n";
+                // Actualizar a failed
+                $stmtFail = $pdo->prepare("UPDATE jobs SET status = 'failed', error_message = ?, updated_at = NOW() WHERE id = ?");
+                $stmtFail->execute([$e->getMessage(), $jobId]);
+                
+                // Log in audit
+                if (session_status() === PHP_SESSION_NONE && php_sapi_name() !== 'cli') {
+                    session_start();
+                }
+                if (!isset($_SESSION)) {
+                    $_SESSION = [];
+                }
+                $_SESSION['user_id'] = $job['user_id'];
+                $_SERVER['REMOTE_ADDR'] = 'CLI-Worker';
+                \Core\Auditoria::logAccion('Reportes', 'EXPORTAR_ERROR', 'Fallo al generar reporte asíncrono. Job ID: ' . $jobId . '. Error: ' . $e->getMessage());
+            }
+        }
+        
+    } catch (Exception $e) {
+        echo "Error general en el Worker: " . $e->getMessage() . "\n";
     }
-    
-} catch (Exception $e) {
-    echo "Error general en el Worker: " . $e->getMessage() . "\n";
+
+    return $processedCount;
+}
+
+if (basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'] ?? '')) {
+    processPendingJobs();
 }
 
 /**
