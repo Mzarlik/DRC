@@ -111,9 +111,28 @@ a:hover {
 #sidebar {
     background: var(--sidebar-bg) !important;
     color: var(--sidebar-text);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     border-right: 1px solid var(--border-color);
     box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    z-index: 1040;
+}
+
+#sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+#sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+#sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.35);
 }
 
 #sidebar .sidebar-header {
@@ -174,18 +193,115 @@ a:hover {
     font-size: 0.875rem;
 }
 
+/* Indicador de flecha animada en submenús */
+#sidebar .dropdown-toggle::after {
+    display: inline-block;
+    margin-left: auto;
+    vertical-align: 0.255em;
+    content: "";
+    border-top: 0.3em solid;
+    border-right: 0.3em solid transparent;
+    border-bottom: 0;
+    border-left: 0.3em solid transparent;
+    transition: transform 0.25s ease;
+}
+
+#sidebar .dropdown-toggle[aria-expanded="true"]::after {
+    transform: rotate(180deg);
+}
+
+/* Modo Escritorio (>= 992px) */
 @media (min-width: 992px) {
     #sidebar {
         min-width: var(--sidebar-width) !important;
         max-width: var(--sidebar-width) !important;
         min-height: 100vh;
     }
+
+    #sidebar.compact,
+    html.sidebar-compact-loading #sidebar {
+        min-width: 70px !important;
+        max-width: 70px !important;
+    }
+
+    #sidebar.compact .sidebar-header,
+    html.sidebar-compact-loading #sidebar .sidebar-header {
+        padding: 22px 8px;
+        text-align: center;
+        justify-content: center;
+    }
+
+    #sidebar.compact .sidebar-header .sidebar-text,
+    #sidebar.compact .sidebar-header button,
+    html.sidebar-compact-loading #sidebar .sidebar-header .sidebar-text,
+    html.sidebar-compact-loading #sidebar .sidebar-header button {
+        display: none !important;
+    }
+
+    #sidebar.compact .sidebar-header span i,
+    html.sidebar-compact-loading #sidebar .sidebar-header span i {
+        font-size: 1.4rem;
+        margin: 0;
+    }
+
+    #sidebar.compact ul.components > li > a,
+    html.sidebar-compact-loading #sidebar ul.components > li > a {
+        padding: 14px 10px;
+        justify-content: center;
+        text-align: center;
+        position: relative;
+    }
+
+    #sidebar.compact ul.components > li > a i,
+    html.sidebar-compact-loading #sidebar ul.components > li > a i {
+        margin-right: 0 !important;
+        font-size: 1.25rem;
+    }
+
+    #sidebar.compact ul.components > li > a .sidebar-text,
+    #sidebar.compact ul.components > li > a::after,
+    html.sidebar-compact-loading #sidebar ul.components > li > a .sidebar-text,
+    html.sidebar-compact-loading #sidebar ul.components > li > a::after {
+        display: none !important;
+    }
+
+    #sidebar.compact ul.collapse,
+    html.sidebar-compact-loading #sidebar ul.collapse {
+        display: none !important;
+    }
 }
 
+/* Modo Móvil / Tablet (< 992px) */
 @media (max-width: 991.98px) {
     #sidebar {
         width: var(--sidebar-width) !important;
         height: 100vh !important;
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        z-index: 1050;
+    }
+
+    #sidebarCloseMobile {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.12) !important;
+        border-radius: 50%;
+        opacity: 0.9;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    #sidebarCloseMobile:hover,
+    #sidebarCloseMobile:active {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.25) !important;
+        transform: scale(1.05);
     }
 }
 

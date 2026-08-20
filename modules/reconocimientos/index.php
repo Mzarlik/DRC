@@ -259,24 +259,6 @@ $notif_api = '../../public/api/notifications.php';
 
 <script>
     $(document).ready(function() {
-        $('#sidebarCollapse').on('click', function () {
-            if ($(window).width() >= 768) {
-                $('#sidebar').toggleClass('compact');
-            } else {
-                $('#sidebar').toggleClass('active');
-            }
-        });
-
-        $('#sidebarCloseMobile').on('click', function () {
-            $('#sidebar').removeClass('active');
-        });
-
-        $('#sidebar').on('click', '.dropdown-toggle', function () {
-            if ($('#sidebar').hasClass('compact')) {
-                $('#sidebar').removeClass('compact');
-            }
-        });
-
         var table = $('#mainTable').DataTable({
             "processing": true,
             "serverSide": true,

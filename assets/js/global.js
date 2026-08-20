@@ -400,55 +400,165 @@ $(document).ready(function() {
         }
     });
 
-    // 3. SIDEBAR CENTRALIZED LÓGICA
-    $('#sidebarCollapse').on('click', function () {
-        if ($(window).width() >= 992) {
-            $('#sidebar').toggleClass('compact');
+    // 3. SIDEBAR CENTRALIZED LÓGICA (Desktop Compact & Mobile Offcanvas)
+    function initSidebarLogic() {
+        const $sidebar = $('#sidebar');
+        if (!$sidebar.length) return;
+
+        // Tooltip management for compact sidebar
+        let sidebarTooltips = [];
+
+        function updateSidebarTooltips() {
+            // Destroy existing tooltips first
+            sidebarTooltips.forEach(t => {
+                try { t.dispose(); } catch (e) {}
+            });
+            sidebarTooltips = [];
+
+            if ($sidebar.hasClass('compact') && $(window).width() >= 992 && typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+                $sidebar.find('ul.components > li > a').each(function() {
+                    const text = $(this).find('.sidebar-text').text().trim() || $(this).text().trim();
+                    if (text) {
+                        const tip = new bootstrap.Tooltip(this, {
+                            title: text,
+                            placement: 'right',
+                            trigger: 'hover',
+                            container: 'body'
+                        });
+                        sidebarTooltips.push(tip);
+                    }
+                });
+            }
+        }
+
+        function setSidebarCompactState(isCompact) {
+            if (isCompact) {
+                $sidebar.addClass('compact');
+                localStorage.setItem('sidebar_compact', 'true');
+            } else {
+                $sidebar.removeClass('compact');
+                localStorage.setItem('sidebar_compact', 'false');
+            }
+            updateSidebarTooltips();
             setTimeout(() => {
                 if ($.fn.dataTable) {
                     $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
                 }
             }, 300);
-        } else {
-            const sidebarEl = document.getElementById('sidebar');
-            if (sidebarEl) {
-                const bsOffcanvas = bootstrap.Offcanvas.getOrCreateInstance(sidebarEl);
-                bsOffcanvas.toggle();
-            }
         }
-    });
 
-    $('#sidebarCloseMobile').on('click', function () {
-        if ($(window).width() < 992) {
-            const sidebarEl = document.getElementById('sidebar');
-            if (sidebarEl) {
-                const bsOffcanvas = bootstrap.Offcanvas.getInstance(sidebarEl);
-                if (bsOffcanvas) {
-                    bsOffcanvas.hide();
-                }
-            }
-        }
-    });
-
-    // Expand sidebar if it's compact and user clicks a submenu toggle
-    $('#sidebar').on('click', '.dropdown-toggle', function () {
-        if ($('#sidebar').hasClass('compact')) {
-            $('#sidebar').removeClass('compact');
-        }
-    });
-
-    // Clean up active offcanvas states if window is resized past 992px
-    $(window).on('resize', function() {
+        // Restore saved preference on desktop
         if ($(window).width() >= 992) {
-            const sidebarEl = document.getElementById('sidebar');
-            if (sidebarEl) {
-                const bsOffcanvas = bootstrap.Offcanvas.getInstance(sidebarEl);
-                if (bsOffcanvas) {
-                    bsOffcanvas.hide();
+            if (localStorage.getItem('sidebar_compact') === 'true') {
+                $sidebar.addClass('compact');
+            }
+            updateSidebarTooltips();
+        }
+
+        // Toggle button click (Desktop compact / Mobile offcanvas)
+        $(document).on('click', '#sidebarCollapse', function (e) {
+            e.preventDefault();
+            if ($(window).width() >= 992) {
+                const nowCompact = !$sidebar.hasClass('compact');
+                setSidebarCompactState(nowCompact);
+            } else {
+                const sidebarEl = document.getElementById('sidebar');
+                if (sidebarEl && typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
+                    const bsOffcanvas = bootstrap.Offcanvas.getOrCreateInstance(sidebarEl);
+                    bsOffcanvas.toggle();
                 }
             }
+        });
+
+        // Mobile close button
+        $(document).on('click', '#sidebarCloseMobile', function (e) {
+            e.preventDefault();
+            if ($(window).width() < 992) {
+                const sidebarEl = document.getElementById('sidebar');
+                if (sidebarEl && typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
+                    const bsOffcanvas = bootstrap.Offcanvas.getInstance(sidebarEl);
+                    if (bsOffcanvas) {
+                        bsOffcanvas.hide();
+                    }
+                }
+            }
+        });
+
+        // Expand sidebar if it's compact and user clicks a submenu toggle
+        $sidebar.on('click', '.dropdown-toggle', function () {
+            if ($sidebar.hasClass('compact') && $(window).width() >= 992) {
+                setSidebarCompactState(false);
+            }
+        });
+
+        // Close mobile drawer when clicking a navigation link (not dropdown header)
+        $sidebar.on('click', 'a:not(.dropdown-toggle)', function() {
+            if ($(window).width() < 992) {
+                const sidebarEl = document.getElementById('sidebar');
+                if (sidebarEl && typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
+                    const bsOffcanvas = bootstrap.Offcanvas.getInstance(sidebarEl);
+                    if (bsOffcanvas) {
+                        bsOffcanvas.hide();
+                    }
+                }
+            }
+        });
+
+        // Touch swipe-left to close mobile offcanvas drawer
+        let touchStartX = 0;
+        let touchStartY = 0;
+        const sidebarDom = document.getElementById('sidebar');
+        if (sidebarDom) {
+            sidebarDom.addEventListener('touchstart', function(e) {
+                if ($(window).width() < 992 && e.touches.length === 1) {
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                }
+            }, { passive: true });
+
+            sidebarDom.addEventListener('touchend', function(e) {
+                if ($(window).width() < 992 && e.changedTouches.length === 1) {
+                    const touchEndX = e.changedTouches[0].clientX;
+                    const touchEndY = e.changedTouches[0].clientY;
+                    const diffX = touchStartX - touchEndX;
+                    const diffY = Math.abs(touchStartY - touchEndY);
+                    // Swipe left detected (at least 45px horizontal swipe with low vertical movement)
+                    if (diffX > 45 && diffY < 60) {
+                        const bsOffcanvas = bootstrap.Offcanvas.getInstance(sidebarDom);
+                        if (bsOffcanvas) {
+                            bsOffcanvas.hide();
+                        }
+                    }
+                }
+            }, { passive: true });
         }
-    });
+
+        // Clean up active offcanvas states if window is resized past 992px
+        $(window).on('resize', function() {
+            if ($(window).width() >= 992) {
+                const sidebarEl = document.getElementById('sidebar');
+                if (sidebarEl && typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
+                    const bsOffcanvas = bootstrap.Offcanvas.getInstance(sidebarEl);
+                    if (bsOffcanvas) {
+                        bsOffcanvas.hide();
+                    }
+                }
+                if (localStorage.getItem('sidebar_compact') === 'true') {
+                    $sidebar.addClass('compact');
+                } else {
+                    $sidebar.removeClass('compact');
+                }
+                updateSidebarTooltips();
+            } else {
+                $sidebar.removeClass('compact');
+                updateSidebarTooltips();
+        });
+
+        // Retirar clase de carga para evitar FOUC
+        document.documentElement.classList.remove('sidebar-compact-loading');
+    }
+
+    initSidebarLogic();
 
     // 4. UTILITIES
     // Automatic conversion of uppercase inputs
