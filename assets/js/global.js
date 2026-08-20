@@ -552,6 +552,7 @@ $(document).ready(function() {
             } else {
                 $sidebar.removeClass('compact');
                 updateSidebarTooltips();
+            }
         });
 
         // Retirar clase de carga para evitar FOUC

@@ -650,6 +650,20 @@ table.dataTable tbody tr:hover {
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
 }
 
+@media (max-width: 575.98px) {
+    .notif-dropdown {
+        position: fixed !important;
+        top: 64px !important;
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        max-width: calc(100vw - 24px) !important;
+        transform: none !important;
+        max-height: 75vh !important;
+        z-index: 1060 !important;
+    }
+}
+
 .notif-item {
     transition: background-color 0.15s ease-in-out;
     cursor: pointer;
@@ -693,5 +707,72 @@ table.dataTable tbody tr:hover {
 
 .btn-quick-add-citizen:active {
     transform: translateY(0);
+}
+
+/* ==========================================================================
+   Ajustes Globales Responsive (Móviles / Tablets)
+   ========================================================================== */
+@media (max-width: 767.98px) {
+    #content {
+        padding: 16px 14px !important;
+    }
+
+    .navbar {
+        padding: 8px 12px !important;
+        margin-bottom: 18px !important;
+    }
+
+    .navbar .container-fluid {
+        flex-wrap: nowrap !important;
+    }
+
+    /* Ocultar texto largo del usuario en navbar móvil y mantener solo avatar */
+    .navbar .dropdown a.nav-link span:not(.badge):not(.avatar-initials),
+    .navbar .user-name-text {
+        display: none !important;
+    }
+
+    .navbar .dropdown a.nav-link {
+        padding: 4px 6px !important;
+    }
+
+    #darkModeToggle {
+        margin-right: 8px !important;
+    }
+
+    #notificacionesMenu {
+        margin-right: 8px !important;
+    }
+
+    /* Apilar limpiamente cabeceras de módulos y botones de acción */
+    #content > .container-fluid > .d-flex.justify-content-between:first-child,
+    #content > .container-fluid > div:first-child.d-flex.justify-content-between,
+    .page-header-responsive {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        margin-bottom: 20px !important;
+    }
+
+    #content > .container-fluid > .d-flex.justify-content-between:first-child > .btn,
+    #content > .container-fluid > .d-flex.justify-content-between:first-child > a.btn,
+    #content > .container-fluid > div:first-child.d-flex.justify-content-between > .btn,
+    #content > .container-fluid > div:first-child.d-flex.justify-content-between > a.btn,
+    #content > .container-fluid > .d-flex.justify-content-between:first-child > div:last-child .btn,
+    #content > .container-fluid > .d-flex.justify-content-between:first-child > div:last-child a.btn {
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 10px 16px !important;
+        white-space: nowrap !important;
+    }
+
+    #content > .container-fluid > .d-flex.justify-content-between:first-child .btn-group,
+    #content > .container-fluid > .d-flex.justify-content-between:first-child .d-flex {
+        width: 100% !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
 }
 
