@@ -17,7 +17,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nueva Inexistencia - ERP DRC</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="../../assets/css/fonts.css" rel="stylesheet">
     <link href="../../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/vendor/fontawesome/css/all.min.css">
     <link href="../../assets/vendor/sweetalert2/sweetalert2.min.css" rel="stylesheet">
@@ -43,14 +43,14 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             
             <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>">
                 <a href="#catSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo ($current_module == 'ciudadanos') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">Catálogos</span>
+                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">CatÃ¡logos</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo ($current_module == 'ciudadanos') ? 'show' : ''; ?>" id="catSubmenu">
                     <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'ciudadanos') ? 'index.php' : $path_prefix . 'ciudadanos/index.php'; ?>"><i class="fa-solid fa-users"></i> <span class="sidebar-text">Ciudadanos</span></a></li>
                 </ul>
             </li>
 
-            <!-- Registros de Actos (Oficialía) -->
+            <!-- Registros de Actos (OficialÃ­a) -->
             <?php if (\Core\Auth::hasPermission('permiso_registro_nacimientos') || \Core\Auth::hasPermission('permiso_registro_matrimonios') || \Core\Auth::hasPermission('permiso_registro_divorcios') || \Core\Auth::hasPermission('permiso_registro_defunciones') || \Core\Auth::hasPermission('permiso_registro_inscripciones') || \Core\Auth::hasPermission('permiso_registro_reconocimientos')): ?>
             <li class="<?php echo in_array($current_module, ['nacimientos', 'matrimonios', 'divorcios', 'defunciones', 'inscripciones', 'reconocimientos']) ? 'active' : ''; ?>">
                 <a href="#vitalesSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
@@ -79,18 +79,18 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             </li>
             <?php endif; ?>
 
-            <!-- Expedición de Actas -->
+            <!-- ExpediciÃ³n de Actas -->
             <?php if (\Core\Auth::hasPermission('permiso_actas_locales') || \Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
             <li class="<?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'active' : ''; ?>">
                 <a href="#actasSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">Expedición de Actas</span>
+                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">ExpediciÃ³n de Actas</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'show' : ''; ?>" id="actasSubmenu">
                     <?php if (\Core\Auth::hasPermission('permiso_actas_locales')): ?>
                     <li class="<?php echo ($current_module == 'actas_locales') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'actas_locales') ? 'index.php' : $path_prefix . 'actas_locales/index.php'; ?>"><i class="fa-solid fa-file-invoice"></i> <span class="sidebar-text">Actas Locales</span></a></li>
                     <?php endif; ?>
                     <?php if (\Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
-                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas Foráneas</span></a></li>
+                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas ForÃ¡neas</span></a></li>
                     <?php endif; ?>
                 </ul>
             </li>
@@ -120,7 +120,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     <i class="fa-solid fa-id-card"></i> <span class="sidebar-text">Servicios CURP</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo ($current_module == 'curp') ? 'show' : ''; ?>" id="curpSubmenu">
-                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">Trámites CURP</span></a></li>
+                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">TrÃ¡mites CURP</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -135,7 +135,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
                     <li class="<?php echo ($current_module == 'peticion_rapida' && basename($_SERVER['PHP_SELF']) == 'create.php') ? 'active' : ''; ?>">
                         <a href="<?php echo ($current_module == 'peticion_rapida') ? 'create.php' : $path_prefix . 'peticion_rapida/create.php'; ?>">
-                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">Petición Rápida</span>
+                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">PeticiÃ³n RÃ¡pida</span>
                         </a>
                     </li>
                     <li class="<?php echo ($current_module == 'peticion_rapida' && (basename($_SERVER['PHP_SELF']) == 'index.php' || basename($_SERVER['PHP_SELF']) == 'edit.php')) ? 'active' : ''; ?>">
@@ -160,18 +160,18 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             </li>
             <?php endif; ?>
 
-            <!-- Administración (Admin / Supervisor) -->
+            <!-- AdministraciÃ³n (Admin / Supervisor) -->
             <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
             <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
                 <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
+                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">AdministraciÃ³n</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'show' : ''; ?>" id="adminSubmenu">
                     <?php if (($_SESSION['user_rol'] ?? '') === 'ADMIN'): ?>
                     <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'usuarios.php' : '../../public/usuarios.php'; ?>"><i class="fa-solid fa-user-shield"></i> <span class="sidebar-text">Usuarios y Permisos</span></a></li>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">Auditoría y Errores</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">AuditorÃ­a y Errores</span></a></li>
                     <?php endif; ?>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y Catálogos</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y CatÃ¡logos</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -217,7 +217,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="<?php echo $profile_link; ?>"><i class="fa-solid fa-user fa-sm me-2"></i> Perfil</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar Sesión</a></li>
+                            <li><a class="dropdown-item text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar SesiÃ³n</a></li>
                         </ul>
                     </div>
                 </div>
@@ -261,9 +261,9 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="linea_pago" class="form-label fw-bold">Línea de Pago (17-20 dígitos)</label>
+                                <label for="linea_pago" class="form-label fw-bold">LÃ­nea de Pago (17-20 dÃ­gitos)</label>
                                 <input type="number" inputmode="numeric" class="form-control" id="linea_pago" name="linea_pago" required>
-                                <div class="form-text">Tratado como cadena para evitar pérdida de precisión.</div>
+                                <div class="form-text">Tratado como cadena para evitar pÃ©rdida de precisiÃ³n.</div>
                             </div>
                             <div class="col-md-6">
                                 <label for="nombre_completo" class="form-label fw-bold">Nombre Completo del Ciudadano</label>
@@ -273,11 +273,11 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="fecha_tramite" class="form-label fw-bold">Fecha de Trámite</label>
+                                <label for="fecha_tramite" class="form-label fw-bold">Fecha de TrÃ¡mite</label>
                                 <input type="date" class="form-control" id="fecha_tramite" name="fecha_tramite" value="<?php echo date('Y-m-d'); ?>" required>
                             </div>
                             <div class="col-md-6">
-                                <label for="fecha_llegada" class="form-label fw-bold">Fecha de Llegada (Cálculo Automático +15 días)</label>
+                                <label for="fecha_llegada" class="form-label fw-bold">Fecha de Llegada (CÃ¡lculo AutomÃ¡tico +15 dÃ­as)</label>
                                 <input type="date" class="form-control bg-light" id="fecha_llegada" name="fecha_llegada" readonly>
                             </div>
                         </div>
@@ -305,12 +305,12 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
 <script>
     $(document).ready(function() {
-        // Forzar mayúsculas
+        // Forzar mayÃºsculas
         $(document).on('input', '.text-uppercase-input', function() {
             $(this).val($(this).val().toUpperCase());
         });
 
-        // Calcular fecha de llegada automáticamente (Trámite + 15 días)
+        // Calcular fecha de llegada automÃ¡ticamente (TrÃ¡mite + 15 dÃ­as)
         function calcularFechaLlegada() {
             let fechaTramite = $('#fecha_tramite').val();
             if(fechaTramite) {
@@ -319,7 +319,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 let yyyy = date.getFullYear();
                 let mm = String(date.getMonth() + 1).padStart(2, '0');
                 let dd = String(date.getDate() + 1).padStart(2, '0'); // Ajuste por zona horaria de JS local
-                // Asegurar cálculo correcto
+                // Asegurar cÃ¡lculo correcto
                 let date2 = new Date(fechaTramite + 'T00:00:00');
                 date2.setDate(date2.getDate() + 15);
                 yyyy = date2.getFullYear();
@@ -330,11 +330,11 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             }
         }
 
-        // Ejecutar al cargar y al cambiar fecha de trámite
+        // Ejecutar al cargar y al cambiar fecha de trÃ¡mite
         calcularFechaLlegada();
         $('#fecha_tramite').on('change', calcularFechaLlegada);
 
-        // Envío AJAX del formulario
+        // EnvÃ­o AJAX del formulario
         $('#formInexistencia').on('submit', function(e) {
             e.preventDefault();
             
@@ -347,7 +347,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     if(response.status === 'success') {
                         Swal.fire({
                             icon: 'success',
-                            title: '¡Guardado!',
+                            title: 'Â¡Guardado!',
                             text: 'El registro se ha guardado exitosamente.',
                             confirmButtonColor: 'var(--secondary-color)'
                         }).then((result) => {
@@ -357,7 +357,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: response.message || 'Ocurrió un error al procesar la solicitud.',
+                            text: response.message || 'OcurriÃ³ un error al procesar la solicitud.',
                             confirmButtonColor: 'var(--primary-color)'
                         });
                     }
@@ -365,7 +365,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 error: function() {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Error Crítico',
+                        title: 'Error CrÃ­tico',
                         text: 'No se pudo conectar con el servidor.',
                         confirmButtonColor: 'var(--primary-color)'
                     });

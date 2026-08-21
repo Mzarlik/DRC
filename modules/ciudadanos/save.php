@@ -19,8 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $apellido_paterno = mb_strtoupper(trim($_POST['apellido_paterno'] ?? ''), 'UTF-8');
     $apellido_materno = mb_strtoupper(trim($_POST['apellido_materno'] ?? ''), 'UTF-8');
     $curp = mb_strtoupper(trim($_POST['curp'] ?? ''), 'UTF-8');
-    $rawSexo = strtoupper(trim($_POST['sexo'] ?? 'M'));
-    $sexo = ($rawSexo === 'H' || $rawSexo === 'MASCULINO') ? 'M' : (($rawSexo === 'F' || $rawSexo === 'MUJER' || $rawSexo === 'FEMENINO') ? 'F' : 'X');
+    $rawSexo = strtoupper(trim($_POST['sexo'] ?? ''));
+    if (in_array($rawSexo, ['H', 'HOMBRE', 'M', 'MASCULINO'], true)) {
+        $sexo = 'M';
+    } elseif (in_array($rawSexo, ['F', 'FEMENINO', 'MUJER'], true)) {
+        $sexo = 'F';
+    } else {
+        $sexo = 'X';
+    }
     $fecha_nacimiento = trim($_POST['fecha_nacimiento'] ?? '');
 
     // Procesamiento de CURP con Blind Index (HMAC) e IV aleatorio (AES-256)

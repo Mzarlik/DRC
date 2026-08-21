@@ -10,12 +10,13 @@ header('Content-Type: application/json; charset=utf-8');
 use Core\Services\GestorNacimientos;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (empty($_POST['csrf_token'])) {
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    if (!\Core\Auth::validateCSRF($csrf_token)) {
         echo json_encode(['status' => 'error', 'message' => 'Token CSRF inválido.']);
         exit;
     }
 
-    $numero_acta = $_POST['numero_acta'] ?? '';
+    $numero_acta = mb_strtoupper(trim($_POST['numero_acta'] ?? ''), 'UTF-8');
     $fecha_registro = $_POST['fecha_registro'] ?? '';
     $lugar_nacimiento = $_POST['lugar_nacimiento'] ?? '';
     

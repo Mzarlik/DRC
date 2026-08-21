@@ -42,6 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
 
+            if (strlen($password) < 8 || !preg_match('/[A-Z]/', $password) || !preg_match('/\d/', $password)) {
+                echo json_encode(['status' => 'error', 'message' => 'La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.']);
+                exit;
+            }
+
             // Check if email already exists
             $stmtCheck = $pdo->prepare("SELECT id FROM usuarios WHERE correo = :correo");
             $stmtCheck->execute([':correo' => $correo]);

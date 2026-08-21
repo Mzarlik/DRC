@@ -16,8 +16,8 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrar Acta Foránea - ERP DRC</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Registrar Acta ForÃ¡nea - ERP DRC</title>
+    <link href="../../assets/css/fonts.css" rel="stylesheet">
     <link href="../../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/vendor/fontawesome/css/all.min.css">
     <link href="../../assets/vendor/tom-select/css/tom-select.bootstrap5.min.css" rel="stylesheet">
@@ -44,14 +44,14 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             
             <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>">
                 <a href="#catSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo ($current_module == 'ciudadanos') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">Catálogos</span>
+                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">CatÃ¡logos</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo ($current_module == 'ciudadanos') ? 'show' : ''; ?>" id="catSubmenu">
                     <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'ciudadanos') ? 'index.php' : $path_prefix . 'ciudadanos/index.php'; ?>"><i class="fa-solid fa-users"></i> <span class="sidebar-text">Ciudadanos</span></a></li>
                 </ul>
             </li>
 
-            <!-- Registros de Actos (Oficialía) -->
+            <!-- Registros de Actos (OficialÃ­a) -->
             <?php if (\Core\Auth::hasPermission('permiso_registro_nacimientos') || \Core\Auth::hasPermission('permiso_registro_matrimonios') || \Core\Auth::hasPermission('permiso_registro_divorcios') || \Core\Auth::hasPermission('permiso_registro_defunciones') || \Core\Auth::hasPermission('permiso_registro_inscripciones') || \Core\Auth::hasPermission('permiso_registro_reconocimientos')): ?>
             <li class="<?php echo in_array($current_module, ['nacimientos', 'matrimonios', 'divorcios', 'defunciones', 'inscripciones', 'reconocimientos']) ? 'active' : ''; ?>">
                 <a href="#vitalesSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
@@ -80,18 +80,18 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             </li>
             <?php endif; ?>
 
-            <!-- Expedición de Actas -->
+            <!-- ExpediciÃ³n de Actas -->
             <?php if (\Core\Auth::hasPermission('permiso_actas_locales') || \Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
             <li class="<?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'active' : ''; ?>">
                 <a href="#actasSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">Expedición de Actas</span>
+                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">ExpediciÃ³n de Actas</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'show' : ''; ?>" id="actasSubmenu">
                     <?php if (\Core\Auth::hasPermission('permiso_actas_locales')): ?>
                     <li class="<?php echo ($current_module == 'actas_locales') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'actas_locales') ? 'index.php' : $path_prefix . 'actas_locales/index.php'; ?>"><i class="fa-solid fa-file-invoice"></i> <span class="sidebar-text">Actas Locales</span></a></li>
                     <?php endif; ?>
                     <?php if (\Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
-                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas Foráneas</span></a></li>
+                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas ForÃ¡neas</span></a></li>
                     <?php endif; ?>
                 </ul>
             </li>
@@ -121,7 +121,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     <i class="fa-solid fa-id-card"></i> <span class="sidebar-text">Servicios CURP</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo ($current_module == 'curp') ? 'show' : ''; ?>" id="curpSubmenu">
-                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">Trámites CURP</span></a></li>
+                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">TrÃ¡mites CURP</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -136,7 +136,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
                     <li class="<?php echo ($current_module == 'peticion_rapida' && basename($_SERVER['PHP_SELF']) == 'create.php') ? 'active' : ''; ?>">
                         <a href="<?php echo ($current_module == 'peticion_rapida') ? 'create.php' : $path_prefix . 'peticion_rapida/create.php'; ?>">
-                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">Petición Rápida</span>
+                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">PeticiÃ³n RÃ¡pida</span>
                         </a>
                     </li>
                     <li class="<?php echo ($current_module == 'peticion_rapida' && (basename($_SERVER['PHP_SELF']) == 'index.php' || basename($_SERVER['PHP_SELF']) == 'edit.php')) ? 'active' : ''; ?>">
@@ -161,18 +161,18 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             </li>
             <?php endif; ?>
 
-            <!-- Administración (Admin / Supervisor) -->
+            <!-- AdministraciÃ³n (Admin / Supervisor) -->
             <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
             <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
                 <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
+                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">AdministraciÃ³n</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'show' : ''; ?>" id="adminSubmenu">
                     <?php if (($_SESSION['user_rol'] ?? '') === 'ADMIN'): ?>
                     <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'usuarios.php' : '../../public/usuarios.php'; ?>"><i class="fa-solid fa-user-shield"></i> <span class="sidebar-text">Usuarios y Permisos</span></a></li>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">Auditoría y Errores</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">AuditorÃ­a y Errores</span></a></li>
                     <?php endif; ?>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y Catálogos</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y CatÃ¡logos</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -218,7 +218,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="<?php echo $profile_link; ?>"><i class="fa-solid fa-user fa-sm me-2"></i> Perfil</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar Sesión</a></li>
+                            <li><a class="dropdown-item text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar SesiÃ³n</a></li>
                         </ul>
                     </div>
                 </div>
@@ -227,7 +227,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Registrar Recepción de Acta Foránea</h2>
+                <h2>Registrar RecepciÃ³n de Acta ForÃ¡nea</h2>
                 <a href="index.php" class="btn btn-secondary">
                     <i class="fa-solid fa-arrow-left"></i> Volver al listado
                 </a>
@@ -240,7 +240,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="numero_acta" class="form-label fw-bold">Número de Acta Foránea</label>
+                                <label for="numero_acta" class="form-label fw-bold">NÃºmero de Acta ForÃ¡nea</label>
                                 <input type="text" inputmode="numeric" pattern="[0-9]*" class="form-control text-uppercase-input" id="numero_acta" name="numero_acta" required>
                             </div>
                             <div class="col-md-6">
@@ -264,13 +264,13 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                 <select class="form-select" id="tipo_acta" name="tipo_acta" required>
                                     <option value="">Seleccione...</option>
                                     <option value="NACIMIENTO">Nacimiento</option>
-                                    <option value="DEFUNCION">Defunción</option>
+                                    <option value="DEFUNCION">DefunciÃ³n</option>
                                     <option value="MATRIMONIO">Matrimonio</option>
                                     <option value="OTRO">Otro</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label for="fecha_recepcion" class="form-label fw-bold">Fecha de Recepción</label>
+                                <label for="fecha_recepcion" class="form-label fw-bold">Fecha de RecepciÃ³n</label>
                                 <input type="date" class="form-control" id="fecha_recepcion" name="fecha_recepcion" value="<?php echo date('Y-m-d'); ?>" required>
                             </div>
                         </div>
@@ -331,7 +331,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 dataType: 'json',
                 success: function(response) {
                     if(response.status === 'success') {
-                        window.location.href = 'index.php?toast=success&msg=' + encodeURIComponent('El acta foránea se ha guardado correctamente.');
+                        window.location.href = 'index.php?toast=success&msg=' + encodeURIComponent('El acta forÃ¡nea se ha guardado correctamente.');
                     } else {
                         Swal.fire({ icon: 'error', title: 'Error', text: response.message });
                     }

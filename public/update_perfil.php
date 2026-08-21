@@ -71,6 +71,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
 
+            if ($newPassword !== $confirmPassword) {
+                echo json_encode(['status' => 'error', 'message' => 'La nueva contraseña y su confirmación no coinciden.']);
+                exit;
+            }
+
+            if (strlen($newPassword) < 8) {
+                echo json_encode(['status' => 'error', 'message' => 'La nueva contraseña debe tener al menos 8 caracteres.']);
+                exit;
+            }
+
+            if (!preg_match('/[A-Z]/', $newPassword) || !preg_match('/\d/', $newPassword)) {
+                echo json_encode(['status' => 'error', 'message' => 'La nueva contraseña debe incluir al menos una mayúscula y un número.']);
+                exit;
+            }
+
             // Fetch stored password hash
             $stmt = $pdo->prepare("SELECT password_hash FROM usuarios WHERE id = :id");
             $stmt->execute([':id' => $_SESSION['user_id']]);
@@ -99,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         echo json_encode(['status' => 'error', 'message' => 'Acción no permitida.']);
 
-    } catch (PDOException $e) {
+    } catch (\Throwable $e) {
         echo json_encode(['status' => 'error', 'message' => 'Error en la base de datos. Intente de nuevo más tarde.']);
     }
 } else {

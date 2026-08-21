@@ -12,6 +12,8 @@ if (isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit;
 }
+require_once __DIR__ . '/../core/Auth.php';
+$csrf_token = \Core\Auth::generateCSRF();
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -68,6 +70,7 @@ if (isset($_SESSION['user_id'])) {
     <div id="error-message" class="alert alert-danger d-none"></div>
 
     <form id="loginForm">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
         <div class="mb-3">
             <label for="correo" class="form-label fw-bold">Correo Electrónico</label>
             <div class="input-group">

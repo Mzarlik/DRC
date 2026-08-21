@@ -10,6 +10,7 @@ require_once __DIR__ . '/../../core/Database.php';
 require_once __DIR__ . '/../../core/Services/PeticionRapidaService.php';
 
 use Core\Database;
+use Core\Encryption;
 use Core\Services\PeticionRapidaService;
 
 try {
@@ -34,6 +35,15 @@ try {
     $search = trim($_GET['search']['value'] ?? '');
     $filtroEstatus = trim($_GET['estatus'] ?? '');
 
+    // Detectar si ya existe la columna de blind index (migración opcional)
+    $hasBindex = false;
+    try {
+        $pdo->query("SELECT solicitante_curp_bindex FROM peticiones_ventanilla LIMIT 0");
+        $hasBindex = true;
+    } catch (\Throwable $e) {
+        $hasBindex = false;
+    }
+
     $inTramites = implode(',', array_fill(0, count($tramites), '?'));
     $whereParts = ["pv.deleted_at IS NULL", "pv.tipo_peticion IN ($inTramites)"];
     $params = $tramites;
@@ -44,12 +54,19 @@ try {
     }
 
     if ($search !== '') {
-        $whereParts[] = "(pv.folio LIKE ? OR pv.solicitante_nombre LIKE ? OR pv.solicitante_curp LIKE ? OR pv.detalle LIKE ?)";
-        $term = '%' . $search . '%';
-        $params[] = $term;
-        $params[] = $term;
-        $params[] = $term;
-        $params[] = $term;
+        // CURP completa → búsqueda exacta por blind index; texto libre → LIKE en campos no cifrados
+        $curpCandidata = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $search));
+        $esCurpCompleta = preg_match('/^[A-Z]{4}[0-9]{6}[HM][A-Z]{2}[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9][0-9]$/', $curpCandidata) === 1;
+        if ($hasBindex && $esCurpCompleta) {
+            $whereParts[] = "pv.solicitante_curp_bindex = ?";
+            $params[] = Encryption::getBlindIndex($curpCandidata);
+        } else {
+            $whereParts[] = "(pv.folio LIKE ? OR pv.solicitante_nombre LIKE ? OR pv.detalle LIKE ?)";
+            $term = '%' . $search . '%';
+            $params[] = $term;
+            $params[] = $term;
+            $params[] = $term;
+        }
     }
 
     $whereSql = "WHERE " . implode(' AND ', $whereParts);
@@ -75,6 +92,16 @@ try {
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Descifrar la CURP del solicitante para su visualización autorizada
+    foreach ($rows as &$row) {
+        if (!empty($row['solicitante_curp'])) {
+            $descifrada = Encryption::decrypt($row['solicitante_curp']);
+            // Si el valor descifrado coincide con formato CURP se usa; si no (legado en claro), se conserva.
+            $row['solicitante_curp'] = preg_match('/^[A-Z]{18}$/', $descifrada) ? $descifrada : $row['solicitante_curp'];
+        }
+    }
+    unset($row);
 
     echo json_encode([
         'draw' => $draw,

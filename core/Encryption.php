@@ -16,16 +16,15 @@ class Encryption {
      */
     private static function getKey() {
         if (self::$key === null) {
-            $envPath = dirname(__DIR__) . '/.env';
-            $key = null;
-            if (file_exists($envPath)) {
-                $env = @parse_ini_file($envPath);
-                if ($env !== false && isset($env['ENCRYPTION_KEY'])) {
-                    $key = $env['ENCRYPTION_KEY'];
-                }
-            }
+            $key = self::loadEnvKey('ENCRYPTION_KEY');
             if (empty($key)) {
-                $key = getenv('ENCRYPTION_KEY') ?: 'drc_erp_secure_aes256_symmetric_key_2026';
+                $isTesting = defined('PHPUNIT_COMPOSER_INSTALL') || class_exists('\\PHPUnit\\Framework\\TestCase');
+                if ($isTesting) {
+                    // Clave solo válida en pruebas unitarias; nunca en producción.
+                    $key = 'drc_testing_only_key_do_not_use_in_production';
+                } else {
+                    throw new \RuntimeException('ENCRYPTION_KEY no está configurada en .env. El sistema rechaza operar con claves por defecto.');
+                }
             }
             // Derivación segura usando SHA-256 para obtener 32 bytes exactos
             self::$key = hash('sha256', $key, true);
@@ -34,20 +33,32 @@ class Encryption {
     }
 
     /**
+     * Lee una clave desde .env y, como respaldo, desde variables de entorno del sistema.
+     */
+    private static function loadEnvKey($name) {
+        $envPath = dirname(__DIR__) . '/.env';
+        if (file_exists($envPath)) {
+            $env = @parse_ini_file($envPath);
+            if ($env !== false && isset($env[$name]) && $env[$name] !== '') {
+                return $env[$name];
+            }
+        }
+        $fromEnv = getenv($name);
+        return $fromEnv !== false && $fromEnv !== '' ? $fromEnv : null;
+    }
+
+    /**
      * Obtiene y deriva la clave para Blind Index (HMAC) desde las variables de entorno.
      */
     private static function getBlindKey() {
         if (self::$blindKey === null) {
-            $envPath = dirname(__DIR__) . '/.env';
-            $blindKey = null;
-            if (file_exists($envPath)) {
-                $env = @parse_ini_file($envPath);
-                if ($env !== false && isset($env['BLIND_INDEX_KEY'])) {
-                    $blindKey = $env['BLIND_INDEX_KEY'];
-                }
-            }
+            $blindKey = self::loadEnvKey('BLIND_INDEX_KEY');
             if (empty($blindKey)) {
-                $blindKey = getenv('BLIND_INDEX_KEY') ?: hash_hmac('sha256', 'blind_index_salt_drc', self::getKey(), true);
+                // Derivación determinista desde la clave maestra configurada en .env
+                // (mantiene compatibilidad con los blind index ya almacenados).
+                // Para usar una sal dedicada, definir BLIND_INDEX_KEY y regenerar
+                // los índices con migración de reíndexado.
+                $blindKey = hash_hmac('sha256', 'blind_index_salt_drc', self::getKey(), true);
             }
             self::$blindKey = hash('sha256', $blindKey, true);
         }

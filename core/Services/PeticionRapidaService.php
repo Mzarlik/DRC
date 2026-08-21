@@ -2,6 +2,7 @@
 namespace Core\Services;
 
 use Core\Database;
+use Core\Encryption;
 use Exception;
 use PDO;
 
@@ -373,7 +374,9 @@ class PeticionRapidaService {
             'error' => null,
             'data' => [
                 'solicitante_nombre'   => $nombre,
-                'solicitante_curp'     => !empty($curp) ? $curp : null,
+                // La CURP se almacena cifrada (AES-256) con blind index para búsqueda exacta.
+                'solicitante_curp'     => !empty($curp) ? Encryption::encrypt($curp) : null,
+                'solicitante_curp_bindex' => !empty($curp) ? Encryption::getBlindIndex($curp) : null,
                 'solicitante_telefono' => !empty($telefono) ? $telefono : null,
                 'tipo_peticion'        => $tipo,
                 'detalle'              => $detalle,

@@ -11,7 +11,7 @@ $enEspera = (int)$pdo->query("SELECT COUNT(*) FROM turnos WHERE estado = 'EN_ESP
 $atendiendo = $pdo->query("SELECT folio, modulo_atencion FROM turnos WHERE estado = 'ATENDIENDO' ORDER BY atendido_en DESC LIMIT 1")->fetch(PDO::FETCH_ASSOC);
 $atendidosHoy = (int)$pdo->query("SELECT COUNT(*) FROM turnos WHERE estado IN ('COMPLETADO','CANCELADO') AND DATE(creado_en) = CURDATE()")->fetchColumn();
 
-$modulos = ['ACTA DE NACIMIENTO', 'ACTA DE MATRIMONIO', 'ACTA FORÁNEA', 'CONSTANCIA / INEXISTENCIA', 'CURP', 'PETICIÓN / MESA DE AYUDA', 'OTRO TRÁMITE'];
+$modulos = ['ACTA DE NACIMIENTO', 'ACTA DE MATRIMONIO', 'ACTA FORÃNEA', 'CONSTANCIA / INEXISTENCIA', 'CURP', 'PETICIÃ“N / MESA DE AYUDA', 'OTRO TRÃMITE'];
 
 $current_module = basename(dirname($_SERVER['SCRIPT_NAME']));
 $path_prefix = ($current_module == 'public') ? '../modules/' : '../';
@@ -25,8 +25,8 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turnos de Atención - ERP DRC</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Turnos de AtenciÃ³n - ERP DRC</title>
+    <link href="../../assets/css/fonts.css" rel="stylesheet">
     <link href="../../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/vendor/fontawesome/css/all.min.css">
     <link href="../../assets/vendor/sweetalert2/sweetalert2.min.css" rel="stylesheet">
@@ -49,14 +49,14 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             
             <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>">
                 <a href="#catSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo ($current_module == 'ciudadanos') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">Catálogos</span>
+                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">CatÃ¡logos</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo ($current_module == 'ciudadanos') ? 'show' : ''; ?>" id="catSubmenu">
                     <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'ciudadanos') ? 'index.php' : $path_prefix . 'ciudadanos/index.php'; ?>"><i class="fa-solid fa-users"></i> <span class="sidebar-text">Ciudadanos</span></a></li>
                 </ul>
             </li>
 
-            <!-- Registros de Actos (Oficialía) -->
+            <!-- Registros de Actos (OficialÃ­a) -->
             <?php if (\Core\Auth::hasPermission('permiso_registro_nacimientos') || \Core\Auth::hasPermission('permiso_registro_matrimonios') || \Core\Auth::hasPermission('permiso_registro_divorcios') || \Core\Auth::hasPermission('permiso_registro_defunciones') || \Core\Auth::hasPermission('permiso_registro_inscripciones') || \Core\Auth::hasPermission('permiso_registro_reconocimientos')): ?>
             <li class="<?php echo in_array($current_module, ['nacimientos', 'matrimonios', 'divorcios', 'defunciones', 'inscripciones', 'reconocimientos']) ? 'active' : ''; ?>">
                 <a href="#vitalesSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
@@ -85,18 +85,18 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             </li>
             <?php endif; ?>
 
-            <!-- Expedición de Actas -->
+            <!-- ExpediciÃ³n de Actas -->
             <?php if (\Core\Auth::hasPermission('permiso_actas_locales') || \Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
             <li class="<?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'active' : ''; ?>">
                 <a href="#actasSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">Expedición de Actas</span>
+                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">ExpediciÃ³n de Actas</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'show' : ''; ?>" id="actasSubmenu">
                     <?php if (\Core\Auth::hasPermission('permiso_actas_locales')): ?>
                     <li class="<?php echo ($current_module == 'actas_locales') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'actas_locales') ? 'index.php' : $path_prefix . 'actas_locales/index.php'; ?>"><i class="fa-solid fa-file-invoice"></i> <span class="sidebar-text">Actas Locales</span></a></li>
                     <?php endif; ?>
                     <?php if (\Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
-                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas Foráneas</span></a></li>
+                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas ForÃ¡neas</span></a></li>
                     <?php endif; ?>
                 </ul>
             </li>
@@ -126,7 +126,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     <i class="fa-solid fa-id-card"></i> <span class="sidebar-text">Servicios CURP</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo ($current_module == 'curp') ? 'show' : ''; ?>" id="curpSubmenu">
-                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">Trámites CURP</span></a></li>
+                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">TrÃ¡mites CURP</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -141,7 +141,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
                     <li class="<?php echo ($current_module == 'peticion_rapida' && basename($_SERVER['PHP_SELF']) == 'create.php') ? 'active' : ''; ?>">
                         <a href="<?php echo ($current_module == 'peticion_rapida') ? 'create.php' : $path_prefix . 'peticion_rapida/create.php'; ?>">
-                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">Petición Rápida</span>
+                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">PeticiÃ³n RÃ¡pida</span>
                         </a>
                     </li>
                     <li class="<?php echo ($current_module == 'peticion_rapida' && (basename($_SERVER['PHP_SELF']) == 'index.php' || basename($_SERVER['PHP_SELF']) == 'edit.php')) ? 'active' : ''; ?>">
@@ -166,18 +166,18 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             </li>
             <?php endif; ?>
 
-            <!-- Administración (Admin / Supervisor) -->
+            <!-- AdministraciÃ³n (Admin / Supervisor) -->
             <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
             <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
                 <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
+                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">AdministraciÃ³n</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'show' : ''; ?>" id="adminSubmenu">
                     <?php if (($_SESSION['user_rol'] ?? '') === 'ADMIN'): ?>
                     <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'usuarios.php' : '../../public/usuarios.php'; ?>"><i class="fa-solid fa-user-shield"></i> <span class="sidebar-text">Usuarios y Permisos</span></a></li>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">Auditoría y Errores</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">AuditorÃ­a y Errores</span></a></li>
                     <?php endif; ?>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y Catálogos</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y CatÃ¡logos</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -215,7 +215,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="<?php echo $profile_link; ?>"><i class="fa-solid fa-user fa-sm me-2"></i> Perfil</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar Sesión</a></li>
+                            <li><a class="dropdown-item text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar SesiÃ³n</a></li>
                         </ul>
                     </div>
                 </div>
@@ -224,10 +224,10 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2><i class="fa-solid fa-list-ol text-primary me-2"></i> Turnos de Atención</h2>
+                <h2><i class="fa-solid fa-list-ol text-primary me-2"></i> Turnos de AtenciÃ³n</h2>
                 <div class="d-flex gap-2">
                     <a href="../../public/turnos.php" target="_blank" class="btn btn-outline-secondary">
-                        <i class="fa-solid fa-tv"></i> Ver pantalla pública
+                        <i class="fa-solid fa-tv"></i> Ver pantalla pÃºblica
                     </a>
                     <button class="btn btn-primary" id="btnNuevoTurno" style="background: var(--secondary-color); border: none;">
                         <i class="fa-solid fa-plus"></i> Generar Turno
@@ -248,7 +248,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     <div class="card border-0 shadow-sm text-center py-3">
                         <div class="card-body">
                             <h1 class="display-5 fw-bold text-success" id="statAtendiendo"><?php echo htmlspecialchars($atendiendo['folio'] ?? '---'); ?></h1>
-                            <span class="text-muted"><?php echo htmlspecialchars($atendiendo['modulo_atencion'] ?? 'Nadie en atención'); ?></span>
+                            <span class="text-muted"><?php echo htmlspecialchars($atendiendo['modulo_atencion'] ?? 'Nadie en atenciÃ³n'); ?></span>
                         </div>
                     </div>
                 </div>
@@ -264,7 +264,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white fw-bold py-3">
-                    <i class="fa-solid fa-people-line me-2 text-primary"></i> Cola de atención
+                    <i class="fa-solid fa-people-line me-2 text-primary"></i> Cola de atenciÃ³n
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -272,7 +272,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             <thead>
                                 <tr>
                                     <th>Folio</th>
-                                    <th>Módulo</th>
+                                    <th>MÃ³dulo</th>
                                     <th>Ciudadano</th>
                                     <th>Estado</th>
                                     <th>Ventanilla</th>
@@ -299,7 +299,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label for="modulo_atencion" class="form-label fw-bold">Módulo de Atención</label>
+                    <label for="modulo_atencion" class="form-label fw-bold">MÃ³dulo de AtenciÃ³n</label>
                     <select class="form-select" id="modulo_atencion" required>
                         <option value="">Seleccione...</option>
                         <?php foreach ($modulos as $m): ?>
@@ -310,7 +310,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 <div class="mb-3">
                     <label for="ciudadano_nombre" class="form-label fw-bold">Nombre del Ciudadano (opcional)</label>
                     <input type="text" class="form-control text-uppercase-input" id="ciudadano_nombre" maxlength="250"
-                           placeholder="SOLO SI SE SOLICITA PARA ALGUIEN MÁS">
+                           placeholder="SOLO SI SE SOLICITA PARA ALGUIEN MÃS">
                 </div>
             </div>
             <div class="modal-footer">
@@ -337,7 +337,7 @@ $(document).ready(function() {
 
     const estadoBadge = {
         'EN_ESPERA': ['bg-warning text-dark', 'EN ESPERA'],
-        'ATENDIENDO': ['bg-info text-dark', 'EN ATENCIÓN'],
+        'ATENDIENDO': ['bg-info text-dark', 'EN ATENCIÃ“N'],
         'COMPLETADO': ['bg-success', 'COMPLETADO'],
         'CANCELADO': ['bg-danger', 'CANCELADO']
     };
@@ -352,14 +352,14 @@ $(document).ready(function() {
                 $('#statEspera').text(r.en_espera);
                 $('#statAtendiendo').text(r.atendiendo_folio || '---');
                 $('.statAtendiendoModulo').remove();
-                $('#statAtendiendo').parent().append(`<div class="text-muted small statAtendiendoModulo">${r.atendiendo_modulo || 'Nadie en atención'}</div>`);
+                $('#statAtendiendo').parent().append(`<div class="text-muted small statAtendiendoModulo">${r.atendiendo_modulo || 'Nadie en atenciÃ³n'}</div>`);
                 const tbody = $('#turnosTable tbody');
                 tbody.empty();
                 r.turnos.forEach(function(t) {
                     const badge = estadoBadge[t.estado] || ['bg-secondary', t.estado];
                     let acciones = '';
                     if (t.estado === 'EN_ESPERA') {
-                        acciones += `<button class="btn btn-sm btn-outline-info btn-atender me-1" data-id="${t.id}" title="Iniciar atención"><i class="fa-solid fa-hand-pointer"></i> Atender</button>`;
+                        acciones += `<button class="btn btn-sm btn-outline-info btn-atender me-1" data-id="${t.id}" title="Iniciar atenciÃ³n"><i class="fa-solid fa-hand-pointer"></i> Atender</button>`;
                     }
                     if (t.estado === 'ATENDIENDO') {
                         acciones += `<button class="btn btn-sm btn-outline-success btn-completar me-1" data-id="${t.id}" title="Finalizar"><i class="fa-solid fa-check"></i> Finalizar</button>`;
@@ -373,7 +373,7 @@ $(document).ready(function() {
                         <td>${t.modulo_atencion}</td>
                         <td>${t.ciudadano_nombre || '<span class="text-muted">SIN NOMBRE</span>'}</td>
                         <td><span class="badge ${badge[0]}">${badge[1]}</span></td>
-                        <td>${t.ventanilla || '—'}</td>
+                        <td>${t.ventanilla || 'â€”'}</td>
                         <td>${t.creado_en}</td>
                         <td>${acciones}</td>
                     </tr>`);
@@ -393,11 +393,11 @@ $(document).ready(function() {
     $('#btnGuardarTurno').on('click', function() {
         const modulo = $('#modulo_atencion').val();
         if (!modulo) {
-            Swal.fire({ icon: 'warning', title: 'Seleccione el módulo', confirmButtonColor: 'var(--primary-color)' });
+            Swal.fire({ icon: 'warning', title: 'Seleccione el mÃ³dulo', confirmButtonColor: 'var(--primary-color)' });
             return;
         }
         $.ajax({
-            url: 'crear.php',
+            url: 'create.php',
             type: 'POST',
             data: { modulo_atencion: modulo, ciudadano_nombre: $('#ciudadano_nombre').val(), csrf_token: csrfToken },
             dataType: 'json',
@@ -411,7 +411,7 @@ $(document).ready(function() {
                 }
             },
             error: function() {
-                Swal.fire({ icon: 'error', title: 'Error Crítico', text: 'No se pudo conectar con el servidor.', confirmButtonColor: 'var(--primary-color)' });
+                Swal.fire({ icon: 'error', title: 'Error CrÃ­tico', text: 'No se pudo conectar con el servidor.', confirmButtonColor: 'var(--primary-color)' });
             }
         });
     });
@@ -431,13 +431,13 @@ $(document).ready(function() {
                 }
             },
             error: function() {
-                Swal.fire({ icon: 'error', title: 'Error Crítico', text: 'No se pudo conectar con el servidor.', confirmButtonColor: 'var(--primary-color)' });
+                Swal.fire({ icon: 'error', title: 'Error CrÃ­tico', text: 'No se pudo conectar con el servidor.', confirmButtonColor: 'var(--primary-color)' });
             }
         });
     }
 
     $('#turnosTable').on('click', '.btn-atender', function() {
-        cambiarEstado($(this).data('id'), 'ATENDIENDO', 'Turno en atención.');
+        cambiarEstado($(this).data('id'), 'ATENDIENDO', 'Turno en atenciÃ³n.');
     });
     $('#turnosTable').on('click', '.btn-completar', function() {
         cambiarEstado($(this).data('id'), 'COMPLETADO', 'Turno finalizado.');
@@ -445,10 +445,10 @@ $(document).ready(function() {
     $('#turnosTable').on('click', '.btn-cancelar', function() {
         const id = $(this).data('id');
         Swal.fire({
-            title: '¿Cancelar este turno?',
+            title: 'Â¿Cancelar este turno?',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Sí, cancelar',
+            confirmButtonText: 'SÃ­, cancelar',
             cancelButtonText: 'No',
             confirmButtonColor: 'var(--primary-color)'
         }).then((result) => {

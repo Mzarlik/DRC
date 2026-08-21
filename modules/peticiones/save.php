@@ -20,7 +20,7 @@ if (!\Core\Auth::validateCSRF($csrf_token)) {
 }
 
 $ciudadano_id = !empty($_POST['ciudadano_id']) ? intval($_POST['ciudadano_id']) : null;
-$tipo_peticion = trim($_POST['tipo_peticion'] ?? '');
+$tipo_peticion = mb_strtoupper(trim($_POST['tipo_peticion'] ?? ''), 'UTF-8');
 $descripcion = mb_strtoupper(trim($_POST['descripcion'] ?? ''), 'UTF-8');
 
 if (!$ciudadano_id || !$tipo_peticion || !$descripcion) {

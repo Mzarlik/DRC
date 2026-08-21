@@ -5,6 +5,7 @@
 require_once __DIR__ . '/../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_peticiones_rapidas');
 \Core\Auth::check();
+\Core\Auth::checkExport('Reporte Diario - Peticiones Rápidas');
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../core/Database.php';

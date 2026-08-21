@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $numero_acta = $_POST['numero_acta'] ?? '';
+    $numero_acta = mb_strtoupper(trim($_POST['numero_acta'] ?? ''), 'UTF-8');
     $ciudadano_id = !empty($_POST['ciudadano_id']) ? intval($_POST['ciudadano_id']) : null;
     $fecha_defuncion = $_POST['fecha_defuncion'] ?? '';
     $fecha_registro = $_POST['fecha_registro'] ?? '';

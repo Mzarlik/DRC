@@ -19,8 +19,8 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nueva Petición Rápida - ERP DRC</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Nueva PeticiÃ³n RÃ¡pida - ERP DRC</title>
+    <link href="../../assets/css/fonts.css" rel="stylesheet">
     <link href="../../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/vendor/fontawesome/css/all.min.css">
     <link href="../../assets/vendor/tom-select/css/tom-select.bootstrap5.min.css" rel="stylesheet">
@@ -48,14 +48,14 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             
             <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>">
                 <a href="#catSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo ($current_module == 'ciudadanos') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">Catálogos</span>
+                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">CatÃ¡logos</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo ($current_module == 'ciudadanos') ? 'show' : ''; ?>" id="catSubmenu">
                     <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'ciudadanos') ? 'index.php' : $path_prefix . 'ciudadanos/index.php'; ?>"><i class="fa-solid fa-users"></i> <span class="sidebar-text">Ciudadanos</span></a></li>
                 </ul>
             </li>
 
-            <!-- Registros de Actos (Oficialía) -->
+            <!-- Registros de Actos (OficialÃ­a) -->
             <?php if (\Core\Auth::hasPermission('permiso_registro_nacimientos') || \Core\Auth::hasPermission('permiso_registro_matrimonios') || \Core\Auth::hasPermission('permiso_registro_divorcios') || \Core\Auth::hasPermission('permiso_registro_defunciones') || \Core\Auth::hasPermission('permiso_registro_inscripciones') || \Core\Auth::hasPermission('permiso_registro_reconocimientos')): ?>
             <li class="<?php echo in_array($current_module, ['nacimientos', 'matrimonios', 'divorcios', 'defunciones', 'inscripciones', 'reconocimientos']) ? 'active' : ''; ?>">
                 <a href="#vitalesSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
@@ -84,18 +84,18 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             </li>
             <?php endif; ?>
 
-            <!-- Expedición de Actas -->
+            <!-- ExpediciÃ³n de Actas -->
             <?php if (\Core\Auth::hasPermission('permiso_actas_locales') || \Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
             <li class="<?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'active' : ''; ?>">
                 <a href="#actasSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">Expedición de Actas</span>
+                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">ExpediciÃ³n de Actas</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'show' : ''; ?>" id="actasSubmenu">
                     <?php if (\Core\Auth::hasPermission('permiso_actas_locales')): ?>
                     <li class="<?php echo ($current_module == 'actas_locales') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'actas_locales') ? 'index.php' : $path_prefix . 'actas_locales/index.php'; ?>"><i class="fa-solid fa-file-invoice"></i> <span class="sidebar-text">Actas Locales</span></a></li>
                     <?php endif; ?>
                     <?php if (\Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
-                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas Foráneas</span></a></li>
+                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas ForÃ¡neas</span></a></li>
                     <?php endif; ?>
                 </ul>
             </li>
@@ -125,7 +125,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     <i class="fa-solid fa-id-card"></i> <span class="sidebar-text">Servicios CURP</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo ($current_module == 'curp') ? 'show' : ''; ?>" id="curpSubmenu">
-                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">Trámites CURP</span></a></li>
+                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">TrÃ¡mites CURP</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -140,7 +140,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
                     <li class="<?php echo ($current_module == 'peticion_rapida' && basename($_SERVER['PHP_SELF']) == 'create.php') ? 'active' : ''; ?>">
                         <a href="<?php echo ($current_module == 'peticion_rapida') ? 'create.php' : $path_prefix . 'peticion_rapida/create.php'; ?>">
-                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">Petición Rápida</span>
+                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">PeticiÃ³n RÃ¡pida</span>
                         </a>
                     </li>
                     <li class="<?php echo ($current_module == 'peticion_rapida' && (basename($_SERVER['PHP_SELF']) == 'index.php' || basename($_SERVER['PHP_SELF']) == 'edit.php')) ? 'active' : ''; ?>">
@@ -165,18 +165,18 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             </li>
             <?php endif; ?>
 
-            <!-- Administración (Admin / Supervisor) -->
+            <!-- AdministraciÃ³n (Admin / Supervisor) -->
             <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
             <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
                 <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
+                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">AdministraciÃ³n</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'show' : ''; ?>" id="adminSubmenu">
                     <?php if (($_SESSION['user_rol'] ?? '') === 'ADMIN'): ?>
                     <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'usuarios.php' : '../../public/usuarios.php'; ?>"><i class="fa-solid fa-user-shield"></i> <span class="sidebar-text">Usuarios y Permisos</span></a></li>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">Auditoría y Errores</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">AuditorÃ­a y Errores</span></a></li>
                     <?php endif; ?>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y Catálogos</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y CatÃ¡logos</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -199,7 +199,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0">
                             <li><a class="dropdown-item py-2" href="<?php echo $profile_link; ?>"><i class="fa-solid fa-user fa-sm me-2 text-muted"></i> Perfil</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item py-2 text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar Sesión</a></li>
+                            <li><a class="dropdown-item py-2 text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar SesiÃ³n</a></li>
                         </ul>
                     </div>
                 </div>
@@ -209,8 +209,8 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         <div class="container-fluid px-0">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h2 class="fw-bold mb-1"><i class="fa-solid fa-bolt text-warning me-2"></i> Nueva Petición Rápida</h2>
-                    <p class="text-muted small mb-0">Atención ágil en ventanilla y expedición inmediata</p>
+                    <h2 class="fw-bold mb-1"><i class="fa-solid fa-bolt text-warning me-2"></i> Nueva PeticiÃ³n RÃ¡pida</h2>
+                    <p class="text-muted small mb-0">AtenciÃ³n Ã¡gil en ventanilla y expediciÃ³n inmediata</p>
                 </div>
                 <div class="d-flex gap-2">
                     <a href="index.php" class="btn btn-outline-primary">
@@ -228,11 +228,11 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         <input type="hidden" name="csrf_token" value="<?php echo \Core\Auth::generateCSRF(); ?>">
                         <input type="hidden" name="ciudadano_id" id="ciudadano_id" value="">
 
-                        <!-- Buscador Opcional en Padrón de Ciudadanos -->
+                        <!-- Buscador Opcional en PadrÃ³n de Ciudadanos -->
                         <div class="p-3 mb-4 rounded" style="background-color: var(--table-header-bg); border: 1px solid var(--border-color);">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="fw-bold small text-muted">
-                                    <i class="fa-solid fa-search me-1 text-primary"></i> ¿El ciudadano ya está registrado en el padrón? (Opcional)
+                                    <i class="fa-solid fa-search me-1 text-primary"></i> Â¿El ciudadano ya estÃ¡ registrado en el padrÃ³n? (Opcional)
                                 </span>
                                 <small class="text-muted">Busca por CURP o Nombre para autocompletar</small>
                             </div>
@@ -246,8 +246,8 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                     Nombre Completo del Solicitante <span class="text-danger">*</span>
                                 </label>
                                 <input type="text" class="form-control text-uppercase-input" id="solicitante_nombre" name="solicitante_nombre" 
-                                       placeholder="EJ: JUAN PÉREZ LÓPEZ" maxlength="150" required>
-                                <div class="form-text">Campo libre directo para atención inmediata en ventanilla.</div>
+                                       placeholder="EJ: JUAN PÃ‰REZ LÃ“PEZ" maxlength="150" required>
+                                <div class="form-text">Campo libre directo para atenciÃ³n inmediata en ventanilla.</div>
                             </div>
                             <div class="col-md-3">
                                 <label for="solicitante_curp" class="form-label fw-bold">CURP (Opcional)</label>
@@ -256,24 +256,24 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                            placeholder="18 caracteres (RENAPO)">
                                     <span class="input-group-text d-none" id="curpFeedbackIcon"><i class="fa-solid fa-check text-success"></i></span>
                                 </div>
-                                <div class="form-text" id="curpHelp">Dejar vacío si no cuenta con CURP.</div>
+                                <div class="form-text" id="curpHelp">Dejar vacÃ­o si no cuenta con CURP.</div>
                             </div>
                             <div class="col-md-3">
-                                <label for="solicitante_telefono" class="form-label fw-bold">Teléfono de Contacto</label>
+                                <label for="solicitante_telefono" class="form-label fw-bold">TelÃ©fono de Contacto</label>
                                 <input type="tel" class="form-control" id="solicitante_telefono" name="solicitante_telefono" maxlength="10"
-                                       placeholder="10 dígitos (Ej: 8341234567)">
+                                       placeholder="10 dÃ­gitos (Ej: 8341234567)">
                                 <div class="form-text">Opcional para avisos de entrega.</div>
                             </div>
                         </div>
 
-                        <!-- Tipo de Petición y Detalle -->
+                        <!-- Tipo de PeticiÃ³n y Detalle -->
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label for="tipo_peticion" class="form-label fw-bold">
-                                    Tipo de Petición / Trámite <span class="text-danger">*</span>
+                                    Tipo de PeticiÃ³n / TrÃ¡mite <span class="text-danger">*</span>
                                 </label>
                                 <select class="form-select" id="tipo_peticion" name="tipo_peticion" required>
-                                    <option value="">Seleccione el tipo de trámite oficial...</option>
+                                    <option value="">Seleccione el tipo de trÃ¡mite oficial...</option>
                                     <?php foreach ($opciones as $op): ?>
                                     <option value="<?php echo htmlspecialchars($op['clave']); ?>">
                                         <?php echo htmlspecialchars($op['valor']); ?>
@@ -283,17 +283,17 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             </div>
                             <div class="col-md-6">
                                 <label for="detalle" class="form-label fw-bold">
-                                    Detalle / Referencia del Trámite <span class="text-danger">*</span>
+                                    Detalle / Referencia del TrÃ¡mite <span class="text-danger">*</span>
                                 </label>
                                 <input type="text" class="form-control text-uppercase-input" id="detalle" name="detalle" maxlength="255"
-                                       placeholder="EJ: ACTA DE NACIMIENTO AÑO 1990 LIBRO 2 ACTA 45" required>
+                                       placeholder="EJ: ACTA DE NACIMIENTO AÃ‘O 1990 LIBRO 2 ACTA 45" required>
                             </div>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2 mt-4">
                             <a href="index.php" class="btn btn-secondary px-3">Cancelar</a>
                             <button type="submit" class="btn btn-primary px-4 py-2" id="btnSubmit">
-                                <i class="fa-solid fa-paper-plane me-1"></i> Generar Petición
+                                <i class="fa-solid fa-paper-plane me-1"></i> Generar PeticiÃ³n
                             </button>
                         </div>
                     </form>
@@ -313,17 +313,17 @@ $(document).ready(function() {
     // Regex oficial de CURP mexicana (18 caracteres)
     const regexCurp = /^[A-Z]{4}[0-9]{6}[HM][A-Z]{2}[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9][0-9]$/;
 
-    // Forzar mayúsculas en campos de texto
+    // Forzar mayÃºsculas en campos de texto
     $(document).on('input', '.text-uppercase-input', function() {
         $(this).val($(this).val().toUpperCase());
     });
 
-    // Validar solo números en teléfono
+    // Validar solo nÃºmeros en telÃ©fono
     $('#solicitante_telefono').on('input', function() {
         $(this).val($(this).val().replace(/[^0-9]/g, '').slice(0, 10));
     });
 
-    // Validación interactiva de CURP en tiempo real
+    // ValidaciÃ³n interactiva de CURP en tiempo real
     $('#solicitante_curp').on('input', function() {
         const curp = $(this).val().trim().toUpperCase();
         const $icon = $('#curpFeedbackIcon');
@@ -332,19 +332,19 @@ $(document).ready(function() {
         if (curp.length === 0) {
             $(this).removeClass('is-valid-curp is-invalid-curp');
             $icon.addClass('d-none');
-            $help.text('Dejar vacío si no cuenta con CURP.').removeClass('text-danger text-success');
+            $help.text('Dejar vacÃ­o si no cuenta con CURP.').removeClass('text-danger text-success');
         } else if (curp.length === 18 && regexCurp.test(curp)) {
             $(this).removeClass('is-invalid-curp').addClass('is-valid-curp');
             $icon.removeClass('d-none').html('<i class="fa-solid fa-check text-success"></i>');
-            $help.text('CURP válida según formato RENAPO.').removeClass('text-danger').addClass('text-success fw-bold');
+            $help.text('CURP vÃ¡lida segÃºn formato RENAPO.').removeClass('text-danger').addClass('text-success fw-bold');
         } else {
             $(this).removeClass('is-valid-curp').addClass('is-invalid-curp');
             $icon.removeClass('d-none').html('<i class="fa-solid fa-triangle-exclamation text-danger"></i>');
-            $help.text(`Formato incompleto o no válido (${curp.length}/18 caracteres).`).removeClass('text-success').addClass('text-danger fw-bold');
+            $help.text(`Formato incompleto o no vÃ¡lido (${curp.length}/18 caracteres).`).removeClass('text-success').addClass('text-danger fw-bold');
         }
     });
 
-    // Inicializar TomSelect para búsqueda opcional en el padrón
+    // Inicializar TomSelect para bÃºsqueda opcional en el padrÃ³n
     new TomSelect("#buscador_ciudadano", {
         valueField: 'id',
         labelField: 'text',
@@ -380,7 +380,7 @@ $(document).ready(function() {
         allowEmptyOption: true
     });
 
-    // Validación y envío del formulario
+    // ValidaciÃ³n y envÃ­o del formulario
     $('#formPv').on('submit', function(e) {
         e.preventDefault();
 
@@ -392,45 +392,45 @@ $(document).ready(function() {
 
         // 1. Validar Nombre
         if (nombre.length < 3) {
-            Swal.fire({ icon: 'warning', title: 'Nombre requerido', text: 'Escriba el nombre completo del solicitante (mínimo 3 letras).', confirmButtonColor: 'var(--secondary-color)' });
+            Swal.fire({ icon: 'warning', title: 'Nombre requerido', text: 'Escriba el nombre completo del solicitante (mÃ­nimo 3 letras).', confirmButtonColor: 'var(--secondary-color)' });
             $('#solicitante_nombre').focus();
             return;
         }
 
-        // 2. Validar CURP si se proporcionó
+        // 2. Validar CURP si se proporcionÃ³
         if (curp.length > 0 && (!regexCurp.test(curp) || curp.length !== 18)) {
             Swal.fire({
                 icon: 'warning',
-                title: 'CURP no válida',
-                html: `La CURP ingresada <strong>${curp}</strong> no cumple con el estándar de 18 caracteres de RENAPO.<br><br><small class="text-muted">Corrija la CURP o bórrela si el ciudadano no cuenta con ella.</small>`,
+                title: 'CURP no vÃ¡lida',
+                html: `La CURP ingresada <strong>${curp}</strong> no cumple con el estÃ¡ndar de 18 caracteres de RENAPO.<br><br><small class="text-muted">Corrija la CURP o bÃ³rrela si el ciudadano no cuenta con ella.</small>`,
                 confirmButtonColor: 'var(--secondary-color)'
             });
             $('#solicitante_curp').focus();
             return;
         }
 
-        // 3. Validar Teléfono si se proporcionó
+        // 3. Validar TelÃ©fono si se proporcionÃ³
         if (tel.length > 0 && tel.length !== 10) {
-            Swal.fire({ icon: 'warning', title: 'Teléfono no válido', text: 'El teléfono debe contener exactamente 10 dígitos numéricos.', confirmButtonColor: 'var(--secondary-color)' });
+            Swal.fire({ icon: 'warning', title: 'TelÃ©fono no vÃ¡lido', text: 'El telÃ©fono debe contener exactamente 10 dÃ­gitos numÃ©ricos.', confirmButtonColor: 'var(--secondary-color)' });
             $('#solicitante_telefono').focus();
             return;
         }
 
-        // 4. Validar Tipo de Trámite
+        // 4. Validar Tipo de TrÃ¡mite
         if (!tipo) {
-            Swal.fire({ icon: 'warning', title: 'Seleccione trámite', text: 'Debe elegir un tipo de petición o trámite de la lista.', confirmButtonColor: 'var(--secondary-color)' });
+            Swal.fire({ icon: 'warning', title: 'Seleccione trÃ¡mite', text: 'Debe elegir un tipo de peticiÃ³n o trÃ¡mite de la lista.', confirmButtonColor: 'var(--secondary-color)' });
             $('#tipo_peticion').focus();
             return;
         }
 
         // 5. Validar Detalle
         if (detalle.length < 4) {
-            Swal.fire({ icon: 'warning', title: 'Detalle requerido', text: 'Especifique la referencia o detalle del trámite solicitado (mínimo 4 caracteres).', confirmButtonColor: 'var(--secondary-color)' });
+            Swal.fire({ icon: 'warning', title: 'Detalle requerido', text: 'Especifique la referencia o detalle del trÃ¡mite solicitado (mÃ­nimo 4 caracteres).', confirmButtonColor: 'var(--secondary-color)' });
             $('#detalle').focus();
             return;
         }
 
-        // Deshabilitar botón durante envío
+        // Deshabilitar botÃ³n durante envÃ­o
         const $btn = $('#btnSubmit');
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> Registrando...');
 
@@ -440,11 +440,11 @@ $(document).ready(function() {
             data: $(this).serialize(),
             dataType: 'json',
             success: function(response) {
-                $btn.prop('disabled', false).html('<i class="fa-solid fa-paper-plane me-1"></i> Generar Petición');
+                $btn.prop('disabled', false).html('<i class="fa-solid fa-paper-plane me-1"></i> Generar PeticiÃ³n');
                 if (response.status === 'success') {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Petición Registrada',
+                        title: 'PeticiÃ³n Registrada',
                         html: `Folio asignado: <strong class="text-primary fs-4">${response.folio}</strong>`,
                         confirmButtonText: '<i class="fa-solid fa-list me-1"></i> Ir al Listado',
                         confirmButtonColor: 'var(--secondary-color)',
@@ -462,8 +462,8 @@ $(document).ready(function() {
                 }
             },
             error: function() {
-                $btn.prop('disabled', false).html('<i class="fa-solid fa-paper-plane me-1"></i> Generar Petición');
-                Swal.fire({ icon: 'error', title: 'Error de Conexión', text: 'No se pudo conectar con el servidor.', confirmButtonColor: 'var(--primary-color)' });
+                $btn.prop('disabled', false).html('<i class="fa-solid fa-paper-plane me-1"></i> Generar PeticiÃ³n');
+                Swal.fire({ icon: 'error', title: 'Error de ConexiÃ³n', text: 'No se pudo conectar con el servidor.', confirmButtonColor: 'var(--primary-color)' });
             }
         });
     });

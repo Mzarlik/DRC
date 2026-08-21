@@ -23,7 +23,7 @@ class GestorNacimientos {
      * @return array Resultado del proceso (status y mensaje)
      */
     public static function registrarNacimiento($numero_acta, $ciudadano_id, $padre_id, $madre_id, $lugar_nacimiento, $fecha_registro) {
-        $numero_acta = trim($numero_acta);
+        $numero_acta = mb_strtoupper(trim($numero_acta), 'UTF-8');
         $fecha_registro = trim($fecha_registro);
         $lugar_nacimiento = mb_strtoupper(trim($lugar_nacimiento), 'UTF-8');
 

@@ -47,26 +47,60 @@ try {
         exit;
     }
 
-    $stmtUpdate = $pdo->prepare("UPDATE peticiones_ventanilla SET 
-        solicitante_nombre = ?, 
-        solicitante_curp = ?, 
-        solicitante_telefono = ?, 
-        tipo_peticion = ?, 
-        detalle = ?, 
-        estatus = ?, 
-        usuario_modifico = ? 
-        WHERE id = ?");
+    // Detectar si ya existe la columna de blind index (migración opcional)
+    $hasBindex = false;
+    try {
+        $pdo->query("SELECT solicitante_curp_bindex FROM peticiones_ventanilla LIMIT 0");
+        $hasBindex = true;
+    } catch (\Throwable $e) {
+        $hasBindex = false;
+    }
 
-    $stmtUpdate->execute([
-        $data['solicitante_nombre'],
-        $data['solicitante_curp'],
-        $data['solicitante_telefono'],
-        $data['tipo_peticion'],
-        $data['detalle'],
-        $data['estatus'],
-        $_SESSION['user_id'] ?? null,
-        $id
-    ]);
+    if ($hasBindex) {
+        $stmtUpdate = $pdo->prepare("UPDATE peticiones_ventanilla SET
+            solicitante_nombre = ?,
+            solicitante_curp = ?,
+            solicitante_curp_bindex = ?,
+            solicitante_telefono = ?,
+            tipo_peticion = ?,
+            detalle = ?,
+            estatus = ?,
+            usuario_modifico = ?
+            WHERE id = ?");
+
+        $stmtUpdate->execute([
+            $data['solicitante_nombre'],
+            $data['solicitante_curp'],
+            $data['solicitante_curp_bindex'],
+            $data['solicitante_telefono'],
+            $data['tipo_peticion'],
+            $data['detalle'],
+            $data['estatus'],
+            $_SESSION['user_id'] ?? null,
+            $id
+        ]);
+    } else {
+        $stmtUpdate = $pdo->prepare("UPDATE peticiones_ventanilla SET
+            solicitante_nombre = ?,
+            solicitante_curp = ?,
+            solicitante_telefono = ?,
+            tipo_peticion = ?,
+            detalle = ?,
+            estatus = ?,
+            usuario_modifico = ?
+            WHERE id = ?");
+
+        $stmtUpdate->execute([
+            $data['solicitante_nombre'],
+            $data['solicitante_curp'],
+            $data['solicitante_telefono'],
+            $data['tipo_peticion'],
+            $data['detalle'],
+            $data['estatus'],
+            $_SESSION['user_id'] ?? null,
+            $id
+        ]);
+    }
 
     \Core\Auditoria::logAccion('Petición Rápida', 'EDITAR', "Petición actualizada. Folio: $folio, Estatus: {$data['estatus']}, Solicitante: {$data['solicitante_nombre']}");
     echo json_encode(['status' => 'success', 'message' => "Petición $folio actualizada correctamente."]);

@@ -15,9 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $numero_acta = trim($_POST['numero_acta'] ?? '');
+    $numero_acta = mb_strtoupper(trim($_POST['numero_acta'] ?? ''), 'UTF-8');
     $estado_origen = mb_strtoupper(trim($_POST['estado_origen'] ?? ''), 'UTF-8');
-    $tipo_acta = trim($_POST['tipo_acta'] ?? '');
+    $tipo_acta = mb_strtoupper(trim($_POST['tipo_acta'] ?? ''), 'UTF-8');
     $ciudadano_id = !empty($_POST['ciudadano_id']) ? intval($_POST['ciudadano_id']) : null;
     $fecha_recepcion = trim($_POST['fecha_recepcion'] ?? '');
     $observaciones = mb_strtoupper(trim($_POST['observaciones'] ?? ''), 'UTF-8');

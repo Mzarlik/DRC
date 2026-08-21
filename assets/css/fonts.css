@@ -1,0 +1,12 @@
+/* ============================================================
+   Fuente Inter (subconjunto latin, fuente variable 300-700)
+   Servida localmente para operar sin Internet (airgapped).
+   Reemplaza a fonts.googleapis.com — ver docs/analisis_completo #10
+   ============================================================ */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('../vendor/fonts/inter-latin-var.woff2') format('woff2');
+}

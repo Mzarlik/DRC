@@ -3,6 +3,11 @@ require_once '../../core/Auth.php';
 \Core\Auth::check();
 
 header('Content-Type: application/json; charset=utf-8');
+if (!\Core\Auth::esCoordinador()) {
+    http_response_code(403);
+    echo json_encode(['status' => 'error', 'message' => 'Solo coordinadores o administradores pueden reactivar ciudadanos.']);
+    exit;
+}
 require_once '../../core/Database.php';
 use Core\Database;
 

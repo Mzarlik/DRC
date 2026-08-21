@@ -73,12 +73,12 @@ class Cache {
 
         if (self::$type === 'redis') {
             $val = self::$client->get($safeKey);
-            return $val !== false ? unserialize($val) : null;
+            return $val !== false ? unserialize($val, ['allowed_classes' => false]) : null;
         }
 
         if (self::$type === 'memcached') {
             $val = self::$client->get($safeKey);
-            return self::$client->getResultCode() === \Memcached::RES_SUCCESS ? unserialize($val) : null;
+            return self::$client->getResultCode() === \Memcached::RES_SUCCESS ? unserialize($val, ['allowed_classes' => false]) : null;
         }
 
         // Caché en archivo
@@ -86,7 +86,7 @@ class Cache {
         if (file_exists($file)) {
             $data = @file_get_contents($file);
             if ($data !== false) {
-                $payload = unserialize($data);
+                $payload = unserialize($data, ['allowed_classes' => false]);
                 if (is_array($payload) && isset($payload['expire']) && isset($payload['data'])) {
                     if ($payload['expire'] === 0 || $payload['expire'] > time()) {
                         return $payload['data'];

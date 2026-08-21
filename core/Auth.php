@@ -114,16 +114,22 @@ class Auth {
             <head>
                 <meta charset='UTF-8'>
                 <title>Acceso Denegado - ERP DRC</title>
-                <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css' rel='stylesheet'>
+                <style>
+                    body { margin: 0; background: #f8f9fa; font-family: system-ui, 'Segoe UI', Roboto, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+                    .card-403 { background: #fff; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,.08); padding: 2rem; max-width: 400px; text-align: center; }
+                    .card-403 .code { color: #dc3545; font-size: 3rem; font-weight: 700; margin: 0 0 .5rem; }
+                    .card-403 h1 { font-size: 1.25rem; margin: 0 0 .75rem; color: #212529; }
+                    .card-403 p { color: #6c757d; margin: 0 0 1.5rem; }
+                    .card-403 a { display: block; background: #6d1a36; color: #fff; text-decoration: none; padding: .65rem; border-radius: 6px; font-weight: 600; }
+                    .card-403 a:hover { filter: brightness(1.1); }
+                </style>
             </head>
-            <body class='bg-light d-flex align-items-center justify-content-center' style='height: 100vh;'>
-                <div class='card text-center shadow-sm p-4' style='max-width: 400px;'>
-                    <div class='card-body'>
-                        <h1 class='text-danger mb-3'><i class='fa-solid fa-triangle-exclamation'></i> 403</h1>
-                        <h4 class='card-title mb-3 fw-bold'>Acceso Denegado</h4>
-                        <p class='card-text text-muted mb-4'>No tienes permisos suficientes para acceder a este módulo. Contacta al administrador si crees que esto es un error.</p>
-                        <a href='/DRC/public/index.php' class='btn btn-primary w-100'>Volver al Dashboard</a>
-                    </div>
+            <body>
+                <div class='card-403'>
+                    <p class='code'>&#9888; 403</p>
+                    <h1>Acceso Denegado</h1>
+                    <p>No tienes permisos suficientes para acceder a este m&oacute;dulo. Contacta al administrador si crees que esto es un error.</p>
+                    <a href='/DRC/public/index.php'>Volver al Dashboard</a>
                 </div>
             </body>
             </html>";

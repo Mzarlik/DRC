@@ -25,6 +25,12 @@ if ($id > 0) {
     }
 }
 
+// Descifrar CURP almacenada (retrocompatible con registros en texto plano)
+if ($ticket && !empty($ticket['solicitante_curp'])) {
+    $curpDescifrada = \Core\Encryption::decrypt($ticket['solicitante_curp']);
+    $ticket['solicitante_curp'] = preg_match('/^[A-Z]{18}$/', $curpDescifrada) ? $curpDescifrada : $ticket['solicitante_curp'];
+}
+
 $tipoRaw = $ticket['tipo_peticion'] ?? '';
 $tramiteInfo = \Core\Services\PeticionRapidaService::TRAMITES[$tipoRaw] ?? null;
 $tipoLabel = $tramiteInfo ? "[{$tramiteInfo['codigo']}] {$tramiteInfo['nombre']}" : ($tipoRaw ?: 'PETICIÓN GENERAL');

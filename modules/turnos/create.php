@@ -3,7 +3,7 @@ require_once '../../core/Auth.php';
 \Core\Auth::checkPermission('permiso_turnos');
 \Core\Auth::check();
 
-// modules/turnos/crear.php
+// modules/turnos/create.php
 header('Content-Type: application/json; charset=utf-8');
 require_once '../../core/Database.php';
 use Core\Database;

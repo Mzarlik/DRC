@@ -1,6 +1,6 @@
 <?php
-// public/turnos.php — pantalla pública de turnos (sin autenticación, solo lectura).
-// Muestra el turno en atención, los próximos y la fila de espera. Auto-refresca.
+// public/turnos.php â€” pantalla pÃºblica de turnos (sin autenticaciÃ³n, solo lectura).
+// Muestra el turno en atenciÃ³n, los prÃ³ximos y la fila de espera. Auto-refresca.
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -8,8 +8,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="refresh" content="60">
-    <title>Turnos de Atención - Registro Civil</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>Turnos de AtenciÃ³n - Registro Civil</title>
+    <link href="../assets/css/fonts.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #0f1f38; color: #fff; min-height: 100vh; display: flex; flex-direction: column; }
@@ -35,12 +35,12 @@
 </head>
 <body>
     <div class="header">
-        <h1>DIRECCIÓN DE REGISTRO CIVIL</h1>
+        <h1>DIRECCIÃ“N DE REGISTRO CIVIL</h1>
         <p>Sistema de turnos de ventanilla</p>
     </div>
 
     <div class="main">
-        <div class="ahora-label">Ahora en atención</div>
+        <div class="ahora-label">Ahora en atenciÃ³n</div>
         <div id="folioAhora" class="empty">---</div>
         <div id="moduloAhora">&nbsp;</div>
         <div id="ventanillaAhora">&nbsp;</div>
@@ -49,7 +49,7 @@
 
     <div class="bottom">
         <div class="panel">
-            <h2>Próximos turnos</h2>
+            <h2>PrÃ³ximos turnos</h2>
             <div id="proximos"><p class="empty" style="font-size:1rem;">Sin turnos en espera</p></div>
         </div>
         <div class="panel" style="text-align:center;">
@@ -57,8 +57,8 @@
             <div class="waiting-count" id="enEspera">0</div>
         </div>
         <div class="panel">
-            <h2>Últimos llamados</h2>
-            <div id="ultimos"><p class="empty ultimo" style="font-size:1rem;">Aún no hay llamados</p></div>
+            <h2>Ãšltimos llamados</h2>
+            <div id="ultimos"><p class="empty ultimo" style="font-size:1rem;">AÃºn no hay llamados</p></div>
         </div>
     </div>
 
@@ -117,7 +117,7 @@
                         ult.appendChild(div);
                     });
                 } else {
-                    ult.innerHTML = '<p class="empty ultimo" style="font-size:1rem;">Aún no hay llamados</p>';
+                    ult.innerHTML = '<p class="empty ultimo" style="font-size:1rem;">AÃºn no hay llamados</p>';
                 }
             })
             .catch(() => {});

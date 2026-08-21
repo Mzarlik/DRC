@@ -21,8 +21,8 @@ $notif_api = 'api/notifications.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Catálogos y Conceptos - ERP DRC</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>GestiÃ³n de CatÃ¡logos y Conceptos - ERP DRC</title>
+    <link href="../assets/css/fonts.css" rel="stylesheet">
     <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/vendor/fontawesome/css/all.min.css">
     <link href="../assets/vendor/datatables/css/dataTables.bootstrap5.min.css" rel="stylesheet">
@@ -47,14 +47,14 @@ $notif_api = 'api/notifications.php';
             
             <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>">
                 <a href="#catSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo ($current_module == 'ciudadanos') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">Catálogos</span>
+                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">CatÃ¡logos</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo ($current_module == 'ciudadanos') ? 'show' : ''; ?>" id="catSubmenu">
                     <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'ciudadanos') ? 'index.php' : $path_prefix . 'ciudadanos/index.php'; ?>"><i class="fa-solid fa-users"></i> <span class="sidebar-text">Ciudadanos</span></a></li>
                 </ul>
             </li>
 
-            <!-- Registros de Actos (Oficialía) -->
+            <!-- Registros de Actos (OficialÃ­a) -->
             <?php if (\Core\Auth::hasPermission('permiso_registro_nacimientos') || \Core\Auth::hasPermission('permiso_registro_matrimonios') || \Core\Auth::hasPermission('permiso_registro_divorcios') || \Core\Auth::hasPermission('permiso_registro_defunciones') || \Core\Auth::hasPermission('permiso_registro_inscripciones') || \Core\Auth::hasPermission('permiso_registro_reconocimientos')): ?>
             <li class="<?php echo in_array($current_module, ['nacimientos', 'matrimonios', 'divorcios', 'defunciones', 'inscripciones', 'reconocimientos']) ? 'active' : ''; ?>">
                 <a href="#vitalesSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
@@ -83,18 +83,18 @@ $notif_api = 'api/notifications.php';
             </li>
             <?php endif; ?>
 
-            <!-- Expedición de Actas -->
+            <!-- ExpediciÃ³n de Actas -->
             <?php if (\Core\Auth::hasPermission('permiso_actas_locales') || \Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
             <li class="<?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'active' : ''; ?>">
                 <a href="#actasSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">Expedición de Actas</span>
+                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">ExpediciÃ³n de Actas</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'show' : ''; ?>" id="actasSubmenu">
                     <?php if (\Core\Auth::hasPermission('permiso_actas_locales')): ?>
                     <li class="<?php echo ($current_module == 'actas_locales') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'actas_locales') ? 'index.php' : $path_prefix . 'actas_locales/index.php'; ?>"><i class="fa-solid fa-file-invoice"></i> <span class="sidebar-text">Actas Locales</span></a></li>
                     <?php endif; ?>
                     <?php if (\Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
-                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas Foráneas</span></a></li>
+                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas ForÃ¡neas</span></a></li>
                     <?php endif; ?>
                 </ul>
             </li>
@@ -124,7 +124,7 @@ $notif_api = 'api/notifications.php';
                     <i class="fa-solid fa-id-card"></i> <span class="sidebar-text">Servicios CURP</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo ($current_module == 'curp') ? 'show' : ''; ?>" id="curpSubmenu">
-                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">Trámites CURP</span></a></li>
+                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">TrÃ¡mites CURP</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -139,7 +139,7 @@ $notif_api = 'api/notifications.php';
                     <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
                     <li class="<?php echo ($current_module == 'peticion_rapida' && basename($_SERVER['PHP_SELF']) == 'create.php') ? 'active' : ''; ?>">
                         <a href="<?php echo ($current_module == 'peticion_rapida') ? 'create.php' : $path_prefix . 'peticion_rapida/create.php'; ?>">
-                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">Petición Rápida</span>
+                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">PeticiÃ³n RÃ¡pida</span>
                         </a>
                     </li>
                     <li class="<?php echo ($current_module == 'peticion_rapida' && (basename($_SERVER['PHP_SELF']) == 'index.php' || basename($_SERVER['PHP_SELF']) == 'edit.php')) ? 'active' : ''; ?>">
@@ -164,18 +164,18 @@ $notif_api = 'api/notifications.php';
             </li>
             <?php endif; ?>
 
-            <!-- Administración (Admin / Supervisor) -->
+            <!-- AdministraciÃ³n (Admin / Supervisor) -->
             <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
             <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
                 <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
+                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">AdministraciÃ³n</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'show' : ''; ?>" id="adminSubmenu">
                     <?php if (($_SESSION['user_rol'] ?? '') === 'ADMIN'): ?>
                     <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'usuarios.php' : '../../public/usuarios.php'; ?>"><i class="fa-solid fa-user-shield"></i> <span class="sidebar-text">Usuarios y Permisos</span></a></li>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">Auditoría y Errores</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">AuditorÃ­a y Errores</span></a></li>
                     <?php endif; ?>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y Catálogos</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y CatÃ¡logos</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -219,7 +219,7 @@ $notif_api = 'api/notifications.php';
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="<?php echo $profile_link; ?>"><i class="fa-solid fa-user fa-sm me-2"></i> Perfil</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar Sesión</a></li>
+                            <li><a class="dropdown-item text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar SesiÃ³n</a></li>
                         </ul>
                     </div>
                 </div>
@@ -228,24 +228,24 @@ $notif_api = 'api/notifications.php';
 
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="h3 mb-0 text-gray-800">Conceptos y Catálogos del Sistema</h2>
+                <h2 class="h3 mb-0 text-gray-800">Conceptos y CatÃ¡logos del Sistema</h2>
                 <button class="btn btn-primary" id="btnNuevoConcepto" style="background: var(--primary-color); border: none;">
                     <i class="fa-solid fa-plus me-2"></i> Nuevo Concepto
                 </button>
             </div>
 
-            <!-- Selector de Catálogo -->
+            <!-- Selector de CatÃ¡logo -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-md-6">
-                            <label for="selectCatalogo" class="form-label fw-bold">Seleccionar Catálogo a Administrar</label>
+                            <label for="selectCatalogo" class="form-label fw-bold">Seleccionar CatÃ¡logo a Administrar</label>
                             <select class="form-select" id="selectCatalogo">
                                 <option value="tipo_constancia" selected>Tipos de Constancias de Inexistencia</option>
                             </select>
                         </div>
                         <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                            <span class="text-muted small">Agrega nuevos conceptos para desplegarlos dinámicamente en los formularios correspondientes.</span>
+                            <span class="text-muted small">Agrega nuevos conceptos para desplegarlos dinÃ¡micamente en los formularios correspondientes.</span>
                         </div>
                     </div>
                 </div>
@@ -260,7 +260,7 @@ $notif_api = 'api/notifications.php';
                                 <tr>
                                     <th>ID</th>
                                     <th>Clave de Registro</th>
-                                    <th>Concepto / Descripción</th>
+                                    <th>Concepto / DescripciÃ³n</th>
                                     <th>Estado</th>
                                     <th>Orden</th>
                                     <th>Acciones</th>
@@ -290,19 +290,19 @@ $notif_api = 'api/notifications.php';
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="opcClave" class="form-label fw-bold">Clave del Concepto (Mayúsculas sin espacios)</label>
+                        <label for="opcClave" class="form-label fw-bold">Clave del Concepto (MayÃºsculas sin espacios)</label>
                         <input type="text" class="form-control text-uppercase" id="opcClave" name="clave" required placeholder="Ej. INEXISTENCIA_DIVORCIO">
-                        <div class="form-text">Se reemplazan los espacios por guiones bajos (_). Solo letras y números.</div>
+                        <div class="form-text">Se reemplazan los espacios por guiones bajos (_). Solo letras y nÃºmeros.</div>
                     </div>
                     <div class="mb-3">
-                        <label for="opcValor" class="form-label fw-bold">Nombre / Descripción Comercial</label>
+                        <label for="opcValor" class="form-label fw-bold">Nombre / DescripciÃ³n Comercial</label>
                         <input type="text" class="form-control" id="opcValor" name="valor" required placeholder="Ej. CONSTANCIA DE INEXISTENCIA DE DIVORCIO">
-                        <div class="form-text">Texto exacto que el usuario visualizará en la lista desplegable.</div>
+                        <div class="form-text">Texto exacto que el usuario visualizarÃ¡ en la lista desplegable.</div>
                     </div>
                     <div class="mb-3">
-                        <label for="opcOrden" class="form-label fw-bold">Orden de Visualización</label>
+                        <label for="opcOrden" class="form-label fw-bold">Orden de VisualizaciÃ³n</label>
                         <input type="number" class="form-control" id="opcOrden" name="orden" value="0" min="0">
-                        <div class="form-text">Define la prioridad en la lista. Cero (0) se ordenará alfabéticamente.</div>
+                        <div class="form-text">Define la prioridad en la lista. Cero (0) se ordenarÃ¡ alfabÃ©ticamente.</div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -377,7 +377,7 @@ $(document).ready(function() {
         ]
     });
 
-    // Cambiar de catálogo
+    // Cambiar de catÃ¡logo
     $('#selectCatalogo').on('change', function() {
         currentCatalog = $(this).val();
         $('#modalCatalogo').val(currentCatalog);
@@ -407,7 +407,7 @@ $(document).ready(function() {
                 if (response.status === 'success') {
                     $('#conceptoModal').modal('hide');
                     opcionesTable.ajax.reload();
-                    window.showToast('success', 'Éxito', response.message);
+                    window.showToast('success', 'Ã‰xito', response.message);
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -421,7 +421,7 @@ $(document).ready(function() {
                 $submitBtn.prop('disabled', false).text('Guardar Concepto');
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error Crítico',
+                    title: 'Error CrÃ­tico',
                     text: 'No se pudo conectar con el servidor para registrar el concepto.',
                     confirmButtonColor: 'var(--primary-color)'
                 });
@@ -436,13 +436,13 @@ $(document).ready(function() {
         const actionText = activo == 1 ? 'activar' : 'desactivar';
         
         Swal.fire({
-            title: '¿Confirmar acción?',
-            text: `¿Estás seguro de que deseas ${actionText} esta opción del catálogo?`,
+            title: 'Â¿Confirmar acciÃ³n?',
+            text: `Â¿EstÃ¡s seguro de que deseas ${actionText} esta opciÃ³n del catÃ¡logo?`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: 'var(--primary-color)',
             cancelButtonColor: '#aaa',
-            confirmButtonText: 'Sí, continuar',
+            confirmButtonText: 'SÃ­, continuar',
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
@@ -472,7 +472,7 @@ $(document).ready(function() {
                     error: function() {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error Crítico',
+                            title: 'Error CrÃ­tico',
                             text: 'No se pudo conectar con el servidor.',
                             confirmButtonColor: 'var(--primary-color)'
                         });

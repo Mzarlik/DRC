@@ -1114,8 +1114,8 @@ function initQuickCitizenModal() {
                                     <label class="form-label fw-bold small">Sexo <span class="text-danger">*</span></label>
                                     <select class="form-select" id="quick_sexo" name="sexo" required>
                                         <option value="">Seleccione...</option>
-                                        <option value="H">HOMBRE (H)</option>
-                                        <option value="M">MUJER (M)</option>
+                                        <option value="M">MASCULINO (M)</option>
+                                        <option value="F">FEMENINO (F)</option>
                                         <option value="X">NO BINARIO / OTRO (X)</option>
                                     </select>
                                 </div>

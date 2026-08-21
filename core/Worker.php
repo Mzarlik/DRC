@@ -1288,8 +1288,9 @@ function generatePeticionesVentanillaReport($pdo, $payload, $jobId, $exportDir) 
             WHERE pv.deleted_at IS NULL";
     $params = [];
     if (!empty($search)) {
-        $sql .= " AND (pv.folio LIKE ? OR pv.solicitante_nombre LIKE ? OR pv.solicitante_curp LIKE ? OR pv.detalle LIKE ?)";
-        $params = array_fill(0, 4, '%' . $search . '%');
+        // La CURP se almacena cifrada: la búsqueda parcial solo aplica a campos de texto libre
+        $sql .= " AND (pv.folio LIKE ? OR pv.solicitante_nombre LIKE ? OR pv.detalle LIKE ?)";
+        $params = array_fill(0, 3, '%' . $search . '%');
     }
     $sql .= " ORDER BY pv.id DESC";
 
@@ -1314,7 +1315,12 @@ function generatePeticionesVentanillaReport($pdo, $payload, $jobId, $exportDir) 
             ? "[{$tramites[$row['tipo_peticion']]['codigo']}] {$tramites[$row['tipo_peticion']]['nombre']}"
             : $row['tipo_peticion'];
 
-        $curpContacto = $row['solicitante_curp'] ?: '';
+        // Descifrar CURP almacenada (retrocompatible con registros en texto plano)
+        $curpPlano = !empty($row['solicitante_curp']) ? \Core\Encryption::decrypt($row['solicitante_curp']) : '';
+        if ($curpPlano === $row['solicitante_curp'] && !preg_match('/^[A-Z]{18}$/', $curpPlano)) {
+            $curpPlano = '';
+        }
+        $curpContacto = $curpPlano;
         if ($row['solicitante_telefono']) {
             $curpContacto .= ($curpContacto ? ' / Tel: ' : 'Tel: ') . $row['solicitante_telefono'];
         }

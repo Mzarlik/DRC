@@ -4,6 +4,29 @@ Este documento registra todos los cambios notables, actualizaciones y correcione
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.5.1] - 2026-08-21
+### Seguridad (implementación del plan `docs/analisis_completo/`)
+- **CSRF real en login (#5):** `public/login.php` incluye token oculto (`Auth::generateCSRF()`) y `public/auth.php` lo valida con `Auth::validateCSRF()` antes de autenticar; la sesión de login se inicia con `Auth::initSession()` (cookies HttpOnly/SameSite/Secure).
+- **CSRF estricto en nacimientos (#4):** `modules/nacimientos/save.php` reemplaza el chequeo por presencia por `validateCSRF()`; era el único módulo que conservaba la validación simulada.
+- **Baja/reactivación de ciudadanos restringida a coordinadores (#8):** `modules/ciudadanos/delete.php` y `restore.php` exigen `Auth::esCoordinador()` (ADMIN/COORDINADOR/SUPERVISOR); antes bastaba cualquier sesión válida.
+- **`unserialize()` endurecido (#7):** `core/Cache.php` usa `allowed_classes => false` en los 3 puntos de deserialización (Redis, Memcached y archivos), eliminando el riesgo de PHP Object Injection.
+- **Claves criptográficas sin fallback público (#11):** `core/Encryption` lanza `RuntimeException` si falta `ENCRYPTION_KEY` en `.env` (se admite clave de prueba únicamente bajo PHPUnit); se elimina la constante pública `'drc_erp_secure_aes256_symmetric_key_2026'`. El blind index conserva su derivación desde la clave maestra para no invalidar índices existentes.
+- **Política de contraseñas en backend (#9):** `update_perfil.php` valida coincidencia, mínimo 8 caracteres, al menos una mayúscula y un número; `update_usuario.php` aplica la misma política al crear usuarios.
+- **Perímetro `.htaccess` reforzado (#6):** se bloquean `vendor/`, `tests/`, `composer.phar`, archivos `*.md`, exportaciones no-XLSX (`csv|pdf|zip`) en `public/(exports|reports)/`; se añade cabecera `Content-Security-Policy` (app 100% autocontenida).
+- **Página 403 autónoma:** `Auth::checkPermission()` ya no carga Bootstrap desde CDN jsdelivr (estilos inline mínimos); requisito previo para la CSP.
+- **Fuentes localizadas (#10):** Inter variable (latin) servida desde `assets/vendor/fonts/inter-latin-var.woff2` vía nuevo `assets/css/fonts.css`; reemplazadas las 34 referencias a `fonts.googleapis.com` (login, módulos y vistas públicas operan sin Internet).
+- **Exportación diaria autorizada (#12):** `export_diario_excel.php` exige además `Auth::checkExport()`.
+
+### Corregido
+- **Bug de mapeo de sexo en ciudadano rápido (#1):** el modal universal (`assets/js/global.js`) enviaba H/M/X mientras `create.php` usa M/F/X: "Masculino" desde `create.php` y "Mujer" desde el modal se guardaban como 'X'. El modal ahora envía M/F/X y `modules/ciudadanos/save.php` normaliza H/HOMBRE/MASCULINO→M, F/FEMENINO/MUJER→F. Los registros históricos con sexo='X' requieren revisión manual (no es posible distinguir corruptos de legítimos de forma automática).
+- **CURP del solicitante cifrada en Petición Rápida (#3):** `PeticionRapidaService::validar()` devuelve la CURP cifrada + blind index; `save/update` persisten ambos (con detección opcional de columna); `data.php`, `modulo_peticiones_data.php`, `edit.php`, `ticket.php` y el reporte del Worker descifran para visualización autorizada; la búsqueda por CURP exacta usa el blind index. Migración CLI idempotente: `docs/migration_pv_curp_bindex.php` (agrega columna + índice + cifra CURP legadas). Ejecutar tras el deploy.
+- **Manejo de excepciones (#28):** `public/validate.php` y `update_perfil.php` capturan `\Throwable`.
+- **Mayúsculas normalizadas (#22):** `numero_acta` en nacimientos/defunciones/foraneas (+Gestores), `tipo_acta` en foraneas y `tipo_peticion` en peticiones pasan por `mb_strtoupper`.
+
+### Cambiado
+- **Estadísticas del dashboard (#27):** `public/api/stats.php` usa prepared statements con bindValue para las fechas de los contadores diarios.
+- **Turnos homologado (#16):** `modules/turnos/crear.php` renombrado a `create.php` (referencia AJAX actualizada).
+
 ## [1.5.0] - 2026-08-20
 ### Añadido
 - **Diseño Móvil y Responsive Ultra-Compacto:** Optimización global en `assets/css/style.css` y `assets/js/global.js` reduciendo la altura vertical de las tarjetas móviles (`.mobile-record-card`) en más de un 55% (~150px vs ~380px previo), permitiendo visualizar de 2 a 3 registros simultáneos por pantalla.

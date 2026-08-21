@@ -6,7 +6,18 @@
 Options -Indexes
 
 # 1. Bloquear acceso a archivos sensibles y de configuración
-<FilesMatch "^(\.env.*|\.git.*|\.agents|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml)$">
+<FilesMatch "^(\.env.*|\.git.*|\.agents|composer\.(json|lock|phar)|package(-lock)?\.json|phpunit\.xml)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# 1.1 Bloquear documentación técnica interna en formato Markdown
+<FilesMatch "\.(md|markdown)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
@@ -17,7 +28,7 @@ Options -Indexes
 </FilesMatch>
 
 # 2. Bloquear volcados de base de datos, backups, logs y documentación técnica interna
-<FilesMatch "\.(sql|sql\.gz|bak|old|enc|log|ini|yml|yaml)$">
+<FilesMatch "\.(sql|sql\.gz|bak|old|enc|log|ini|yml|yaml|phar)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
@@ -30,8 +41,8 @@ Options -Indexes
 # 3. Bloquear acceso directo a directorios internos mediante mod_rewrite
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteRule ^(core|docs|logs|cache|scripts|\.agents)/ - [F,L,NC]
-    RewriteRule ^public/(exports|reports)/.*\.xlsx$ - [F,L,NC]
+    RewriteRule ^(core|docs|logs|cache|scripts|tests|vendor|\.agents)/ - [F,L,NC]
+    RewriteRule ^public/(exports|reports)/.*\.(xlsx|csv|pdf|zip)$ - [F,L,NC]
 
     # Redirección amigable si se omite el prefijo "modules/" (mantiene la coherencia de rutas relativas)
     RewriteCond %{REQUEST_FILENAME} !-f
@@ -50,4 +61,7 @@ Options -Indexes
     Header always set X-XSS-Protection "1; mode=block"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    # CSP: la app es 100% autocontenida (assets y fuentes locales). Se permite
+    # 'unsafe-inline' mientras existan scripts/estilos embebidos en las vistas.
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 </IfModule>

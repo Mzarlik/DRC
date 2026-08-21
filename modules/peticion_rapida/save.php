@@ -33,23 +33,50 @@ $ciudadano_id = !empty($_POST['ciudadano_id']) ? intval($_POST['ciudadano_id']) 
 try {
     $pdo = Database::getConnection();
 
+    // Detectar si ya existe la columna de blind index (migración opcional)
+    $hasBindex = false;
+    try {
+        $pdo->query("SELECT solicitante_curp_bindex FROM peticiones_ventanilla LIMIT 0");
+        $hasBindex = true;
+    } catch (\Throwable $e) {
+        $hasBindex = false;
+    }
+
     // Generar folio simplificado: ej. FOR-260819-001, BSI-260819-001
     $folio = PeticionRapidaService::generarFolioSimplificado($data['tipo_peticion']);
 
-    $stmt = $pdo->prepare("INSERT INTO peticiones_ventanilla 
-        (folio, ciudadano_id, solicitante_nombre, solicitante_curp, solicitante_telefono, tipo_peticion, detalle, estatus, usuario_registro) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDIENTE', ?)");
-    
-    $result = $stmt->execute([
-        $folio,
-        $ciudadano_id,
-        $data['solicitante_nombre'],
-        $data['solicitante_curp'],
-        $data['solicitante_telefono'],
-        $data['tipo_peticion'],
-        $data['detalle'],
-        $_SESSION['user_id'] ?? null
-    ]);
+    if ($hasBindex) {
+        $stmt = $pdo->prepare("INSERT INTO peticiones_ventanilla
+            (folio, ciudadano_id, solicitante_nombre, solicitante_curp, solicitante_curp_bindex, solicitante_telefono, tipo_peticion, detalle, estatus, usuario_registro)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'PENDIENTE', ?)");
+
+        $result = $stmt->execute([
+            $folio,
+            $ciudadano_id,
+            $data['solicitante_nombre'],
+            $data['solicitante_curp'],
+            $data['solicitante_curp_bindex'],
+            $data['solicitante_telefono'],
+            $data['tipo_peticion'],
+            $data['detalle'],
+            $_SESSION['user_id'] ?? null
+        ]);
+    } else {
+        $stmt = $pdo->prepare("INSERT INTO peticiones_ventanilla
+            (folio, ciudadano_id, solicitante_nombre, solicitante_curp, solicitante_telefono, tipo_peticion, detalle, estatus, usuario_registro)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDIENTE', ?)");
+
+        $result = $stmt->execute([
+            $folio,
+            $ciudadano_id,
+            $data['solicitante_nombre'],
+            $data['solicitante_curp'],
+            $data['solicitante_telefono'],
+            $data['tipo_peticion'],
+            $data['detalle'],
+            $_SESSION['user_id'] ?? null
+        ]);
+    }
 
     if ($result) {
         $id = (int)$pdo->lastInsertId();

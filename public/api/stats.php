@@ -14,15 +14,23 @@ try {
     // 1. Contadores Globales de Tarjetas Superiores
     // Trámites de hoy (Suma de todos los 9 módulos procesados hoy)
     $totalHoy = 0;
-    $totalHoy += (int)$pdo->query("SELECT COUNT(*) FROM nacimientos WHERE fecha_registro = '$today'")->fetchColumn();
-    $totalHoy += (int)$pdo->query("SELECT COUNT(*) FROM defunciones WHERE fecha_registro = '$today'")->fetchColumn();
-    $totalHoy += (int)$pdo->query("SELECT COUNT(*) FROM matrimonios WHERE fecha_registro = '$today'")->fetchColumn();
-    $totalHoy += (int)$pdo->query("SELECT COUNT(*) FROM divorcios WHERE fecha_registro = '$today'")->fetchColumn();
-    $totalHoy += (int)$pdo->query("SELECT COUNT(*) FROM reconocimientos WHERE fecha_registro = '$today'")->fetchColumn();
-    $totalHoy += (int)$pdo->query("SELECT COUNT(*) FROM inscripciones WHERE fecha_registro = '$today'")->fetchColumn();
-    $totalHoy += (int)$pdo->query("SELECT COUNT(*) FROM inexistencias WHERE fecha_tramite = '$today'")->fetchColumn();
-    $totalHoy += (int)$pdo->query("SELECT COUNT(*) FROM foraneas WHERE fecha_recepcion = '$today'")->fetchColumn();
-    $totalHoy += (int)$pdo->query("SELECT COUNT(*) FROM tramites_curp WHERE fecha_registro = '$today'")->fetchColumn();
+    $countStmts = [
+        "SELECT COUNT(*) FROM nacimientos WHERE fecha_registro = ?",
+        "SELECT COUNT(*) FROM defunciones WHERE fecha_registro = ?",
+        "SELECT COUNT(*) FROM matrimonios WHERE fecha_registro = ?",
+        "SELECT COUNT(*) FROM divorcios WHERE fecha_registro = ?",
+        "SELECT COUNT(*) FROM reconocimientos WHERE fecha_registro = ?",
+        "SELECT COUNT(*) FROM inscripciones WHERE fecha_registro = ?",
+        "SELECT COUNT(*) FROM inexistencias WHERE fecha_tramite = ?",
+        "SELECT COUNT(*) FROM foraneas WHERE fecha_recepcion = ?",
+        "SELECT COUNT(*) FROM tramites_curp WHERE fecha_registro = ?"
+    ];
+    foreach ($countStmts as $sql) {
+        $stmtCount = $pdo->prepare($sql);
+        $stmtCount->bindValue(1, $today, PDO::PARAM_STR);
+        $stmtCount->execute();
+        $totalHoy += (int)$stmtCount->fetchColumn();
+    }
 
     // Peticiones pendientes
     $stmtPendientes = $pdo->query("SELECT COUNT(*) FROM peticiones WHERE estatus IN ('ABIERTA', 'EN_PROGRESO')");
@@ -81,19 +89,21 @@ try {
     }
 
     $queries = [
-        "SELECT fecha_registro AS fecha, COUNT(*) AS cnt FROM nacimientos WHERE fecha_registro >= '$six_days_ago' GROUP BY fecha_registro",
-        "SELECT fecha_registro AS fecha, COUNT(*) AS cnt FROM defunciones WHERE fecha_registro >= '$six_days_ago' GROUP BY fecha_registro",
-        "SELECT fecha_registro AS fecha, COUNT(*) AS cnt FROM matrimonios WHERE fecha_registro >= '$six_days_ago' GROUP BY fecha_registro",
-        "SELECT fecha_registro AS fecha, COUNT(*) AS cnt FROM divorcios WHERE fecha_registro >= '$six_days_ago' GROUP BY fecha_registro",
-        "SELECT fecha_registro AS fecha, COUNT(*) AS cnt FROM reconocimientos WHERE fecha_registro >= '$six_days_ago' GROUP BY fecha_registro",
-        "SELECT fecha_registro AS fecha, COUNT(*) AS cnt FROM inscripciones WHERE fecha_registro >= '$six_days_ago' GROUP BY fecha_registro",
-        "SELECT fecha_tramite AS fecha, COUNT(*) AS cnt FROM inexistencias WHERE fecha_tramite >= '$six_days_ago' GROUP BY fecha_tramite",
-        "SELECT fecha_recepcion AS fecha, COUNT(*) AS cnt FROM foraneas WHERE fecha_recepcion >= '$six_days_ago' GROUP BY fecha_recepcion",
-        "SELECT fecha_registro AS fecha, COUNT(*) AS cnt FROM tramites_curp WHERE fecha_registro >= '$six_days_ago' GROUP BY fecha_registro"
+        "SELECT fecha_registro AS fecha, COUNT(*) AS cnt FROM nacimientos WHERE fecha_registro >= ? GROUP BY fecha_registro",
+        "SELECT fecha_registro AS fecha, COUNT(*) AS cnt FROM defunciones WHERE fecha_registro >= ? GROUP BY fecha_registro",
+        "SELECT fecha_registro AS fecha, COUNT(*) AS cnt FROM matrimonios WHERE fecha_registro >= ? GROUP BY fecha_registro",
+        "SELECT fecha_registro AS fecha, COUNT(*) AS cnt FROM divorcios WHERE fecha_registro >= ? GROUP BY fecha_registro",
+        "SELECT fecha_registro AS fecha, COUNT(*) AS cnt FROM reconocimientos WHERE fecha_registro >= ? GROUP BY fecha_registro",
+        "SELECT fecha_registro AS fecha, COUNT(*) AS cnt FROM inscripciones WHERE fecha_registro >= ? GROUP BY fecha_registro",
+        "SELECT fecha_tramite AS fecha, COUNT(*) AS cnt FROM inexistencias WHERE fecha_tramite >= ? GROUP BY fecha_tramite",
+        "SELECT fecha_recepcion AS fecha, COUNT(*) AS cnt FROM foraneas WHERE fecha_recepcion >= ? GROUP BY fecha_recepcion",
+        "SELECT fecha_registro AS fecha, COUNT(*) AS cnt FROM tramites_curp WHERE fecha_registro >= ? GROUP BY fecha_registro"
     ];
 
     foreach ($queries as $q) {
-        $stmt = $pdo->query($q);
+        $stmt = $pdo->prepare($q);
+        $stmt->bindValue(1, $six_days_ago, PDO::PARAM_STR);
+        $stmt->execute();
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $fecha = $row['fecha'];
             if (isset($daily_counts[$fecha])) {

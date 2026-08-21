@@ -22,7 +22,7 @@ class GestorDefunciones {
      * @return array Resultado del proceso (status y mensaje)
      */
     public static function registrarDefuncion($numero_acta, $ciudadano_id, $fecha_defuncion, $fecha_registro, $causa_muerte) {
-        $numero_acta = trim($numero_acta);
+        $numero_acta = mb_strtoupper(trim($numero_acta), 'UTF-8');
         $fecha_defuncion = trim($fecha_defuncion);
         $fecha_registro = trim($fecha_registro);
         $causa_muerte = mb_strtoupper(trim($causa_muerte), 'UTF-8');

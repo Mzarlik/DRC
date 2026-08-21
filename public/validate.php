@@ -75,7 +75,7 @@ if ($token && is_string($token)) {
                     ];
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             // Manejar error silenciosamente
         }
             }
@@ -88,8 +88,8 @@ if ($token && is_string($token)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Validación Oficial - Puvlika</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>ValidaciÃ³n Oficial - Puvlika</title>
+    <link href="../assets/css/fonts.css" rel="stylesheet">
     <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/vendor/fontawesome/css/all.min.css">
     <style>
@@ -112,12 +112,12 @@ if ($token && is_string($token)) {
     <div class="card validation-card">
         <div class="validation-header">
             <h3 class="mb-0 fw-bold">PUVLIKA</h3>
-            <p class="text-white-50 mb-0 small">Sistema de Validación Documental DRC</p>
+            <p class="text-white-50 mb-0 small">Sistema de ValidaciÃ³n Documental DRC</p>
         </div>
         <div class="validation-body text-center">
             <?php if ($isValid): ?>
                 <i class="fa-solid fa-circle-check status-icon status-valid"></i>
-                <h4 class="fw-bold mb-4">Documento Auténtico</h4>
+                <h4 class="fw-bold mb-4">Documento AutÃ©ntico</h4>
                 
                 <div class="text-start">
                     <div class="data-row">
@@ -125,7 +125,7 @@ if ($token && is_string($token)) {
                         <div class="data-value"><?php echo htmlspecialchars($actaInfo['tipo']); ?></div>
                     </div>
                     <div class="data-row">
-                        <div class="data-label">Número de Acta</div>
+                        <div class="data-label">NÃºmero de Acta</div>
                         <div class="data-value"><?php echo htmlspecialchars($actaInfo['numero_acta']); ?></div>
                     </div>
                     <div class="data-row">
@@ -139,12 +139,12 @@ if ($token && is_string($token)) {
                 </div>
                 
                 <div class="mt-4 pt-3 border-top text-muted small">
-                    <i class="fa-solid fa-shield-halved me-1"></i> Este documento electrónico ha sido verificado contra la base de datos oficial.
+                    <i class="fa-solid fa-shield-halved me-1"></i> Este documento electrÃ³nico ha sido verificado contra la base de datos oficial.
                 </div>
             <?php else: ?>
                 <i class="fa-solid fa-circle-xmark status-icon status-invalid"></i>
-                <h4 class="fw-bold mb-3">Documento Inválido</h4>
-                <p class="text-muted mb-0">El código QR escaneado no corresponde a ningún documento emitido oficialmente o ha sido alterado.</p>
+                <h4 class="fw-bold mb-3">Documento InvÃ¡lido</h4>
+                <p class="text-muted mb-0">El cÃ³digo QR escaneado no corresponde a ningÃºn documento emitido oficialmente o ha sido alterado.</p>
             <?php endif; ?>
         </div>
     </div>

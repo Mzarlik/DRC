@@ -6,6 +6,13 @@ require_once '../core/RateLimiter.php';
 use Core\Database;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once __DIR__ . '/../core/Auth.php';
+
+    if (!\Core\Auth::validateCSRF($_POST['csrf_token'] ?? '')) {
+        echo json_encode(['status' => 'error', 'message' => 'Token CSRF inválido. Recargue la página e intente de nuevo.']);
+        exit;
+    }
+
     if (!\Core\RateLimiter::check('login', 10, 300)) {
         echo json_encode(['status' => 'error', 'message' => 'Demasiados intentos de inicio de sesión. Espere unos minutos e intente de nuevo.']);
         exit;
@@ -31,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
 
-            session_start();
+            \Core\Auth::initSession();
             session_regenerate_id(true); // Previene ataques de Session Fixation y Session Hijacking
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_nombre'] = $user['nombre'];
