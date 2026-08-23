@@ -25,7 +25,7 @@ $notif_api = 'api/notifications.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AuditorÃ­a y Errores - ERP DRC</title>
+    <title>Auditoría y Errores - ERP DRC</title>
     <link href="../assets/css/fonts.css" rel="stylesheet">
     <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/vendor/fontawesome/css/all.min.css">
@@ -34,22 +34,6 @@ $notif_api = 'api/notifications.php';
     <link href="../assets/vendor/sweetalert2/sweetalert2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
     <script>if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark-mode');}</script>
-    <style>
-        .stack-trace {
-            max-height: 200px;
-            overflow-y: auto;
-            background: #f8f9fa;
-            padding: 10px;
-            font-size: 0.85em;
-            font-family: monospace;
-            border-radius: 5px;
-            white-space: pre-wrap;
-        }
-        .dark-mode .stack-trace {
-            background: #2b3035;
-            color: #dee2e6;
-        }
-    </style>
 </head>
 <body>
 
@@ -67,14 +51,14 @@ $notif_api = 'api/notifications.php';
             
             <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>">
                 <a href="#catSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo ($current_module == 'ciudadanos') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">CatÃ¡logos</span>
+                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">Catálogos</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo ($current_module == 'ciudadanos') ? 'show' : ''; ?>" id="catSubmenu">
                     <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'ciudadanos') ? 'index.php' : $path_prefix . 'ciudadanos/index.php'; ?>"><i class="fa-solid fa-users"></i> <span class="sidebar-text">Ciudadanos</span></a></li>
                 </ul>
             </li>
 
-            <!-- Registros de Actos (OficialÃ­a) -->
+            <!-- Registros de Actos (Oficialía) -->
             <?php if (\Core\Auth::hasPermission('permiso_registro_nacimientos') || \Core\Auth::hasPermission('permiso_registro_matrimonios') || \Core\Auth::hasPermission('permiso_registro_divorcios') || \Core\Auth::hasPermission('permiso_registro_defunciones') || \Core\Auth::hasPermission('permiso_registro_inscripciones') || \Core\Auth::hasPermission('permiso_registro_reconocimientos')): ?>
             <li class="<?php echo in_array($current_module, ['nacimientos', 'matrimonios', 'divorcios', 'defunciones', 'inscripciones', 'reconocimientos']) ? 'active' : ''; ?>">
                 <a href="#vitalesSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
@@ -103,18 +87,18 @@ $notif_api = 'api/notifications.php';
             </li>
             <?php endif; ?>
 
-            <!-- ExpediciÃ³n de Actas -->
+            <!-- Expedición de Actas -->
             <?php if (\Core\Auth::hasPermission('permiso_actas_locales') || \Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
             <li class="<?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'active' : ''; ?>">
                 <a href="#actasSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">ExpediciÃ³n de Actas</span>
+                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">Expedición de Actas</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'show' : ''; ?>" id="actasSubmenu">
                     <?php if (\Core\Auth::hasPermission('permiso_actas_locales')): ?>
                     <li class="<?php echo ($current_module == 'actas_locales') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'actas_locales') ? 'index.php' : $path_prefix . 'actas_locales/index.php'; ?>"><i class="fa-solid fa-file-invoice"></i> <span class="sidebar-text">Actas Locales</span></a></li>
                     <?php endif; ?>
                     <?php if (\Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
-                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas ForÃ¡neas</span></a></li>
+                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas Foráneas</span></a></li>
                     <?php endif; ?>
                 </ul>
             </li>
@@ -144,7 +128,7 @@ $notif_api = 'api/notifications.php';
                     <i class="fa-solid fa-id-card"></i> <span class="sidebar-text">Servicios CURP</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo ($current_module == 'curp') ? 'show' : ''; ?>" id="curpSubmenu">
-                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">TrÃ¡mites CURP</span></a></li>
+                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">Trámites CURP</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -159,7 +143,7 @@ $notif_api = 'api/notifications.php';
                     <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
                     <li class="<?php echo ($current_module == 'peticion_rapida' && basename($_SERVER['PHP_SELF']) == 'create.php') ? 'active' : ''; ?>">
                         <a href="<?php echo ($current_module == 'peticion_rapida') ? 'create.php' : $path_prefix . 'peticion_rapida/create.php'; ?>">
-                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">PeticiÃ³n RÃ¡pida</span>
+                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">Petición Rápida</span>
                         </a>
                     </li>
                     <li class="<?php echo ($current_module == 'peticion_rapida' && (basename($_SERVER['PHP_SELF']) == 'index.php' || basename($_SERVER['PHP_SELF']) == 'edit.php')) ? 'active' : ''; ?>">
@@ -184,18 +168,18 @@ $notif_api = 'api/notifications.php';
             </li>
             <?php endif; ?>
 
-            <!-- AdministraciÃ³n (Admin / Supervisor) -->
+            <!-- Administración (Admin / Supervisor) -->
             <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
             <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
                 <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">AdministraciÃ³n</span>
+                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'show' : ''; ?>" id="adminSubmenu">
                     <?php if (($_SESSION['user_rol'] ?? '') === 'ADMIN'): ?>
                     <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'usuarios.php' : '../../public/usuarios.php'; ?>"><i class="fa-solid fa-user-shield"></i> <span class="sidebar-text">Usuarios y Permisos</span></a></li>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">AuditorÃ­a y Errores</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">Auditoría y Errores</span></a></li>
                     <?php endif; ?>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y CatÃ¡logos</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y Catálogos</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -206,7 +190,7 @@ $notif_api = 'api/notifications.php';
     <div id="content">
         <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container-fluid">
-                <button type="button" id="sidebarCollapse" class="btn btn-primary" style="background: var(--primary-color); border: none;">
+                <button type="button" id="sidebarCollapse" class="btn-sidebar-toggle" aria-label="Toggle Sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="d-flex align-items-center ms-auto">
@@ -239,7 +223,7 @@ $notif_api = 'api/notifications.php';
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="<?php echo $profile_link; ?>"><i class="fa-solid fa-user fa-sm me-2"></i> Perfil</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar SesiÃ³n</a></li>
+                            <li><a class="dropdown-item text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar Sesión</a></li>
                         </ul>
                     </div>
                 </div>
@@ -247,7 +231,10 @@ $notif_api = 'api/notifications.php';
         </nav>
 
         <div class="container-fluid">
-            <h2 class="mb-4">AuditorÃ­a y Registro de Errores</h2>
+            <div class="mb-4">
+                <h2 class="fw-bold mb-1"><i class="fa-solid fa-clipboard-list text-primary me-2"></i> Auditoría y Registro de Errores</h2>
+                <p class="text-muted small mb-0">Monitoreo de trazabilidad operativa y bitácora técnica de excepciones</p>
+            </div>
             
             <ul class="nav nav-tabs mb-4" id="auditoriaTabs" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -263,22 +250,22 @@ $notif_api = 'api/notifications.php';
             </ul>
 
             <div class="tab-content" id="auditoriaTabsContent">
-                <!-- PestaÃ±a Acciones -->
+                <!-- Pestaña Acciones -->
                 <div class="tab-pane fade show active" id="acciones" role="tabpanel" aria-labelledby="acciones-tab">
                     <div class="card border-0 shadow-sm mb-3">
                         <div class="card-body py-3">
                             <div class="row g-2 align-items-end">
                                 <div class="col-12 col-md-4">
-                                    <label for="filtroModulo" class="form-label small fw-bold mb-1">MÃ³dulo</label>
+                                    <label for="filtroModulo" class="form-label small fw-bold mb-1">Módulo</label>
                                     <select id="filtroModulo" class="form-select form-select-sm">
-                                        <option value="">Todos los mÃ³dulos</option>
+                                        <option value="">Todos los módulos</option>
                                         <?php foreach ($modulosAuditoria as $m): ?>
                                         <option value="<?php echo htmlspecialchars($m); ?>"><?php echo htmlspecialchars($m); ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <label for="filtroAccion" class="form-label small fw-bold mb-1">AcciÃ³n</label>
+                                    <label for="filtroAccion" class="form-label small fw-bold mb-1">Acción</label>
                                     <select id="filtroAccion" class="form-select form-select-sm">
                                         <option value="">Todas las acciones</option>
                                         <?php foreach ($accionesAuditoria as $a): ?>
@@ -297,8 +284,8 @@ $notif_api = 'api/notifications.php';
                     </div>
                     <div class="d-flex justify-content-end mb-3">
                         <?php if (\Core\Auth::canExportar()): ?>
-                        <button class="btn btn-success" id="btnExportAcciones" style="background: var(--accent-color, #27ae60); border: none;">
-                            <i class="fa-solid fa-file-excel me-2"></i> Exportar Acciones a Excel
+                        <button class="btn btn-excel" id="btnExportAcciones">
+                            <i class="fa-solid fa-file-excel me-1"></i> Exportar Acciones a Excel
                         </button>
                         <?php endif; ?>
                     </div>
@@ -311,8 +298,8 @@ $notif_api = 'api/notifications.php';
                                             <th>ID</th>
                                             <th>Fecha y Hora</th>
                                             <th>Usuario</th>
-                                            <th>MÃ³dulo</th>
-                                            <th>AcciÃ³n</th>
+                                            <th>Módulo</th>
+                                            <th>Acción</th>
                                             <th>Detalles</th>
                                             <th>IP</th>
                                         </tr>
@@ -324,12 +311,12 @@ $notif_api = 'api/notifications.php';
                     </div>
                 </div>
 
-                <!-- PestaÃ±a Errores -->
+                <!-- Pestaña Errores -->
                 <div class="tab-pane fade" id="errores" role="tabpanel" aria-labelledby="errores-tab">
                     <div class="d-flex justify-content-end mb-3">
                         <?php if (\Core\Auth::canExportar()): ?>
-                        <button class="btn btn-danger" id="btnExportErrores" style="border: none;">
-                            <i class="fa-solid fa-file-excel me-2"></i> Exportar Errores a Excel
+                        <button class="btn btn-excel" id="btnExportErrores">
+                            <i class="fa-solid fa-file-excel me-1"></i> Exportar Errores a Excel
                         </button>
                         <?php endif; ?>
                     </div>
@@ -343,7 +330,7 @@ $notif_api = 'api/notifications.php';
                                             <th>Fecha y Hora</th>
                                             <th>Usuario</th>
                                             <th>Mensaje de Error</th>
-                                            <th>Archivo / LÃ­nea</th>
+                                            <th>Archivo / Línea</th>
                                             <th>URL</th>
                                             <th>Acciones</th>
                                         </tr>
@@ -370,9 +357,9 @@ $notif_api = 'api/notifications.php';
             <div class="modal-body">
                 <h6 class="fw-bold">Mensaje:</h6>
                 <p id="st_mensaje" class="text-danger"></p>
-                <h6 id="st_original_label" class="fw-bold" style="display: none;">Mensaje tÃ©cnico original:</h6>
+                <h6 id="st_original_label" class="fw-bold" style="display: none;">Mensaje técnico original:</h6>
                 <p id="st_mensaje_original" class="text-muted small" style="display: none; word-break: break-word;"></p>
-                <h6 class="fw-bold">UbicaciÃ³n:</h6>
+                <h6 class="fw-bold">Ubicación:</h6>
                 <p id="st_archivo"></p>
                 <h6 class="fw-bold">Stack Trace:</h6>
                 <div id="st_trace" class="stack-trace"></div>
@@ -394,8 +381,6 @@ $notif_api = 'api/notifications.php';
 
 <script>
 $(document).ready(function() {
-    // Cargar Notificaciones
-
     // Init DataTables
     const accionesTable = $('#accionesTable').DataTable({
         "processing": true,
@@ -492,7 +477,7 @@ $(document).ready(function() {
             $('#st_original_label').hide();
             $('#st_mensaje_original').hide();
         }
-        $('#st_trace').text(trace || 'Sin detalles tÃ©cnicos.');
+        $('#st_trace').text(trace || 'Sin detalles técnicos.');
         $('#stackTraceModal').modal('show');
     });
 
@@ -507,7 +492,7 @@ $(document).ready(function() {
         window.exportToExcelAsync('api/export_auditoria.php', {
             search: searchValue,
             csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>'
-        }, 'Exportando BitÃ¡cora de AuditorÃ­a');
+        }, 'Exportando Bitácora de Auditoría');
     });
 
     // Exportar Errores
@@ -516,7 +501,7 @@ $(document).ready(function() {
         window.exportToExcelAsync('api/export_errores.php', {
             search: searchValue,
             csrf_token: '<?php echo \Core\Auth::generateCSRF(); ?>'
-        }, 'Exportando BitÃ¡cora de Errores');
+        }, 'Exportando Bitácora de Errores');
     });
 });
 </script>

@@ -114,7 +114,7 @@ try {
 
     $labels_days = [];
     $data_days = [];
-    $meses = ['Jan'=>'Ene', 'Feb'=>'Feb', 'Mar'=>'Mar', 'Apr'=>'Abr', 'May'=>'May', 'Jun'=>'Jun', 'Jul'=>'Jul', 'Aug'=>'Ago', 'Sep'=>'Ene', 'Oct'=>'Oct', 'Nov'=>'Nov', 'Dec'=>'Dic'];
+    $meses = ['Jan'=>'Ene', 'Feb'=>'Feb', 'Mar'=>'Mar', 'Apr'=>'Abr', 'May'=>'May', 'Jun'=>'Jun', 'Jul'=>'Jul', 'Aug'=>'Ago', 'Sep'=>'Sep', 'Oct'=>'Oct', 'Nov'=>'Nov', 'Dec'=>'Dic'];
     foreach ($dates_range as $d) {
         $dateObj = strtotime($d);
         $dayNum = date('d', $dateObj);

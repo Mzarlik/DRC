@@ -75,13 +75,43 @@ $(document).ready(function() {
         const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.replaceState({path: cleanUrl}, '', cleanUrl);
     }
+
+    // 0. ACCESSIBILITY & WCAG 2.1 AA ENHANCEMENTS
+    function initAccessibilityFeatures() {
+        // Inyectar Skip Link si no existe
+        if ($('#content').length && !$('.skip-link').length) {
+            $('body').prepend('<a href="#content" class="skip-link"><i class="fa-solid fa-arrow-down me-1"></i> Saltar al contenido principal</a>');
+        }
+
+        // Gestión de Foco en Modales (Focus Trap & Restoration)
+        $(document).on('shown.bs.modal', '.modal', function() {
+            const $modal = $(this);
+            const $firstFocusable = $modal.find('input:not([type="hidden"]):visible, select:visible, textarea:visible, button:visible').first();
+            if ($firstFocusable.length) {
+                $firstFocusable.trigger('focus');
+            }
+        });
+
+        // ARIA en Notificaciones
+        const updateNotifBadgeAria = function() {
+            const $badge = $('#notifBadge');
+            if ($badge.length) {
+                const count = parseInt($badge.text(), 10) || 0;
+                $badge.attr('aria-label', count + ' notificaciones no leídas');
+                $badge.closest('a').attr('aria-label', 'Centro de notificaciones (' + count + ' no leídas)');
+            }
+        };
+        updateNotifBadgeAria();
+    }
+    initAccessibilityFeatures();
+
     // 1. DYNAMIC DARK MODE TOGGLE INJECTION
     const $navbarRight = $('.navbar .ms-auto');
     if ($navbarRight.length && !$('#darkModeToggle, #themeToggleBtn').length) {
         const isDark = localStorage.getItem('theme') === 'dark' || document.documentElement.classList.contains('dark-mode');
         const iconClass = isDark ? 'fa-sun' : 'fa-moon';
         const toggleHtml = `
-            <button type="button" id="darkModeToggle" class="btn btn-link text-dark nav-link me-3 p-0 no-caret d-flex align-items-center justify-content-center" title="Alternar Modo Oscuro" style="border: none; background: none; font-size: 1.2rem; width: 36px; height: 36px; text-decoration: none;">
+            <button type="button" id="darkModeToggle" class="btn btn-link text-dark nav-link me-3 p-0 no-caret d-flex align-items-center justify-content-center" title="Alternar Modo Oscuro" aria-label="Alternar Modo Oscuro" style="border: none; background: none; font-size: 1.2rem; width: 36px; height: 36px; text-decoration: none;">
                 <i class="fa-solid ${iconClass}"></i>
             </button>
         `;
@@ -121,14 +151,10 @@ $(document).ready(function() {
         const $notifMenu = $('#notificacionesMenu');
         if (!$notifMenu.length) return;
 
-        // Determinar endpoint
-        let endpoint = '/DRC/public/api/notifications.php';
-        const pathname = window.location.pathname;
-        if (pathname.includes('/modules/')) {
-            endpoint = '../../public/api/notifications.php';
-        } else if (pathname.includes('/public/')) {
-            endpoint = 'api/notifications.php';
-        }
+        // Determinar endpoint de notificaciones con soporte para base URL configurable
+        let endpoint = (typeof window.DRC_BASE_URL !== 'undefined' && window.DRC_BASE_URL)
+            ? window.DRC_BASE_URL + '/public/api/notifications.php'
+            : (window.location.pathname.includes('/modules/') ? '../../public/api/notifications.php' : 'api/notifications.php');
 
         function refreshNotifications() {
             $.ajax({
@@ -565,6 +591,41 @@ $(document).ready(function() {
     // Automatic conversion of uppercase inputs
     $(document).on('input', '.text-uppercase-input', function() {
         $(this).val($(this).val().toUpperCase());
+    });
+
+    // Global Form Submit Button Loading State (Prevent Double-Click)
+    $(document).on('submit', 'form', function() {
+        const $form = $(this);
+        if (this.checkValidity && !this.checkValidity()) {
+            return;
+        }
+
+        const $submitBtn = $form.find('button[type="submit"]:not(.no-auto-spin)');
+        if ($submitBtn.length && !$submitBtn.prop('disabled')) {
+            const originalHtml = $submitBtn.html();
+            $submitBtn.data('original-html', originalHtml);
+            $submitBtn.prop('disabled', true);
+            $submitBtn.html('<i class="fa-solid fa-circle-notch fa-spin me-1"></i> Procesando...');
+
+            setTimeout(function() {
+                if ($submitBtn.prop('disabled') && $submitBtn.data('original-html')) {
+                    $submitBtn.prop('disabled', false).html($submitBtn.data('original-html'));
+                }
+            }, 8000);
+        }
+    });
+
+    // Global AJAX Complete handler to restore submit buttons
+    $(document).ajaxComplete(function() {
+        $('form button[type="submit"]:disabled').each(function() {
+            const $btn = $(this);
+            const originalHtml = $btn.data('original-html');
+            if (originalHtml) {
+                setTimeout(function() {
+                    $btn.prop('disabled', false).html(originalHtml);
+                }, 400);
+            }
+        });
     });
 
     // 5. RESPONSIVE TABLES & MOBILE CARDS TOGGLER

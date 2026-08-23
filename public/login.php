@@ -31,16 +31,19 @@ $csrf_token = \Core\Auth::generateCSRF();
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
+            padding: 20px;
             margin: 0;
         }
         .login-card {
-            background: #fff;
+            background: var(--bg-surface);
+            color: var(--text-main);
             padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-radius: var(--radius-md);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             width: 100%;
             max-width: 400px;
+            border: 1px solid var(--border-color);
         }
         .login-header {
             text-align: center;
@@ -48,11 +51,14 @@ $csrf_token = \Core\Auth::generateCSRF();
         }
         .login-header i {
             font-size: 3rem;
-            color: var(--secondary-color);
+            color: var(--accent-gold);
             margin-bottom: 10px;
         }
         .login-header h3 {
             font-weight: 700;
+            color: var(--text-main);
+        }
+        body:not(.dark-mode) .login-header h3 {
             color: var(--primary-color);
         }
     </style>
@@ -67,7 +73,7 @@ $csrf_token = \Core\Auth::generateCSRF();
         <p class="text-muted">Dirección de Registro Civil</p>
     </div>
     
-    <div id="error-message" class="alert alert-danger d-none"></div>
+    <div id="error-message" class="alert alert-danger d-none" role="alert" aria-live="assertive"></div>
 
     <form id="loginForm">
         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
@@ -85,8 +91,8 @@ $csrf_token = \Core\Auth::generateCSRF();
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary w-100" style="background: var(--secondary-color); border: none; padding: 12px; font-weight: 600;">
-            Iniciar Sesión
+        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+            <i class="fa-solid fa-right-to-bracket me-1"></i> Iniciar Sesión
         </button>
     </form>
 </div>

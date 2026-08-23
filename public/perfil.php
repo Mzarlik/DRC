@@ -62,14 +62,14 @@ try {
             
             <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>">
                 <a href="#catSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo ($current_module == 'ciudadanos') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">CatÃ¡logos</span>
+                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">Catálogos</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo ($current_module == 'ciudadanos') ? 'show' : ''; ?>" id="catSubmenu">
                     <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'ciudadanos') ? 'index.php' : $path_prefix . 'ciudadanos/index.php'; ?>"><i class="fa-solid fa-users"></i> <span class="sidebar-text">Ciudadanos</span></a></li>
                 </ul>
             </li>
 
-            <!-- Registros de Actos (OficialÃ­a) -->
+            <!-- Registros de Actos (Oficialía) -->
             <?php if (\Core\Auth::hasPermission('permiso_registro_nacimientos') || \Core\Auth::hasPermission('permiso_registro_matrimonios') || \Core\Auth::hasPermission('permiso_registro_divorcios') || \Core\Auth::hasPermission('permiso_registro_defunciones') || \Core\Auth::hasPermission('permiso_registro_inscripciones') || \Core\Auth::hasPermission('permiso_registro_reconocimientos')): ?>
             <li class="<?php echo in_array($current_module, ['nacimientos', 'matrimonios', 'divorcios', 'defunciones', 'inscripciones', 'reconocimientos']) ? 'active' : ''; ?>">
                 <a href="#vitalesSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
@@ -98,18 +98,18 @@ try {
             </li>
             <?php endif; ?>
 
-            <!-- ExpediciÃ³n de Actas -->
+            <!-- Expedición de Actas -->
             <?php if (\Core\Auth::hasPermission('permiso_actas_locales') || \Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
             <li class="<?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'active' : ''; ?>">
                 <a href="#actasSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">ExpediciÃ³n de Actas</span>
+                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">Expedición de Actas</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'show' : ''; ?>" id="actasSubmenu">
                     <?php if (\Core\Auth::hasPermission('permiso_actas_locales')): ?>
                     <li class="<?php echo ($current_module == 'actas_locales') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'actas_locales') ? 'index.php' : $path_prefix . 'actas_locales/index.php'; ?>"><i class="fa-solid fa-file-invoice"></i> <span class="sidebar-text">Actas Locales</span></a></li>
                     <?php endif; ?>
                     <?php if (\Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
-                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas ForÃ¡neas</span></a></li>
+                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas Foráneas</span></a></li>
                     <?php endif; ?>
                 </ul>
             </li>
@@ -139,7 +139,7 @@ try {
                     <i class="fa-solid fa-id-card"></i> <span class="sidebar-text">Servicios CURP</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo ($current_module == 'curp') ? 'show' : ''; ?>" id="curpSubmenu">
-                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">TrÃ¡mites CURP</span></a></li>
+                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">Trámites CURP</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -154,7 +154,7 @@ try {
                     <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
                     <li class="<?php echo ($current_module == 'peticion_rapida' && basename($_SERVER['PHP_SELF']) == 'create.php') ? 'active' : ''; ?>">
                         <a href="<?php echo ($current_module == 'peticion_rapida') ? 'create.php' : $path_prefix . 'peticion_rapida/create.php'; ?>">
-                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">PeticiÃ³n RÃ¡pida</span>
+                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">Petición Rápida</span>
                         </a>
                     </li>
                     <li class="<?php echo ($current_module == 'peticion_rapida' && (basename($_SERVER['PHP_SELF']) == 'index.php' || basename($_SERVER['PHP_SELF']) == 'edit.php')) ? 'active' : ''; ?>">
@@ -179,18 +179,18 @@ try {
             </li>
             <?php endif; ?>
 
-            <!-- AdministraciÃ³n (Admin / Supervisor) -->
+            <!-- Administración (Admin / Supervisor) -->
             <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
             <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
                 <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">AdministraciÃ³n</span>
+                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'show' : ''; ?>" id="adminSubmenu">
                     <?php if (($_SESSION['user_rol'] ?? '') === 'ADMIN'): ?>
                     <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'usuarios.php' : '../../public/usuarios.php'; ?>"><i class="fa-solid fa-user-shield"></i> <span class="sidebar-text">Usuarios y Permisos</span></a></li>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">AuditorÃ­a y Errores</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">Auditoría y Errores</span></a></li>
                     <?php endif; ?>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y CatÃ¡logos</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y Catálogos</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -201,10 +201,10 @@ try {
     <div id="content">
         <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container-fluid">
-                <button type="button" id="sidebarCollapse" class="btn btn-primary" style="background: var(--primary-color); border: none;">
+                <button type="button" id="sidebarCollapse" class="btn-sidebar-toggle" aria-label="Toggle Sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
-                                <div class="d-flex align-items-center ms-auto">
+                <div class="d-flex align-items-center ms-auto">
                     <!-- Historial de Notificaciones -->
                     <div class="dropdown me-3" id="notificacionesMenu">
                         <a class="nav-link dropdown-toggle text-dark position-relative no-caret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -236,7 +236,7 @@ try {
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item active" href="<?php echo $profile_link; ?>"><i class="fa-solid fa-user fa-sm me-2"></i> Perfil</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar SesiÃ³n</a></li>
+                            <li><a class="dropdown-item text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar Sesión</a></li>
                         </ul>
                     </div>
                 </div>
@@ -244,7 +244,10 @@ try {
         </nav>
 
         <div class="container-fluid">
-            <h2 class="mb-4">Mi Perfil</h2>
+            <div class="mb-4">
+                <h2 class="fw-bold mb-1"><i class="fa-solid fa-user-gear text-primary me-2"></i> Mi Perfil</h2>
+                <p class="text-muted small mb-0">Administra tus datos personales y credenciales de acceso</p>
+            </div>
             
             <div class="row">
                 <!-- User card summary -->
@@ -256,7 +259,7 @@ try {
                             <span class="badge bg-success mb-3"><?php echo htmlspecialchars($user['rol']); ?></span>
                             <hr>
                             <div class="text-start mt-3">
-                                <p class="mb-1 text-muted"><i class="fa-solid fa-envelope me-2"></i> Correo ElectrÃ³nico</p>
+                                <p class="mb-1 text-muted"><i class="fa-solid fa-envelope me-2"></i> Correo Electrónico</p>
                                 <p class="fw-bold"><?php echo htmlspecialchars($user['correo']); ?></p>
                                 <p class="mb-1 text-muted"><i class="fa-solid fa-calendar me-2"></i> Miembro desde</p>
                                 <p class="fw-bold mb-0"><?php echo htmlspecialchars(date('d/m/Y', strtotime($user['creado_en']))); ?></p>
@@ -270,7 +273,7 @@ try {
                     <!-- General Details -->
                     <div class="card border-0 shadow-sm mb-4">
                         <div class="card-header bg-white py-3 fw-bold">
-                            <i class="fa-solid fa-id-card me-2 text-primary"></i> InformaciÃ³n General
+                            <i class="fa-solid fa-id-card me-2 text-primary"></i> Información General
                         </div>
                         <div class="card-body">
                             <form id="formGeneralInfo">
@@ -281,10 +284,10 @@ try {
                                     <input type="text" class="form-control" id="nombre" name="nombre" value="<?php echo htmlspecialchars($user['nombre']); ?>" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="correo" class="form-label fw-bold">Correo ElectrÃ³nico</label>
+                                    <label for="correo" class="form-label fw-bold">Correo Electrónico</label>
                                     <input type="email" class="form-control" id="correo" name="correo" value="<?php echo htmlspecialchars($user['correo']); ?>" required>
                                 </div>
-                                <button type="submit" class="btn btn-primary" style="background: var(--secondary-color); border: none;">
+                                <button type="submit" class="btn btn-primary">
                                     Guardar Cambios
                                 </button>
                             </form>
@@ -294,28 +297,28 @@ try {
                     <!-- Change Password -->
                     <div class="card border-0 shadow-sm">
                         <div class="card-header bg-white py-3 fw-bold">
-                            <i class="fa-solid fa-shield-halved me-2 text-danger"></i> Cambiar ContraseÃ±a
+                            <i class="fa-solid fa-shield-halved me-2 text-danger"></i> Cambiar Contraseña
                         </div>
                         <div class="card-body">
                             <form id="formPassword">
                                 <input type="hidden" name="action" value="change_password">
                                 <input type="hidden" name="csrf_token" value="<?php echo \Core\Auth::generateCSRF(); ?>">
                                 <div class="mb-3">
-                                    <label for="current_password" class="form-label fw-bold">ContraseÃ±a Actual</label>
+                                    <label for="current_password" class="form-label fw-bold">Contraseña Actual</label>
                                     <input type="password" class="form-control" id="current_password" name="current_password" required>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="new_password" class="form-label fw-bold">Nueva ContraseÃ±a</label>
+                                        <label for="new_password" class="form-label fw-bold">Nueva Contraseña</label>
                                         <input type="password" class="form-control" id="new_password" name="new_password" required>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="confirm_password" class="form-label fw-bold">Confirmar Nueva ContraseÃ±a</label>
+                                        <label for="confirm_password" class="form-label fw-bold">Confirmar Nueva Contraseña</label>
                                         <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-danger">
-                                    Actualizar ContraseÃ±a
+                                    Actualizar Contraseña
                                 </button>
                             </form>
                         </div>
@@ -332,18 +335,6 @@ try {
 
 <script>
 $(document).ready(function() {
-        // Cargar Notificaciones
-
-    // Sidebar toggle
-        } else {
-            $('#sidebar').toggleClass('active');
-        }
-    });
-
-    $('#sidebarCloseMobile').on('click', function () {
-        $('#sidebar').removeClass('active');
-    });
-
     // Form submission: General Info
     $('#formGeneralInfo').on('submit', function(e) {
         e.preventDefault();
@@ -354,7 +345,7 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
-                    window.location.href = 'perfil.php?toast=success&msg=' + encodeURIComponent('La informaciÃ³n del perfil ha sido actualizada.');
+                    window.location.href = 'perfil.php?toast=success&msg=' + encodeURIComponent('La información del perfil ha sido actualizada.');
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -367,7 +358,7 @@ $(document).ready(function() {
             error: function() {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error CrÃ­tico',
+                    title: 'Error Crítico',
                     text: 'No se pudo conectar con el servidor.',
                     confirmButtonColor: 'var(--primary-color)'
                 });
@@ -382,8 +373,8 @@ $(document).ready(function() {
         if ($('#new_password').val() !== $('#confirm_password').val()) {
             Swal.fire({
                 icon: 'warning',
-                title: 'ContraseÃ±as no coinciden',
-                text: 'La nueva contraseÃ±a y su confirmaciÃ³n deben ser idÃ©nticas.',
+                title: 'Contraseñas no coinciden',
+                text: 'La nueva contraseña y su confirmación deben ser idénticas.',
                 confirmButtonColor: 'var(--primary-color)'
             });
             return;
@@ -397,7 +388,7 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.status === 'success') {
                     $('#formPassword')[0].reset();
-                    window.showToast('success', 'Â¡ContraseÃ±a Cambiada!', 'Tu contraseÃ±a ha sido actualizada correctamente.');
+                    window.showToast('success', '¡Contraseña Cambiada!', 'Tu contraseña ha sido actualizada correctamente.');
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -410,7 +401,7 @@ $(document).ready(function() {
             error: function() {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error CrÃ­tico',
+                    title: 'Error Crítico',
                     text: 'No se pudo conectar con el servidor.',
                     confirmButtonColor: 'var(--primary-color)'
                 });

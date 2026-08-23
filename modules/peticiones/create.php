@@ -10,7 +10,7 @@ $logout_link = ($current_module == 'public') ? 'logout.php' : '../../public/logo
 $profile_link = ($current_module == 'public') ? 'perfil.php' : '../../public/perfil.php';
 $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../public/api/notifications.php';
 
-// ParÃ¡metros opcionales de escalamiento desde Ventanilla RÃ¡pida
+// Parámetros opcionales de escalamiento desde Ventanilla Rápida
 $escalado_ciudadano_id = intval($_GET['ciudadano_id'] ?? 0);
 $escalado_solicitante = htmlspecialchars(trim($_GET['solicitante'] ?? ''));
 $escalado_curp = htmlspecialchars(trim($_GET['curp'] ?? ''));
@@ -48,14 +48,14 @@ $escalado_folio = htmlspecialchars(trim($_GET['folio_origen'] ?? ''));
             
             <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>">
                 <a href="#catSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo ($current_module == 'ciudadanos') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">CatÃ¡logos</span>
+                    <i class="fa-solid fa-address-book"></i> <span class="sidebar-text">Catálogos</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo ($current_module == 'ciudadanos') ? 'show' : ''; ?>" id="catSubmenu">
                     <li class="<?php echo ($current_module == 'ciudadanos') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'ciudadanos') ? 'index.php' : $path_prefix . 'ciudadanos/index.php'; ?>"><i class="fa-solid fa-users"></i> <span class="sidebar-text">Ciudadanos</span></a></li>
                 </ul>
             </li>
 
-            <!-- Registros de Actos (OficialÃ­a) -->
+            <!-- Registros de Actos (Oficialía) -->
             <?php if (\Core\Auth::hasPermission('permiso_registro_nacimientos') || \Core\Auth::hasPermission('permiso_registro_matrimonios') || \Core\Auth::hasPermission('permiso_registro_divorcios') || \Core\Auth::hasPermission('permiso_registro_defunciones') || \Core\Auth::hasPermission('permiso_registro_inscripciones') || \Core\Auth::hasPermission('permiso_registro_reconocimientos')): ?>
             <li class="<?php echo in_array($current_module, ['nacimientos', 'matrimonios', 'divorcios', 'defunciones', 'inscripciones', 'reconocimientos']) ? 'active' : ''; ?>">
                 <a href="#vitalesSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
@@ -84,18 +84,18 @@ $escalado_folio = htmlspecialchars(trim($_GET['folio_origen'] ?? ''));
             </li>
             <?php endif; ?>
 
-            <!-- ExpediciÃ³n de Actas -->
+            <!-- Expedición de Actas -->
             <?php if (\Core\Auth::hasPermission('permiso_actas_locales') || \Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
             <li class="<?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'active' : ''; ?>">
                 <a href="#actasSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">ExpediciÃ³n de Actas</span>
+                    <i class="fa-solid fa-print"></i> <span class="sidebar-text">Expedición de Actas</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo in_array($current_module, ['actas_locales', 'foraneas']) ? 'show' : ''; ?>" id="actasSubmenu">
                     <?php if (\Core\Auth::hasPermission('permiso_actas_locales')): ?>
                     <li class="<?php echo ($current_module == 'actas_locales') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'actas_locales') ? 'index.php' : $path_prefix . 'actas_locales/index.php'; ?>"><i class="fa-solid fa-file-invoice"></i> <span class="sidebar-text">Actas Locales</span></a></li>
                     <?php endif; ?>
                     <?php if (\Core\Auth::hasPermission('permiso_actas_foraneas')): ?>
-                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas ForÃ¡neas</span></a></li>
+                    <li class="<?php echo ($current_module == 'foraneas') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'foraneas') ? 'index.php' : $path_prefix . 'foraneas/index.php'; ?>"><i class="fa-solid fa-plane-arrival"></i> <span class="sidebar-text">Actas Foráneas</span></a></li>
                     <?php endif; ?>
                 </ul>
             </li>
@@ -125,7 +125,7 @@ $escalado_folio = htmlspecialchars(trim($_GET['folio_origen'] ?? ''));
                     <i class="fa-solid fa-id-card"></i> <span class="sidebar-text">Servicios CURP</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo ($current_module == 'curp') ? 'show' : ''; ?>" id="curpSubmenu">
-                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">TrÃ¡mites CURP</span></a></li>
+                    <li class="<?php echo ($current_module == 'curp') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'curp') ? 'index.php' : $path_prefix . 'curp/index.php'; ?>"><i class="fa-solid fa-fingerprint"></i> <span class="sidebar-text">Trámites CURP</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -140,7 +140,7 @@ $escalado_folio = htmlspecialchars(trim($_GET['folio_origen'] ?? ''));
                     <?php if (\Core\Auth::hasPermission('permiso_peticiones_rapidas')): ?>
                     <li class="<?php echo ($current_module == 'peticion_rapida' && basename($_SERVER['PHP_SELF']) == 'create.php') ? 'active' : ''; ?>">
                         <a href="<?php echo ($current_module == 'peticion_rapida') ? 'create.php' : $path_prefix . 'peticion_rapida/create.php'; ?>">
-                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">PeticiÃ³n RÃ¡pida</span>
+                            <i class="fa-solid fa-bolt text-warning"></i> <span class="sidebar-text">Petición Rápida</span>
                         </a>
                     </li>
                     <li class="<?php echo ($current_module == 'peticion_rapida' && (basename($_SERVER['PHP_SELF']) == 'index.php' || basename($_SERVER['PHP_SELF']) == 'edit.php')) ? 'active' : ''; ?>">
@@ -165,18 +165,18 @@ $escalado_folio = htmlspecialchars(trim($_GET['folio_origen'] ?? ''));
             </li>
             <?php endif; ?>
 
-            <!-- AdministraciÃ³n (Admin / Supervisor) -->
+            <!-- Administración (Admin / Supervisor) -->
             <?php if (in_array($_SESSION['user_rol'] ?? '', ['ADMIN', 'COORDINADOR', 'SUPERVISOR'])): ?>
             <li class="<?php echo ($current_module == 'public' && (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php')) ? 'active' : ''; ?>">
                 <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'true' : 'false'; ?>" class="dropdown-toggle">
-                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">AdministraciÃ³n</span>
+                    <i class="fa-solid fa-users-gear"></i> <span class="sidebar-text">Administración</span>
                 </a>
                 <ul class="collapse list-unstyled <?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php' || basename($_SERVER['PHP_SELF']) == 'auditoria.php' || basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'show' : ''; ?>" id="adminSubmenu">
                     <?php if (($_SESSION['user_rol'] ?? '') === 'ADMIN'): ?>
                     <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'usuarios.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'usuarios.php' : '../../public/usuarios.php'; ?>"><i class="fa-solid fa-user-shield"></i> <span class="sidebar-text">Usuarios y Permisos</span></a></li>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">AuditorÃ­a y Errores</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'auditoria.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'auditoria.php' : '../../public/auditoria.php'; ?>"><i class="fa-solid fa-clipboard-list"></i> <span class="sidebar-text">Auditoría y Errores</span></a></li>
                     <?php endif; ?>
-                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y CatÃ¡logos</span></a></li>
+                    <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'catalogos.php') ? 'active' : ''; ?>"><a href="<?php echo ($current_module == 'public') ? 'catalogos.php' : '../../public/catalogos.php'; ?>"><i class="fa-solid fa-gears"></i> <span class="sidebar-text">Conceptos y Catálogos</span></a></li>
                 </ul>
             </li>
             <?php endif; ?>
@@ -187,19 +187,39 @@ $escalado_folio = htmlspecialchars(trim($_GET['folio_origen'] ?? ''));
     <div id="content">
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
-                <button type="button" id="sidebarCollapse" class="btn-sidebar-toggle">
+                <button type="button" id="sidebarCollapse" class="btn-sidebar-toggle" aria-label="Toggle Sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="d-flex align-items-center ms-auto">
+                    <!-- Historial de Notificaciones -->
+                    <div class="dropdown me-3" id="notificacionesMenu">
+                        <a class="nav-link dropdown-toggle text-dark position-relative no-caret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-bell fa-lg"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifBadge" style="font-size: 0.65rem; display: none;">0</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end py-0 shadow border-0" style="width: 320px; max-height: 400px; overflow-y: auto;" id="notifList">
+                            <li class="p-3 border-bottom bg-light">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Historial de Notificaciones</span>
+                                    <span class="badge bg-primary rounded-pill" id="notifTotal">0</span>
+                                </div>
+                            </li>
+                            <li class="p-3 text-center text-muted" id="notifEmpty">
+                                <i class="fa-solid fa-bell-slash mb-2 fa-lg"></i>
+                                <p class="mb-0 small">No hay notificaciones recientes</p>
+                            </li>
+                        </ul>
+                    </div>
+
                     <div class="dropdown">
                         <a class="nav-link dropdown-toggle text-dark d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                            <?php echo \Core\Utils::getAvatarHtml(\Core\Auth::getUserName(), 34); ?>
+                            <?php echo \Core\Utils::getAvatarHtml(\Core\Auth::getUserName(), 32); ?>
                             <span class="fw-semibold ms-1"><?php echo htmlspecialchars(\Core\Auth::getUserName()); ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0">
                             <li><a class="dropdown-item py-2" href="<?php echo $profile_link; ?>"><i class="fa-solid fa-user fa-sm me-2 text-muted"></i> Perfil</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item py-2 text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar SesiÃ³n</a></li>
+                            <li><a class="dropdown-item py-2 text-danger" href="<?php echo $logout_link; ?>"><i class="fa-solid fa-right-from-bracket fa-sm me-2"></i> Cerrar Sesión</a></li>
                         </ul>
                     </div>
                 </div>
@@ -210,7 +230,7 @@ $escalado_folio = htmlspecialchars(trim($_GET['folio_origen'] ?? ''));
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h2 class="fw-bold mb-1"><i class="fa-solid fa-folder-plus text-primary me-2"></i> Apertura de Expediente</h2>
-                    <p class="text-muted small mb-0">Ventanilla de Seguimiento â€” Casos especiales, dictÃ¡menes y trÃ¡mites de largo plazo</p>
+                    <p class="text-muted small mb-0">Ventanilla de Seguimiento — Casos especiales, dictámenes y trámites de largo plazo</p>
                 </div>
                 <a href="index.php" class="btn btn-secondary">
                     <i class="fa-solid fa-arrow-left me-1"></i> Volver a Expedientes
@@ -221,7 +241,7 @@ $escalado_folio = htmlspecialchars(trim($_GET['folio_origen'] ?? ''));
             <div class="alert alert-info border-0 shadow-sm mb-4 d-flex align-items-center">
                 <i class="fa-solid fa-link fa-lg me-3 text-info"></i>
                 <div>
-                    <strong>TrÃ¡mite escalado desde Ventanilla RÃ¡pida (Folio: <?php echo $escalado_folio; ?>)</strong>
+                    <strong>Trámite escalado desde Ventanilla Rápida (Folio: <?php echo $escalado_folio; ?>)</strong>
                     <div class="small">Se han precargado los antecedentes para aperturar el expediente formal de seguimiento.</div>
                 </div>
             </div>
@@ -237,9 +257,9 @@ $escalado_folio = htmlspecialchars(trim($_GET['folio_origen'] ?? ''));
                                 <label for="ciudadano_id" class="form-label fw-bold">
                                     Ciudadano Titular del Expediente <span class="text-danger">*</span>
                                 </label>
-                                <select id="ciudadano_id" name="ciudadano_id" required placeholder="Buscar por CURP o nombre en el padrÃ³n..."></select>
+                                <select id="ciudadano_id" name="ciudadano_id" required placeholder="Buscar por CURP o nombre en el padrón..."></select>
                                 <div class="form-text">
-                                    Â¿No estÃ¡ en el padrÃ³n? <a href="../ciudadanos/create.php" target="_blank" class="fw-semibold">Registrar ciudadano en padrÃ³n</a>.
+                                    ¿No está en el padrón? <a href="../ciudadanos/create.php" target="_blank" class="fw-semibold">Registrar ciudadano en padrón</a>.
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -248,13 +268,13 @@ $escalado_folio = htmlspecialchars(trim($_GET['folio_origen'] ?? ''));
                                 </label>
                                 <select class="form-select" id="tipo_peticion" name="tipo_peticion" required>
                                     <option value="">Seleccione la materia del caso...</option>
-                                    <option value="CORRECCION_ACTA">CORRECCIÃ“N ADMINISTRATIVA DE ACTA</option>
-                                    <option value="ACLARACION">ACLARACIÃ“N JURÃDICA / COTEJO DE LIBRO</option>
-                                    <option value="DIGITALIZACION">DIGITALIZACIÃ“N / ALTA EN BASE NACIONAL (RENAPO/SIDEC)</option>
-                                    <option value="REGISTRO_EXTEMPORANEO">SOLICITUD DE REGISTRO EXTEMPORÃNEO</option>
-                                    <option value="IDENTIDAD_GENERO">RECONOCIMIENTO DE IDENTIDAD DE GÃ‰NERO</option>
-                                    <option value="OFICIO_DIR_GENERAL">TRÃMITE TURNADO A DIRECCIÃ“N GENERAL</option>
-                                    <option value="OTRO">OTRO TRÃMITE ESPECIAL EN SEGUIMIENTO</option>
+                                    <option value="CORRECCION_ACTA">CORRECCIÓN ADMINISTRATIVA DE ACTA</option>
+                                    <option value="ACLARACION">ACLARACIÓN JURÍDICA / COTEJO DE LIBRO</option>
+                                    <option value="DIGITALIZACION">DIGITALIZACIÓN / ALTA EN BASE NACIONAL (RENAPO/SIDEC)</option>
+                                    <option value="REGISTRO_EXTEMPORANEO">SOLICITUD DE REGISTRO EXTEMPORÁNEO</option>
+                                    <option value="IDENTIDAD_GENERO">RECONOCIMIENTO DE IDENTIDAD DE GÉNERO</option>
+                                    <option value="OFICIO_DIR_GENERAL">TRÁMITE TURNADO A DIRECCIÓN GENERAL</option>
+                                    <option value="OTRO">OTRO TRÁMITE ESPECIAL EN SEGUIMIENTO</option>
                                 </select>
                             </div>
                         </div>
@@ -262,10 +282,10 @@ $escalado_folio = htmlspecialchars(trim($_GET['folio_origen'] ?? ''));
                         <div class="row mb-3">
                             <div class="col-12">
                                 <label for="descripcion" class="form-label fw-bold">
-                                    Antecedentes, Motivo del TrÃ¡mite y Dictamen Requerido <span class="text-danger">*</span>
+                                    Antecedentes, Motivo del Trámite y Dictamen Requerido <span class="text-danger">*</span>
                                 </label>
                                 <textarea class="form-control text-uppercase-input" id="descripcion" name="descripcion" rows="5" 
-                                          placeholder="EJ: SE RECIBE SOLICITUD DE RECTIFICACIÃ“N POR ERROR EN EL APELLIDO PATERNO DEL REGISTRADO EN EL LIBRO 2 ACTA 45 DEL AÃ‘O 1980. SE TURNA A REVISIÃ“N DE ARCHIVO..." required><?php echo !empty($escalado_detalle) ? htmlspecialchars("TRÃMITE ESCALADO DESDE VENTANILLA RÃPIDA [FOLIO {$escalado_folio}]: {$escalado_detalle}") : ''; ?></textarea>
+                                          placeholder="EJ: SE RECIBE SOLICITUD DE RECTIFICACIÓN POR ERROR EN EL APELLIDO PATERNO DEL REGISTRADO EN EL LIBRO 2 ACTA 45 DEL AÑO 1980. SE TURNA A REVISIÓN DE ARCHIVO..." required><?php echo !empty($escalado_detalle) ? htmlspecialchars("TRÁMITE ESCALADO DESDE VENTANILLA RÁPIDA [FOLIO {$escalado_folio}]: {$escalado_detalle}") : ''; ?></textarea>
                             </div>
                         </div>
 
@@ -337,7 +357,7 @@ $(document).ready(function() {
         }
 
         if (desc.length < 10) {
-            Swal.fire({ icon: 'warning', title: 'DescripciÃ³n detallada', text: 'Escriba una descripciÃ³n de antecedentes de al menos 10 caracteres.', confirmButtonColor: 'var(--secondary-color)' });
+            Swal.fire({ icon: 'warning', title: 'Descripción detallada', text: 'Escriba una descripción de antecedentes de al menos 10 caracteres.', confirmButtonColor: 'var(--secondary-color)' });
             return;
         }
 
@@ -367,7 +387,7 @@ $(document).ready(function() {
             },
             error: function() {
                 $btn.prop('disabled', false).html('<i class="fa-solid fa-folder-plus me-1"></i> Aperturar Expediente');
-                Swal.fire({ icon: 'error', title: 'Error de ConexiÃ³n', text: 'No se pudo conectar con el servidor.', confirmButtonColor: 'var(--primary-color)' });
+                Swal.fire({ icon: 'error', title: 'Error de Conexión', text: 'No se pudo conectar con el servidor.', confirmButtonColor: 'var(--primary-color)' });
             }
         });
     });

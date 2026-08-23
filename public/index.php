@@ -233,63 +233,63 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             </div>
             
             <!-- 5 Tarjetas KPI Superiores con Luxury Gradients -->
-            <div class="row row-cols-1 row-cols-md-3 row-cols-xl-5 g-3 mb-4">
+            <section aria-label="Indicadores clave de rendimiento" class="row row-cols-1 row-cols-md-3 row-cols-xl-5 g-3 mb-4">
                 <div class="col">
-                    <div class="card-kpi kpi-burgundy">
+                    <div class="card-kpi kpi-burgundy" role="region" aria-label="Trámites Hoy">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <div class="kpi-label">Trámites Hoy</div>
-                                <div class="kpi-value" id="card-hoy">0</div>
+                                <div class="kpi-value" id="card-hoy" aria-live="polite">0</div>
                             </div>
-                            <div class="kpi-icon-badge"><i class="fa-solid fa-calendar-day"></i></div>
+                            <div class="kpi-icon-badge" aria-hidden="true"><i class="fa-solid fa-calendar-day"></i></div>
                         </div>
                     </div>
                 </div>
                 <div class="col">
-                    <div class="card-kpi kpi-slate">
+                    <div class="card-kpi kpi-slate" role="region" aria-label="Tickets Pendientes">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <div class="kpi-label">Tickets Pendientes</div>
-                                <div class="kpi-value" id="card-peticiones">0</div>
+                                <div class="kpi-value" id="card-peticiones" aria-live="polite">0</div>
                             </div>
-                            <div class="kpi-icon-badge"><i class="fa-solid fa-ticket"></i></div>
+                            <div class="kpi-icon-badge" aria-hidden="true"><i class="fa-solid fa-ticket"></i></div>
                         </div>
                     </div>
                 </div>
                 <div class="col">
-                    <div class="card-kpi kpi-gold">
+                    <div class="card-kpi kpi-gold" role="region" aria-label="Inexistencias">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <div class="kpi-label">Inexistencias</div>
-                                <div class="kpi-value" id="card-inexistencias">0</div>
+                                <div class="kpi-value" id="card-inexistencias" aria-live="polite">0</div>
                             </div>
-                            <div class="kpi-icon-badge"><i class="fa-solid fa-clock"></i></div>
+                            <div class="kpi-icon-badge" aria-hidden="true"><i class="fa-solid fa-clock"></i></div>
                         </div>
                     </div>
                 </div>
                 <div class="col">
-                    <div class="card-kpi kpi-emerald">
+                    <div class="card-kpi kpi-emerald" role="region" aria-label="Foráneas Validadas">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <div class="kpi-label">Foráneas Validadas</div>
-                                <div class="kpi-value" id="card-foraneas">0</div>
+                                <div class="kpi-value" id="card-foraneas" aria-live="polite">0</div>
                             </div>
-                            <div class="kpi-icon-badge"><i class="fa-solid fa-check-double"></i></div>
+                            <div class="kpi-icon-badge" aria-hidden="true"><i class="fa-solid fa-check-double"></i></div>
                         </div>
                     </div>
                 </div>
                 <div class="col">
-                    <div class="card-kpi kpi-teal">
+                    <div class="card-kpi kpi-teal" role="region" aria-label="Recaudación">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <div class="kpi-label">Recaudación</div>
-                                <div class="kpi-value" id="card-recaudacion">$0.00</div>
+                                <div class="kpi-value" id="card-recaudacion" aria-live="polite">$0.00</div>
                             </div>
-                            <div class="kpi-icon-badge"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+                            <div class="kpi-icon-badge" aria-hidden="true"><i class="fa-solid fa-money-bill-trend-up"></i></div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
             
             <div class="row mb-4">
                 <div class="col-lg-8 mb-4 mb-lg-0">
@@ -298,7 +298,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             <span><i class="fa-solid fa-chart-line text-primary me-2"></i> Tendencia de Trámites Procesados (Últimos 7 Días)</span>
                         </div>
                         <div class="card-body">
-                            <canvas id="diarioChart" style="max-height: 320px; width: 100%;"></canvas>
+                            <canvas id="diarioChart" role="img" aria-label="Gráfica lineal de tendencia de trámites procesados en los últimos 7 días" style="max-height: 320px; width: 100%;"></canvas>
                         </div>
                     </div>
                 </div>
@@ -307,27 +307,31 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         <div class="card-header">
                             <i class="fa-solid fa-bolt text-primary me-2"></i> Accesos Rápidos
                         </div>
-                        <div class="card-body d-flex flex-column justify-content-center">
-                            <div class="d-grid gap-2">
-                                <a href="../modules/peticion_rapida/create.php" class="btn btn-outline-warning text-dark text-start py-2">
-                                    <i class="fa-solid fa-bolt text-warning me-2"></i> <strong>Petición Rápida</strong> (Captura)
-                                </a>
-                                <a href="../modules/peticion_rapida/index.php" class="btn btn-outline-primary text-start py-2">
-                                    <i class="fa-solid fa-table-list text-primary me-2"></i> Control de Peticiones
-                                </a>
-                                <a href="../modules/peticion_rapida/reporte_diario.php" class="btn btn-outline-info text-start py-2">
-                                    <i class="fa-solid fa-file-invoice text-info me-2"></i> Reporte Diario Oficial
-                                </a>
-                                <a href="../modules/peticiones/index.php" class="btn btn-outline-secondary text-start py-2">
-                                    <i class="fa-solid fa-folder-open text-success me-2"></i> Ventanilla de Seguimiento
-                                </a>
-                                <a href="../modules/nacimientos/create.php" class="btn btn-outline-success text-start py-2">
-                                    <i class="fa-solid fa-baby me-2"></i> Registrar Nacimiento
-                                </a>
-                                <a href="../modules/foraneas/create.php" class="btn btn-outline-warning text-start py-2">
-                                    <i class="fa-solid fa-plane-arrival me-2"></i> Registrar Acta Foránea
-                                </a>
-                            </div>
+                        <div class="card-body">
+                            <a href="../modules/peticion_rapida/create.php" class="quick-action-btn">
+                                <i class="fa-solid fa-bolt text-warning"></i>
+                                <span><strong>Petición Rápida</strong> (Captura)</span>
+                            </a>
+                            <a href="../modules/peticion_rapida/index.php" class="quick-action-btn">
+                                <i class="fa-solid fa-table-list text-primary"></i>
+                                <span>Control de Peticiones</span>
+                            </a>
+                            <a href="../modules/peticion_rapida/reporte_diario.php" class="quick-action-btn">
+                                <i class="fa-solid fa-file-invoice text-info"></i>
+                                <span>Reporte Diario Oficial</span>
+                            </a>
+                            <a href="../modules/peticiones/index.php" class="quick-action-btn">
+                                <i class="fa-solid fa-folder-open text-emerald"></i>
+                                <span>Ventanilla de Seguimiento</span>
+                            </a>
+                            <a href="../modules/nacimientos/create.php" class="quick-action-btn">
+                                <i class="fa-solid fa-baby text-primary"></i>
+                                <span>Registrar Nacimiento</span>
+                            </a>
+                            <a href="../modules/foraneas/create.php" class="quick-action-btn mb-0">
+                                <i class="fa-solid fa-plane-arrival text-slate"></i>
+                                <span>Registrar Acta Foránea</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -341,7 +345,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             <i class="fa-solid fa-coins text-emerald me-2"></i> Recaudación Proyectada por Acto
                         </div>
                         <div class="card-body">
-                            <canvas id="recaudacionChart" style="max-height: 280px; width: 100%;"></canvas>
+                            <canvas id="recaudacionChart" role="img" aria-label="Gráfica de barras con la recaudación proyectada por cada acto registral" style="max-height: 280px; width: 100%;"></canvas>
                         </div>
                     </div>
                 </div>
@@ -351,7 +355,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             <i class="fa-solid fa-chart-pie text-slate me-2"></i> Carga Operativa por Módulo
                         </div>
                         <div class="card-body">
-                            <canvas id="cargaChart" style="max-height: 280px; width: 100%;"></canvas>
+                            <canvas id="cargaChart" role="img" aria-label="Gráfica de dona con la distribución de carga operativa entre módulos" style="max-height: 280px; width: 100%;"></canvas>
                         </div>
                     </div>
                 </div>
@@ -381,10 +385,16 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     $('#card-foraneas').text(response.cards.foraneas_validadas || 0);
                     $('#card-recaudacion').text('$' + (parseFloat(response.cards.recaudacion_estimada || 0).toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})));
 
+                    // Theme-aware Chart Settings
+                    const isDark = document.body.classList.contains('dark-mode') || document.documentElement.classList.contains('dark-mode');
+                    const textColor = isDark ? '#94A3B8' : '#64748B';
+                    const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+                    const donutBorder = isDark ? '#1E293B' : '#FFFFFF';
+
                     // 1. Gráfica de Tendencia (Line Chart Guinda/Vino)
                     const ctxDiario = document.getElementById('diarioChart').getContext('2d');
                     const gradDiario = ctxDiario.createLinearGradient(0, 0, 0, 300);
-                    gradDiario.addColorStop(0, 'rgba(105, 28, 50, 0.25)');
+                    gradDiario.addColorStop(0, 'rgba(105, 28, 50, 0.35)');
                     gradDiario.addColorStop(1, 'rgba(105, 28, 50, 0.00)');
 
                     new Chart(ctxDiario, {
@@ -394,13 +404,13 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             datasets: [{
                                 label: 'Trámites',
                                 data: response.processed_by_day.data,
-                                borderColor: '#691C32',
+                                borderColor: '#8C1D33',
                                 borderWidth: 3,
                                 backgroundColor: gradDiario,
                                 fill: true,
                                 tension: 0.35,
                                 pointBackgroundColor: '#B38E5D',
-                                pointBorderColor: '#fff',
+                                pointBorderColor: donutBorder,
                                 pointBorderWidth: 2,
                                 pointHoverRadius: 6,
                                 pointRadius: 4
@@ -413,9 +423,14 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                 legend: { display: false }
                             },
                             scales: {
+                                x: {
+                                    ticks: { color: textColor },
+                                    grid: { color: gridColor }
+                                },
                                 y: {
                                     beginAtZero: true,
-                                    ticks: { stepSize: 1 }
+                                    ticks: { stepSize: 1, color: textColor },
+                                    grid: { color: gridColor }
                                 }
                             }
                         }
@@ -446,13 +461,19 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                 legend: { display: false }
                             },
                             scales: {
+                                x: {
+                                    ticks: { color: textColor },
+                                    grid: { color: gridColor }
+                                },
                                 y: {
                                     beginAtZero: true,
                                     ticks: {
+                                        color: textColor,
                                         callback: function(value) {
                                             return '$' + value;
                                         }
-                                    }
+                                    },
+                                    grid: { color: gridColor }
                                 }
                             }
                         }
@@ -467,18 +488,18 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                             datasets: [{
                                 data: response.carga_operativa.data,
                                 backgroundColor: [
-                                    '#691C32', // Guinda
+                                    '#8C1D33', // Guinda
                                     '#B38E5D', // Dorado
                                     '#0F766E', // Esmeralda
-                                    '#1E293B', // Slate
+                                    '#3B82F6', // Azul brillante
                                     '#BE123C', // Rosa oscuro
                                     '#D97706', // Ámbar
-                                    '#0284C7', // Azul
+                                    '#0284C7', // Azul cielo
                                     '#7C3AED', // Violeta
                                     '#64748B'  // Gris
                                 ],
                                 borderWidth: 2,
-                                borderColor: '#fff'
+                                borderColor: donutBorder
                             }]
                         },
                         options: {
@@ -489,6 +510,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                     position: 'right',
                                     labels: {
                                         boxWidth: 12,
+                                        color: textColor,
                                         font: { size: 11 }
                                     }
                                 }

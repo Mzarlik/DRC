@@ -70,6 +70,178 @@ body.dark-mode {
     --shadow-elevated: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
 }
 
+/* Dark Mode Surface Overrides */
+body.dark-mode .card,
+body.dark-mode .card-header,
+body.dark-mode .card-header.bg-white,
+body.dark-mode .bg-white {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-color) !important;
+}
+
+body.dark-mode .dropdown-menu {
+    background-color: var(--bg-surface);
+    border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+body.dark-mode .dropdown-item {
+    color: var(--text-main);
+}
+
+body.dark-mode .dropdown-item:hover,
+body.dark-mode .dropdown-item:focus {
+    background-color: var(--table-hover-bg);
+    color: var(--text-main);
+}
+
+body.dark-mode .dropdown-divider {
+    border-color: var(--border-color);
+}
+
+body.dark-mode .notif-dropdown li.bg-light,
+body.dark-mode .bg-light {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .badge.bg-light {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-color) !important;
+}
+
+body.dark-mode .modal-content {
+    background-color: var(--bg-surface);
+    border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+    border-color: var(--border-color);
+}
+
+body.dark-mode .text-dark {
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .nav-tabs .nav-link {
+    color: var(--text-muted);
+}
+
+body.dark-mode .nav-tabs .nav-link.active {
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+    border-color: var(--border-color) var(--border-color) var(--bg-surface);
+}
+
+body.dark-mode .form-control:disabled, 
+body.dark-mode .form-control[readonly] {
+    background-color: rgba(255, 255, 255, 0.03);
+    color: var(--text-muted);
+    border-color: var(--border-color);
+}
+
+/* Clases de Utilidad de Color Institucionales */
+.text-emerald { color: #0F766E !important; }
+.text-slate { color: #64748B !important; }
+.text-gold { color: #B38E5D !important; }
+
+/* ==========================================================================
+   Accesibilidad & Navegación Inclusiva (WCAG 2.1 Nivel AA)
+   ========================================================================== */
+
+/* Foco Visible de Alto Contraste para Teclado */
+:focus-visible {
+    outline: 2px solid var(--secondary-color) !important;
+    outline-offset: 2px !important;
+}
+
+body.dark-mode :focus-visible {
+    outline: 2px solid var(--accent-gold) !important;
+    outline-offset: 2px !important;
+}
+
+/* Enlace Accesible de Salto al Contenido Principal */
+.skip-link {
+    position: fixed;
+    top: -120px;
+    left: 1rem;
+    background: var(--primary-color);
+    color: #FFFFFF !important;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    z-index: 99999;
+    box-shadow: var(--shadow-elevated);
+    transition: top 0.2s ease-in-out;
+    text-decoration: none;
+    border: 2px solid var(--accent-gold);
+    border-top: none;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+    top: 0;
+    outline: 2px solid var(--accent-gold) !important;
+    outline-offset: 2px;
+}
+
+/* Optimización de Contraste en Placeholders */
+::placeholder {
+    color: #64748B !important;
+    opacity: 0.85;
+}
+
+body.dark-mode ::placeholder {
+    color: #94A3B8 !important;
+    opacity: 0.85;
+}
+
+/* Soporte para Preferencias de Movimiento Reducido */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Utilidades de Formularios y Auditoría */
+.stack-trace {
+    max-height: 200px;
+    overflow-y: auto;
+    background: #f8f9fa;
+    padding: 10px;
+    font-size: 0.85em;
+    font-family: monospace;
+    border-radius: var(--radius-sm);
+    white-space: pre-wrap;
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .stack-trace {
+    background: #1E293B;
+    color: #dee2e6;
+    border-color: var(--border-color);
+}
+
+.is-valid-curp { 
+    border-color: #0F766E !important; 
+    background-color: rgba(15, 118, 110, 0.05); 
+}
+
+.is-invalid-curp { 
+    border-color: #BE123C !important; 
+    background-color: rgba(190, 18, 60, 0.05); 
+}
+
 /* ==========================================================================
    Base & Tipografía
    ========================================================================== */

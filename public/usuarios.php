@@ -37,6 +37,8 @@ try {
     <!-- Assets Locales (No CDN / Offline) -->
     <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/vendor/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="../assets/vendor/datatables/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="../assets/vendor/datatables/css/responsive.bootstrap5.min.css">
     <link rel="stylesheet" href="../assets/vendor/sweetalert2/sweetalert2.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
     <script>if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark-mode');}</script>
@@ -198,7 +200,7 @@ try {
     <div id="content">
         <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container-fluid">
-                <button type="button" id="sidebarCollapse" class="btn btn-primary" style="background: var(--primary-color); border: none;">
+                <button type="button" id="sidebarCollapse" class="btn-sidebar-toggle" aria-label="Toggle Sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="d-flex align-items-center ms-auto">
@@ -242,15 +244,18 @@ try {
 
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Administrar Usuarios y Permisos</h2>
+                <div>
+                    <h2 class="fw-bold mb-1"><i class="fa-solid fa-users-gear text-primary me-2"></i> Administrar Usuarios y Permisos</h2>
+                    <p class="text-muted small mb-0">Gestión de cuentas de operadores, coordinadores y asignación granular de permisos</p>
+                </div>
                 <div class="d-flex gap-2">
                     <?php if (\Core\Auth::canExportar()): ?>
-                    <button class="btn btn-success" id="btnExportExcel" style="background: var(--accent-color, #27ae60); border: none;">
-                        <i class="fa-solid fa-file-excel"></i> Exportar consulta a Excel
+                    <button class="btn btn-excel" id="btnExportExcel">
+                        <i class="fa-solid fa-file-excel me-1"></i> Exportar consulta a Excel
                     </button>
                     <?php endif; ?>
-                    <button class="btn btn-primary" style="background: var(--secondary-color); border: none;" data-bs-toggle="modal" data-bs-target="#createUserModal">
-                        <i class="fa-solid fa-user-plus me-2"></i> Nuevo Usuario
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
+                        <i class="fa-solid fa-user-plus me-1"></i> Nuevo Usuario
                     </button>
                 </div>
             </div>
@@ -258,7 +263,7 @@ try {
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-striped align-middle">
+                        <table id="usuariosTable" class="table table-striped align-middle dt-responsive nowrap w-100">
                             <thead>
                                 <tr>
                                     <th>Nombre</th>
@@ -480,13 +485,18 @@ try {
 
 <script src="../assets/vendor/jquery/jquery-3.7.1.min.js"></script>
 <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="../assets/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="../assets/vendor/datatables/js/responsive.bootstrap5.min.js"></script>
 <script src="../assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
 
 <script>
 $(document).ready(function() {
-    // Sidebar Collapse
-
-    // Cargar Notificaciones
+    $('#usuariosTable').DataTable({
+        responsive: true,
+        order: [[0, "asc"]],
+        pageLength: 10
+    });
 
     // Opening Edit Modal and setting fields
     $('.edit-perms-btn').on('click', function() {

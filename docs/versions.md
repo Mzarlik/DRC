@@ -4,6 +4,50 @@ Este documento registra todos los cambios notables, actualizaciones y correcione
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.5.6] - 2026-08-23
+### Añadido
+- **Clases Centralizadas en Design System (`assets/css/style.css`):** incorporación de `.stack-trace`, `.is-valid-curp` y `.is-invalid-curp` a las hojas de estilo globales con soporte para modo oscuro, eliminando bloques `<style>` embebidos en `public/auditoria.php` y `modules/peticion_rapida/create.php`.
+- **Enrutamiento AJAX Configurable (`assets/js/global.js`):** soporte para `window.DRC_BASE_URL` en la resolución de endpoints de APIs con fallback automático a rutas relativas seguras.
+
+### Cambiado
+- **Limpieza de Código y Comentarios Huérfanos:** eliminación de comentarios repetitivos `<!-- Sidebar -->` y stubs vacíos de JavaScript (`// Cargar Notificaciones`) en las vistas de `ciudadanos`, `defunciones`, `foraneas`, `inexistencias`, `nacimientos`, `reportes`, `auditoria` y `catalogos`.
+
+## [1.5.5] - 2026-08-23
+### Añadido
+- **Navegación por Teclado e Indicador de Foco Visible (`assets/css/style.css`):** implementación de anillo de foco institucional `:focus-visible` de 2px con desplazamiento (offset) en botones, enlaces, campos de formulario y controles interactivos en temas claro (`#691C32`) y oscuro (`#B38E5D`), cumpliendo con la pauta WCAG 2.1 AA (Criterio 2.4.7).
+- **Enlace de Salto al Contenido Principal (`assets/css/style.css`, `assets/js/global.js`):** inyección automática de `.skip-link` al inicio de cada página, accesible por teclado al presionar Tab para permitir que lectores de pantalla omitan la navegación lateral.
+- **Soporte `prefers-reduced-motion` (`assets/css/style.css`):** respeto estricto a las preferencias de reducción de movimiento y animaciones para usuarios con sensibilidad vestibular o mareo visual.
+- **Gestión Accesible de Foco en Modales (`assets/js/global.js`):** autoenfoque del primer elemento interactivo (`input`, `select`, `button`) al desplegar modales de Bootstrap.
+- **Semántica y Atributos ARIA Universales:** etiquetas `aria-label`, `aria-live="polite"` y `role="region"` en KPIs, gráficas y centro de notificaciones.
+
+## [1.5.4] - 2026-08-23
+### Añadido
+- **Feedback de Carga Global en Formularios (`assets/js/global.js`):** interceptor automático de envío en formularios (`submit`) que deshabilita el botón primario, muestra un spinner interactivo (`<i class="fa-solid fa-circle-notch fa-spin me-1"></i> Procesando...`) y restaura su estado en `ajaxComplete` o timeout de seguridad, previniendo dobles envíos por clics accidentales.
+- **Clases de Utilidad de Color Institucionales (`assets/css/style.css`):** definición de `.text-emerald` (`#0F766E`), `.text-slate` (`#64748B`) y `.text-gold` (`#B38E5D`).
+
+### Cambiado
+- **Refinamiento de Pantalla de Login (`public/login.php`):** ajuste de altura fluida con `min-height: 100vh; padding: 20px;` para evitar desbordamientos en teclados móviles virtuales, adaptación visual integral a Modo Oscuro (`.login-card` con variables de superficie) y botón institucional.
+- **Corrección de Parches Blancos en Modo Oscuro (`assets/css/style.css`):** remapeo de clases `.card-header.bg-white`, `.bg-light`, `.badge.bg-light`, `.dropdown-menu` y `.modal-content` para que tomen automáticamente las variables de superficie oscura (`#1E293B`) y contraste tipográfico adecuado sin destellos claros.
+- **Componente Accesos Rápidos en Dashboard (`public/index.php`):** sustitución de botones de contorno genéricos por tarjetas interactivas enriquecidas `.quick-action-btn` con acento dorado y transición hover.
+- **Adaptación Dinámica de Gráficas Chart.js (`public/index.php`):** detección de tema activo (`body.dark-mode`) en las gráficas de Tendencia, Recaudación y Carga Operativa, aplicando bordes de dona `#1E293B`, rejillas tenues y colores de texto legibles.
+
+## [1.5.3] - 2026-08-23
+### Añadido
+- **DataTables en Administración de Usuarios (`public/usuarios.php`):** inicialización de DataTables Responsive con búsqueda en tiempo real, ordenamiento por columnas, paginación y modo de tarjetas móviles en la vista de usuarios.
+- **Historial de Notificaciones universal:** integración del menú `#notificacionesMenu` (campana + badge + lista desplegable) en los módulos de *Petición Rápida* (`index.php`, `create.php`) y *Ventanilla de Seguimiento* (`index.php`, `create.php`).
+
+### Cambiado
+- **Estandarización de Botones de Exportar a Excel:** unificación a la clase semántica `.btn-excel` (`#0F766E`) con icono FontAwesome en `ciudadanos`, `defunciones`, `peticion_rapida`, `inexistencias`, `usuarios` y `auditoria`.
+- **Estandarización del Botón Toggle de Menú:** adopción homogénea de `.btn-sidebar-toggle` con accesibilidad ARIA (`aria-label="Toggle Sidebar"`) en todas las vistas administrativas (`perfil.php`, `usuarios.php`, `auditoria.php`, `catalogos.php`) y de módulos.
+- **Encabezados Institucionales Enriquecidos:** normalización visual de cabeceras (`d-flex justify-content-between`, icono institucional, título `h2` en negrita, subtítulo contextual en `text-muted` y botones de acción rápida homogéneos) en todos los módulos de captura (`create.php`) y listados.
+- **Limpieza de Estilos Inline:** eliminación de reglas inline redundantes (`style="background: var(--secondary-color)..."`) en favor de las clases del *Design System* (`.btn-primary`).
+
+## [1.5.2] - 2026-08-23
+### Corregido
+- **JavaScript en Perfil (`public/perfil.php`):** se eliminó bloque huérfano de código en el evento `ready` que causaba un `SyntaxError` e impedía la ejecución de los formularios de actualización de datos y cambio de contraseña.
+- **Codificación UTF-8 / Mojibake:** saneamiento integral de caracteres doblemente codificados en 34 archivos PHP de la aplicación (`public/`, `modules/`), restaurando acentos, caracteres especiales (`ñ`, `°`, `¡`, `¿`) y legibilidad en encabezados y menús.
+- **Traducción de meses en estadísticas (`public/api/stats.php`):** corrección tipográfica en el array de meses donde `'Sep'` mapeaba erróneamente a `'Ene'`, restaurando la visualización correcta de la serie temporal en el Dashboard.
+
 ## [1.5.1] - 2026-08-21
 ### Seguridad (implementación del plan `docs/analisis_completo/`)
 - **CSRF real en login (#5):** `public/login.php` incluye token oculto (`Auth::generateCSRF()`) y `public/auth.php` lo valida con `Auth::validateCSRF()` antes de autenticar; la sesión de login se inicia con `Auth::initSession()` (cookies HttpOnly/SameSite/Secure).
