@@ -4,6 +4,16 @@ Este documento registra todos los cambios notables, actualizaciones y correcione
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.5.7] - 2026-08-23
+### Seguridad (Área 1: Endurecimiento — defensa en profundidad)
+- **Guardia CLI-only en migraciones web (`docs/migration_extra.php`, `docs/migration_queue_reportes.php`, `docs/migration_encrypt.php`):** las tres migraciones que carecían de protección propia ahora responden 403 si se invocan vía navegador; antes dependían exclusivamente de la regla `mod_rewrite` del `.htaccess` raíz (ineficaz con `AllowOverride` off o bajo Nginx/IIS). Permitían `ALTER TABLE` y re-encriptación masiva de CURPs sin autenticación.
+- **`.htaccess` propio en `cache/` y `public/exports/`:** bloqueo directo por Apache (`Require all denied`) de los archivos de caché serializada y de los 21 reportes `.xlsx` con PII; la descarga legítima sigue operando vía `public/api/download_export.php` (sesión + propietario/ADMIN).
+- **Invalidación de cookie de sesión en logout (`public/logout.php`):` ahora elimina la cookie del cliente (`setcookie` con parámetros de sesión) además de `session_unset()`/`session_destroy()`, y usa `Auth::initSession()` con cookies `HttpOnly/SameSite/Secure`.
+
+### Verificación
+- Re-auditoría de los 10 hallazgos de `SEGURIDAD_AUDITORIA.md`: los hallazgos 1 (SQLi `ORDER BY`), 2 (clave AES fallback), 4 (CSRF), 5 (bypass `cron_token`), 6 (XSS reportes), 7 (rate-limit login), 8 (token `validate.php`), 10 (cookies) ya estaban remediados en el código vigente; se cerró la brecha residual de defensa en profundidad (hallazgos 3 y 9).
+- Suite PHPUnit: 22 tests, 65 aserciones OK (3 errores pre-existentes por `ext-gd` no cargada en CLI, ajenos a esta versión).
+
 ## [1.5.6] - 2026-08-23
 ### Añadido
 - **Clases Centralizadas en Design System (`assets/css/style.css`):** incorporación de `.stack-trace`, `.is-valid-curp` y `.is-invalid-curp` a las hojas de estilo globales con soporte para modo oscuro, eliminando bloques `<style>` embebidos en `public/auditoria.php` y `modules/peticion_rapida/create.php`.

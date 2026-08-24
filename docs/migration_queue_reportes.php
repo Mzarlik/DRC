@@ -1,5 +1,9 @@
 <?php
 // docs/migration_queue_reportes.php
+if (php_sapi_name() !== 'cli') {
+    http_response_code(403);
+    exit("Solo ejecutable por CLI.\n");
+}
 require_once __DIR__ . '/../core/Database.php';
 use Core\Database;
 
