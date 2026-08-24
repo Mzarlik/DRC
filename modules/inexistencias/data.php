@@ -19,6 +19,7 @@ try {
     $length = isset($_GET['length']) ? intval($_GET['length']) : 10;
     $searchValue = isset($_GET['search']['value']) ? $_GET['search']['value'] : '';
     $filter_tipo = isset($_GET['tipo_constancia']) ? trim($_GET['tipo_constancia']) : '';
+    $filter_estatus = strtoupper(trim($_GET['estatus'] ?? ''));
 
     // Mapeo de columnas para ordenamiento
     $columns = array(
@@ -52,6 +53,11 @@ try {
     if ($filter_tipo != '') {
         $whereParts[] = "tipo_constancia = :tipo_constancia";
         $params[':tipo_constancia'] = $filter_tipo;
+    }
+
+    if (in_array($filter_estatus, ['PENDIENTE', 'FINALIZADO', 'CANCELADO'], true)) {
+        $whereParts[] = "estatus = :estatus";
+        $params[':estatus'] = $filter_estatus;
     }
 
     if ($searchValue != '') {

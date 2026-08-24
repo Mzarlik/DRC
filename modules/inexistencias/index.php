@@ -287,6 +287,15 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                          ?>
                                      </select>
                                 </div>
+                                <div class="col-md-4">
+                                    <label for="filter_estatus" class="form-label fw-bold small text-muted">Estatus</label>
+                                    <select class="form-select form-select-sm" id="filter_estatus">
+                                        <option value="">TODOS LOS ESTATUS</option>
+                                        <option value="PENDIENTE">PENDIENTE</option>
+                                        <option value="FINALIZADO">FINALIZADO</option>
+                                        <option value="CANCELADO">CANCELADO</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -505,6 +514,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 "url": "data.php",
                 "data": function(d) {
                     d.tipo_constancia = $('#filter_tipo').val();
+                    d.estatus = $('#filter_estatus').val();
                 }
             },
             "columns": [
@@ -529,6 +539,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 { "data": "fecha_llegada" },
                 { 
                     "data": "estatus",
+                    "responsivePriority": 2,
                     "render": function ( data, type, row ) {
                         let badgeClass = 'bg-secondary';
                         if(data === 'PENDIENTE') badgeClass = 'bg-warning text-dark';
@@ -541,6 +552,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     "data": null,
                     "orderable": false,
                     "searchable": false,
+                    "responsivePriority": 1,
                     "render": function(data, type, row) {
                         return `
                             <div class="btn-group btn-group-sm" role="group">
@@ -555,7 +567,16 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         });
 
         $('#inexistenciasTable').on('click', '.btn-seguimiento', function() {
-            abrirSeguimiento(table.row($(this).closest('tr')).data());
+            const $tr = $(this).closest('tr');
+            let data = table.row($tr).data();
+            if (!data) {
+                data = table.row($tr.prevAll('tr.parent').first()).data();
+            }
+            if (!data) {
+                const id = String($(this).data('id'));
+                data = table.rows().data().toArray().find(function(r) { return String(r.id) === id; });
+            }
+            abrirSeguimiento(data);
         });
 
         // 1.b Modal de Seguimiento de Constancias Emitidas
@@ -686,7 +707,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             );
         });
 
-        $('#filter_tipo').on('change', function() {
+        $('#filter_tipo, #filter_estatus').on('change', function() {
             table.draw();
         });
 

@@ -10,7 +10,8 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 - **Corrección de errores operativos (reactivación):** nuevas acciones sobre constancias: FINALIZAR (PENDIENTE → FINALIZADO), CANCELAR (PENDIENTE → CANCELADO) y REACTIVAR (FINALIZADO/CANCELADO → PENDIENTE) para deshacer equivocaciones de ventanilla. Cancelar y reactivar exigen motivo (mín. 5 caracteres) que se anexa a observaciones en MAYÚSCULAS y se registra en auditoría.
 - **Servicio `GestorInexistencias::actualizarEstatus()` (`core/Services/GestorInexistencias.php`):** valida transiciones de estatus permitidas, motivo obligatorio según acción, anexa trazabilidad a observaciones y audita con usuario, estatus previo/posterior y motivo.
 - **Endpoint `modules/inexistencias/update_status.php`:** POST con `Auth::checkPermission('permiso_constancias')`, `Auth::check()` y validación CSRF; delega en el servicio y responde JSON estándar.
-- **`modules/inexistencias/data.php`:** ahora expone `observaciones` y `creado_en` (sanitizados) para alimentar el modal de seguimiento.
+- **`modules/inexistencias/data.php`:** ahora expone `observaciones` y `creado_en` (sanitizados) para alimentar el modal de seguimiento; nuevo filtro server-side por `estatus` (whitelist PENDIENTE/FINALIZADO/CANCELADO).
+- **Estatus siempre visible y filtro rápido:** la columna Estatus conserva su badge de color (responsivePriority 2, no colapsa) y la tarjeta de Filtros incluye selector de Estatus que recarga la tabla vía AJAX.
 
 ## [1.5.7] - 2026-08-23
 ### Seguridad (Área 1: Endurecimiento — defensa en profundidad)
