@@ -303,6 +303,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                         <th>Fecha Trámite</th>
                                         <th>Fecha Llegada</th>
                                         <th>Estatus</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -441,6 +442,49 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
     </div>
 </div>
 
+<!-- Modal de Seguimiento de Constancia -->
+<div class="modal fade" id="seguimientoModal" tabindex="-1" aria-labelledby="seguimientoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-white" style="background: var(--primary-color) !important;">
+                <h5 class="modal-title fw-bold" id="seguimientoModalLabel"><i class="fa-solid fa-file-circle-exclamation me-2"></i> Seguimiento de Constancia</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="seg_id" value="">
+
+                <div class="alert py-2 px-3 mb-3" id="segBannerEstatus"></div>
+
+                <dl class="row mb-3">
+                    <dt class="col-sm-4 text-muted small">FOLIO / ID</dt>
+                    <dd class="col-sm-8 fw-bold" id="seg_folio">—</dd>
+                    <dt class="col-sm-4 text-muted small">TIPO DE CONSTANCIA</dt>
+                    <dd class="col-sm-8" id="seg_tipo">—</dd>
+                    <dt class="col-sm-4 text-muted small">NOMBRE COMPLETO</dt>
+                    <dd class="col-sm-8 fw-bold" id="seg_nombre">—</dd>
+                    <dt class="col-sm-4 text-muted small">LÍNEA DE PAGO</dt>
+                    <dd class="col-sm-8 font-monospace" id="seg_linea_pago">—</dd>
+                    <dt class="col-sm-4 text-muted small">FECHA DE TRÁMITE</dt>
+                    <dd class="col-sm-8" id="seg_fecha_tramite">—</dd>
+                    <dt class="col-sm-4 text-muted small">FECHA DE LLEGADA</dt>
+                    <dd class="col-sm-8" id="seg_fecha_llegada">—</dd>
+                    <dt class="col-sm-4 text-muted small">FECHA DE REGISTRO</dt>
+                    <dd class="col-sm-8" id="seg_creado_en">—</dd>
+                    <dt class="col-sm-4 text-muted small">OBSERVACIONES</dt>
+                    <dd class="col-sm-8" id="seg_observaciones" style="white-space: pre-wrap;">—</dd>
+                </dl>
+
+                <div class="mb-2">
+                    <label for="seg_motivo" class="form-label fw-bold">Motivo de la Acción <span class="text-danger">*</span></label>
+                    <textarea class="form-control text-uppercase-input" id="seg_motivo" rows="2" placeholder="OBLIGATORIO PARA CANCELAR O REACTIVAR. SE REGISTRA EN AUDITORÍA."></textarea>
+                    <div class="form-text">Se anexará a las observaciones de la constancia para trazabilidad.</div>
+                </div>
+            </div>
+            <div class="modal-footer d-flex flex-wrap gap-2 justify-content-end" id="segAcciones"></div>
+        </div>
+    </div>
+</div>
+
 <script src="../../assets/vendor/jquery/jquery-3.7.1.min.js"></script>
 <script src="../../assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
 <script src="../../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -492,9 +536,154 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         if(data === 'CANCELADO') badgeClass = 'bg-danger';
                         return `<span class="badge ${badgeClass}">${data}</span>`;
                     }
+                },
+                {
+                    "data": null,
+                    "orderable": false,
+                    "searchable": false,
+                    "render": function(data, type, row) {
+                        return `
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button class="btn btn-outline-primary btn-seguimiento" data-id="${row.id}" title="Abrir Seguimiento">
+                                    <i class="fa-solid fa-eye me-1"></i> Seguimiento
+                                </button>
+                            </div>`;
+                    }
                 }
             ],
             "order": [[0, "desc"]]
+        });
+
+        $('#inexistenciasTable').on('click', '.btn-seguimiento', function() {
+            abrirSeguimiento(table.row($(this).closest('tr')).data());
+        });
+
+        // 1.b Modal de Seguimiento de Constancias Emitidas
+        let segModalInstance = null;
+        const estatusConfig = {
+            'PENDIENTE':  { banner: 'alert-warning', icono: 'fa-hourglass-half', texto: 'CONSTANCIA PENDIENTE — En espera de entrega al solicitante.' },
+            'FINALIZADO': { banner: 'alert-success', icono: 'fa-circle-check',   texto: 'CONSTANCIA FINALIZADA — Trámite concluido y entregado.' },
+            'CANCELADO':  { banner: 'alert-danger',  icono: 'fa-ban',            texto: 'CONSTANCIA CANCELADA — No surtió efecto.' }
+        };
+
+        function abrirSeguimiento(row) {
+            if (!row) return;
+            $('#seg_id').val(row.id);
+            $('#seg_folio').text('#' + row.id);
+            $('#seg_tipo').text(row.tipo_constancia);
+            $('#seg_nombre').text(row.nombre_completo);
+            $('#seg_linea_pago').text(row.linea_pago);
+            $('#seg_fecha_tramite').text(row.fecha_tramite || '—');
+            $('#seg_fecha_llegada').text(row.fecha_llegada || '—');
+            $('#seg_creado_en').text(row.creado_en ? row.creado_en.substring(0, 16) : '—');
+            $('#seg_observaciones').text(row.observaciones || '—');
+            $('#seg_motivo').val('');
+
+            const cfg = estatusConfig[row.estatus] || { banner: 'alert-secondary', icono: 'fa-question', texto: row.estatus };
+            $('#segBannerEstatus')
+                .removeClass('alert-warning alert-success alert-danger alert-secondary')
+                .addClass(cfg.banner)
+                .html(`<i class="fa-solid ${cfg.icono} me-2"></i><strong>${row.estatus}</strong> — ${cfg.texto}`);
+
+            renderAccionesSeguimiento(row.estatus);
+
+            if (!segModalInstance) {
+                segModalInstance = new bootstrap.Modal(document.getElementById('seguimientoModal'));
+            }
+            segModalInstance.show();
+        }
+
+        function renderAccionesSeguimiento(estatus) {
+            let html = '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>';
+            if (estatus === 'PENDIENTE') {
+                html = `
+                    <button type="button" class="btn btn-outline-danger" id="btnSegCancelar">
+                        <i class="fa-solid fa-ban me-1"></i> Cancelar Constancia
+                    </button>
+                    <button type="button" class="btn btn-success" id="btnSegFinalizar" style="background: var(--secondary-color); border: none;">
+                        <i class="fa-solid fa-check me-1"></i> Finalizar / Entregada
+                    </button>` + html;
+            } else {
+                html = `
+                    <button type="button" class="btn btn-warning text-dark" id="btnSegReactivar">
+                        <i class="fa-solid fa-rotate-left me-1"></i> Corregir: Reactivar a PENDIENTE
+                    </button>` + html;
+            }
+            $('#segAcciones').html(html);
+        }
+
+        function ejecutarAccionConstancia(accion, tituloConfirm, textoConfirm, requiereMotivo) {
+            const id = $('#seg_id').val();
+            const motivo = $('#seg_motivo').val().trim();
+
+            if (requiereMotivo && motivo.length < 5) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Motivo requerido',
+                    text: 'Debe capturar un motivo de al menos 5 caracteres para ' + accion.toLowerCase() + ' la constancia.',
+                    confirmButtonColor: 'var(--primary-color)'
+                });
+                $('#seg_motivo').focus();
+                return;
+            }
+
+            Swal.fire({
+                title: tituloConfirm,
+                text: textoConfirm,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, continuar',
+                cancelButtonText: 'No, cancelar',
+                confirmButtonColor: 'var(--primary-color)',
+                cancelButtonColor: '#6c757d'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+                $.ajax({
+                    url: 'update_status.php',
+                    type: 'POST',
+                    data: { id: id, accion: accion, motivo: motivo, csrf_token: csrfToken },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            segModalInstance.hide();
+                            table.ajax.reload(null, false);
+                            window.showToast('success', '¡Listo!', response.message);
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'Error', text: response.message, confirmButtonColor: 'var(--primary-color)' });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({ icon: 'error', title: 'Error Crítico', text: 'No se pudo conectar con el servidor.', confirmButtonColor: 'var(--primary-color)' });
+                    }
+                });
+            });
+        }
+
+        $(document).on('click', '#btnSegFinalizar', function() {
+            ejecutarAccionConstancia(
+                'FINALIZAR',
+                '¿Finalizar la constancia?',
+                'Se marcará como FINALIZADA (entregada al solicitante). Esta acción puede corregirse reactivando el registro.',
+                false
+            );
+        });
+
+        $(document).on('click', '#btnSegCancelar', function() {
+            ejecutarAccionConstancia(
+                'CANCELAR',
+                '¿Cancelar la constancia?',
+                'Se marcará como CANCELADA. Deberá capturar el motivo; podrá reactivarse después si fue un error.',
+                true
+            );
+        });
+
+        $(document).on('click', '#btnSegReactivar', function() {
+            ejecutarAccionConstancia(
+                'REACTIVAR',
+                '¿Reactivar la constancia?',
+                'La constancia volverá a estatus PENDIENTE para corregir un error de operación. Se requerirá el motivo.',
+                true
+            );
         });
 
         $('#filter_tipo').on('change', function() {

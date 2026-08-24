@@ -37,7 +37,7 @@ try {
     if (!in_array($columnSortOrder, ['asc', 'desc'])) $columnSortOrder = 'desc';
 
     // Construcción de la consulta base
-    $sql = "SELECT id, tipo_constancia, linea_pago, nombre_completo, fecha_tramite, fecha_llegada, estatus FROM inexistencias";
+    $sql = "SELECT id, tipo_constancia, linea_pago, nombre_completo, fecha_tramite, fecha_llegada, estatus, observaciones, creado_en FROM inexistencias";
     $sqlCount = "SELECT COUNT(id) as allcount FROM inexistencias";
     
     // Total sin filtros
@@ -108,7 +108,9 @@ try {
             "nombre_completo" => htmlspecialchars($row['nombre_completo'], ENT_QUOTES, 'UTF-8'),
             "fecha_tramite" => htmlspecialchars($row['fecha_tramite'], ENT_QUOTES, 'UTF-8'),
             "fecha_llegada" => htmlspecialchars($row['fecha_llegada'], ENT_QUOTES, 'UTF-8'),
-            "estatus" => htmlspecialchars($row['estatus'], ENT_QUOTES, 'UTF-8')
+            "estatus" => htmlspecialchars($row['estatus'], ENT_QUOTES, 'UTF-8'),
+            "observaciones" => htmlspecialchars($row['observaciones'] ?? '', ENT_QUOTES, 'UTF-8'),
+            "creado_en" => htmlspecialchars($row['creado_en'] ?? '', ENT_QUOTES, 'UTF-8')
         ];
     }
 

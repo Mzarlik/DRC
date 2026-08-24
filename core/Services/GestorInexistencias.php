@@ -118,4 +118,92 @@ class GestorInexistencias {
             return ['status' => 'error', 'message' => 'Error inesperado del servidor.'];
         }
     }
+
+    /**
+     * Actualiza el estatus de una constancia validando la transición y registrando auditoría.
+     * Transiciones permitidas:
+     *   PENDIENTE  -> FINALIZADO | CANCELADO
+     *   FINALIZADO -> PENDIENTE (reactivación por corrección)
+     *   CANCELADO  -> PENDIENTE (reactivación por corrección)
+     *
+     * @param int $id ID de la constancia
+     * @param string $nuevo_estatus PENDIENTE | FINALIZADO | CANCELADO
+     * @param string $motivo Justificación (obligatoria para CANCELAR y reactivar)
+     * @return array Resultado (status y mensaje)
+     */
+    public static function actualizarEstatus($id, $nuevo_estatus, $motivo = '') {
+        $id = intval($id);
+        $nuevo_estatus = strtoupper(trim($nuevo_estatus));
+        $motivo = mb_strtoupper(trim($motivo), 'UTF-8');
+        $usuario = \Core\Auth::getUserName();
+
+        if ($id <= 0) {
+            return ['status' => 'error', 'message' => 'Identificador de constancia inválido.'];
+        }
+        if (!in_array($nuevo_estatus, ['PENDIENTE', 'FINALIZADO', 'CANCELADO'], true)) {
+            return ['status' => 'error', 'message' => 'Estatus inválido.'];
+        }
+
+        $transiciones = [
+            'PENDIENTE'  => ['FINALIZADO', 'CANCELADO'],
+            'FINALIZADO' => ['PENDIENTE'],
+            'CANCELADO'  => ['PENDIENTE']
+        ];
+
+        try {
+            $pdo = Database::getWriteConnection();
+            $stmt = $pdo->prepare("SELECT id, nombre_completo, linea_pago, estatus, observaciones FROM inexistencias WHERE id = :id");
+            $stmt->execute([':id' => $id]);
+            $registro = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$registro) {
+                return ['status' => 'error', 'message' => 'La constancia no existe o fue eliminada.'];
+            }
+
+            $actual = $registro['estatus'];
+            if ($actual === $nuevo_estatus) {
+                return ['status' => 'error', 'message' => "La constancia ya se encuentra en estatus $nuevo_estatus."];
+            }
+            if (!in_array($nuevo_estatus, $transiciones[$actual] ?? [], true)) {
+                return ['status' => 'error', 'message' => "Transición no permitida: una constancia $actual solo puede pasar a " . implode(' o ', $transiciones[$actual] ?? []) . '.' ];
+            }
+
+            $es_reactivacion = ($nuevo_estatus === 'PENDIENTE');
+            if (($nuevo_estatus === 'CANCELADO' || $es_reactivacion) && $motivo === '') {
+                $mensaje = $es_reactivacion ? 'reactivar' : 'cancelar';
+                return ['status' => 'error', 'message' => "El motivo es obligatorio para $mensaje la constancia."];
+            }
+
+            $observaciones = $registro['observaciones'];
+            if ($motivo !== '') {
+                $etiqueta = $es_reactivacion ? 'REACTIVADA' : ($nuevo_estatus === 'CANCELADO' ? 'CANCELADA' : 'FINALIZADA');
+                $observaciones = trim(($observaciones ?? '') . " [$etiqueta POR $usuario: $motivo]");
+            }
+
+            $stmtUpd = $pdo->prepare("UPDATE inexistencias SET estatus = :estatus, observaciones = :observaciones WHERE id = :id");
+            $stmtUpd->execute([
+                ':estatus' => $nuevo_estatus,
+                ':observaciones' => $observaciones,
+                ':id' => $id
+            ]);
+
+            $accion_auditoria = $es_reactivacion ? 'REACTIVAR' : ($nuevo_estatus === 'CANCELADO' ? 'CANCELAR' : 'FINALIZAR');
+            \Core\Auditoria::logAccion(
+                'Inexistencias',
+                'EDITAR',
+                "Se {$accion_auditoria} la constancia #{$id} de {$registro['nombre_completo']} (LP: {$registro['linea_pago']}). Estatus: $actual -> $nuevo_estatus." . ($motivo !== '' ? " Motivo: $motivo" : '')
+            );
+
+            $mensajes = [
+                'FINALIZADO' => 'Constancia marcada como FINALIZADA correctamente.',
+                'CANCELADO'  => 'Constancia cancelada correctamente.',
+                'PENDIENTE'  => 'Constancia reactivada a PENDIENTE correctamente.'
+            ];
+            return ['status' => 'success', 'message' => $mensajes[$nuevo_estatus]];
+
+        } catch (Exception $e) {
+            error_log('GestorInexistencias::actualizarEstatus: ' . $e->getMessage());
+            return ['status' => 'error', 'message' => 'Error inesperado del servidor.'];
+        }
+    }
 }

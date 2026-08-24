@@ -4,6 +4,14 @@ Este documento registra todos los cambios notables, actualizaciones y correcione
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.5.8] - 2026-08-24
+### Añadido
+- **Seguimiento de Constancias Emitidas (`modules/inexistencias/index.php`):** nueva columna "Acciones" en la tabla de constancias emitidas con botón "Seguimiento" que abre un modal flotante con el detalle completo del registro (tipo, línea de pago, fechas, observaciones) y acciones contextuales según estatus, alineando la experiencia con la pestaña de Peticiones de Ventanilla.
+- **Corrección de errores operativos (reactivación):** nuevas acciones sobre constancias: FINALIZAR (PENDIENTE → FINALIZADO), CANCELAR (PENDIENTE → CANCELADO) y REACTIVAR (FINALIZADO/CANCELADO → PENDIENTE) para deshacer equivocaciones de ventanilla. Cancelar y reactivar exigen motivo (mín. 5 caracteres) que se anexa a observaciones en MAYÚSCULAS y se registra en auditoría.
+- **Servicio `GestorInexistencias::actualizarEstatus()` (`core/Services/GestorInexistencias.php`):** valida transiciones de estatus permitidas, motivo obligatorio según acción, anexa trazabilidad a observaciones y audita con usuario, estatus previo/posterior y motivo.
+- **Endpoint `modules/inexistencias/update_status.php`:** POST con `Auth::checkPermission('permiso_constancias')`, `Auth::check()` y validación CSRF; delega en el servicio y responde JSON estándar.
+- **`modules/inexistencias/data.php`:** ahora expone `observaciones` y `creado_en` (sanitizados) para alimentar el modal de seguimiento.
+
 ## [1.5.7] - 2026-08-23
 ### Seguridad (Área 1: Endurecimiento — defensa en profundidad)
 - **Guardia CLI-only en migraciones web (`docs/migration_extra.php`, `docs/migration_queue_reportes.php`, `docs/migration_encrypt.php`):** las tres migraciones que carecían de protección propia ahora responden 403 si se invocan vía navegador; antes dependían exclusivamente de la regla `mod_rewrite` del `.htaccess` raíz (ineficaz con `AllowOverride` off o bajo Nginx/IIS). Permitían `ALTER TABLE` y re-encriptación masiva de CURPs sin autenticación.
