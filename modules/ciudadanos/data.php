@@ -42,11 +42,18 @@ try {
     $columnSortOrder = isset($_GET['order'][0]['dir']) ? $_GET['order'][0]['dir'] : 'desc';
     if (!in_array($columnSortOrder, ['asc', 'desc'])) $columnSortOrder = 'desc';
 
-    // Soft-delete: por defecto solo activos; con incluir_inactivos=1 se muestran las bajas
-    $soloActivos = (($_GET['incluir_inactivos'] ?? '') === '1') ? '' : 'estado = 1 AND';
+// Soft-delete: por defecto solo activos; con incluir_inactivos=1 se muestran las bajas
+$soloActivos = (($_GET['incluir_inactivos'] ?? '') === '1') ? '' : 'estado = 1 AND';
 
-    $sql = "SELECT id, curp, nombre, apellido_paterno, apellido_materno, sexo, fecha_nacimiento, estado_vital, estado FROM ciudadanos WHERE $soloActivos 1 = 1";
-    $sqlCount = "SELECT COUNT(id) as allcount FROM ciudadanos WHERE $soloActivos 1 = 1";
+// Filtro visual por estatus (ACTIVO=1 / INACTIVO=0)
+$filtroEstado = $_GET['filtro_estado'] ?? '';
+$filtroEstadoSql = '';
+if ($filtroEstado === '1' || $filtroEstado === '0') {
+    $filtroEstadoSql = "estado = " . intval($filtroEstado) . " AND ";
+}
+
+    $sql = "SELECT id, curp, nombre, apellido_paterno, apellido_materno, sexo, fecha_nacimiento, estado_vital, estado FROM ciudadanos WHERE $soloActivos $filtroEstadoSql 1 = 1";
+    $sqlCount = "SELECT COUNT(id) as allcount FROM ciudadanos WHERE $soloActivos $filtroEstadoSql 1 = 1";
     
     $stmtCount = $pdo->query($sqlCount);
     $recordsTotal = $stmtCount->fetchColumn();
@@ -64,7 +71,7 @@ try {
         }
     }
 
-    $sqlCountFiltered = "SELECT COUNT(id) as allcount FROM ciudadanos WHERE $soloActivos 1 = 1" . $searchQuery;
+    $sqlCountFiltered = "SELECT COUNT(id) as allcount FROM ciudadanos WHERE $soloActivos $filtroEstadoSql 1 = 1" . $searchQuery;
     $stmtCountFiltered = $pdo->prepare($sqlCountFiltered);
     $stmtCountFiltered->execute($params);
     $recordsFiltered = $stmtCountFiltered->fetchColumn();

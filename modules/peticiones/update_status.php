@@ -24,6 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
     $newStatus = trim($_POST['estatus'] ?? '');
     $accion = trim($_POST['accion'] ?? '');
+    $motivo = mb_strtoupper(trim($_POST['motivo'] ?? ''), 'UTF-8');
+
+    // Compatibilidad: REABRIR vía accion (corrección de errores) o estatus directo
+    if ($accion === 'REABRIR') {
+        $newStatus = 'EN_PROGRESO';
+    }
 
     if (!$id || !$newStatus) {
         echo json_encode(['status' => 'error', 'message' => 'Faltan campos obligatorios.']);
@@ -48,6 +54,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
+        $es_reapertura = ($ticket['estatus'] === 'CERRADA' && $newStatus !== 'CERRADA');
+        if ($es_reapertura && mb_strlen($motivo) < 5) {
+            echo json_encode(['status' => 'error', 'message' => 'El motivo es obligatorio (mínimo 5 caracteres) para reabrir un expediente concluido.']);
+            exit;
+        }
+        if ($ticket['estatus'] === $newStatus) {
+            echo json_encode(['status' => 'error', 'message' => 'El expediente ya se encuentra en ese estatus.']);
+            exit;
+        }
+
         $folio = $ticket['folio'];
         $tipo = $ticket['tipo_peticion'];
         $userId = $_SESSION['user_id'];
@@ -68,7 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($result) {
             // Log personalizado de auditoría según tipo y acción
             $actionLabel = "Se actualizó el estatus del ticket " . $folio . " a " . $newStatus;
-            if ($tipo === 'CORRECCION_ACTA') {
+            if ($es_reapertura) {
+                $actionLabel = "Se REABRIÓ el ticket " . $folio . " (estatus: CERRADA -> " . $newStatus . ")" . ($motivo !== '' ? " Motivo: $motivo" : '');
+            } elseif ($tipo === 'CORRECCION_ACTA') {
                 if ($newStatus === 'CERRADA') {
                     if ($accion === 'RECHAZAR') {
                         $actionLabel = "Se rechazó la aprobación de la corrección de acta para el ticket " . $folio;

@@ -261,6 +261,25 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             <div class="tab-content" id="foraneasTabContent">
                 <!-- Pestaña 1: Registros de Actas Foráneas -->
                 <div class="tab-pane fade show active" id="tab-registros" role="tabpanel">
+                    <div class="card mb-4 border-0 shadow-sm">
+                        <div class="card-body p-3">
+                            <div class="row align-items-center g-2">
+                                <div class="col-auto">
+                                    <label for="filter_estatus_for" class="col-form-label fw-bold small text-muted">
+                                        <i class="fa-solid fa-filter text-primary me-1"></i> Filtrar por Estatus:
+                                    </label>
+                                </div>
+                                <div class="col-auto">
+                                    <select class="form-select form-select-sm" id="filter_estatus_for">
+                                        <option value="">TODOS LOS ESTATUS</option>
+                                        <option value="PENDIENTE">PENDIENTES</option>
+                                        <option value="VALIDADA">VALIDADAS</option>
+                                        <option value="RECHAZADA">RECHAZADAS</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card border-0 shadow-sm">
                         <div class="card-body p-3">
                             <table id="foraneasTable" class="table table-striped dt-responsive nowrap w-100">
@@ -272,6 +291,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                         <th>Tipo de Acta</th>
                                         <th>Fecha Recepción</th>
                                         <th>Estatus</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -342,6 +362,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 <script src="../../assets/vendor/datatables/js/dataTables.responsive.min.js"></script>
 <script src="../../assets/vendor/datatables/js/responsive.bootstrap5.min.js"></script>
 <script src="../../assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
+<script src="../../assets/js/seguimiento.js"></script>
 
 <script>
     $(document).ready(function() {
@@ -351,7 +372,12 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         var table = $('#foraneasTable').DataTable({
             "processing": true,
             "serverSide": true,
-            "ajax": "data.php",
+            "ajax": {
+                "url": "data.php",
+                "data": function(d) {
+                    d.estatus = $('#filter_estatus_for').val();
+                }
+            },
             "columns": [
                 { "data": "numero_acta" },
                 { "data": "nombre_completo" },
@@ -360,6 +386,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 { "data": "fecha_recepcion" },
                 { 
                     "data": "estatus",
+                    "responsivePriority": 2,
                     "render": function ( data, type, row ) {
                         let badgeClass = 'bg-secondary';
                         if(data === 'PENDIENTE') badgeClass = 'bg-warning text-dark';
@@ -367,9 +394,80 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                         if(data === 'RECHAZADA') badgeClass = 'bg-danger';
                         return `<span class="badge ${badgeClass}">${data}</span>`;
                     }
+                },
+                {
+                    "data": null,
+                    "orderable": false,
+                    "searchable": false,
+                    "responsivePriority": 1,
+                    "render": function(data, type, row) {
+                        return `
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button class="btn btn-outline-primary btn-seguimiento" data-id="${row.id}" title="Abrir Seguimiento">
+                                    <i class="fa-solid fa-eye me-1"></i> Seguimiento
+                                </button>
+                            </div>`;
+                    }
                 }
             ],
             "order": [[4, "desc"]]
+        });
+
+        $('#filter_estatus_for').on('change', function() {
+            table.draw();
+        });
+
+        // Seguimiento de Actas Foráneas
+        $('#foraneasTable').on('click', '.btn-seguimiento', function() {
+            const $tr = $(this).closest('tr');
+            let row = table.row($tr).data();
+            if (!row) row = table.row($tr.prevAll('tr.parent').first()).data();
+            if (!row) {
+                const id = String($(this).data('id'));
+                row = table.rows().data().toArray().find(function(r) { return String(r.id) === id; });
+            }
+            if (!row) return;
+
+            const tipoActa = { 'NACIMIENTO': 'NACIMIENTO', 'DEFUNCION': 'DEFUNCIÓN', 'MATRIMONIO': 'MATRIMONIO', 'DIVORCIO': 'DIVORCIO', 'RECONOCIMIENTO': 'RECONOCIMIENTO', 'OTRO': 'OTRO' };
+            DrcSeguimiento.open({
+                titulo: 'Seguimiento de Acta Foránea',
+                endpoint: 'update_status.php',
+                id: row.id,
+                csrf: csrfToken,
+                campos: [
+                    ['NO. DE ACTA', `<strong class="font-monospace">${row.numero_acta}</strong>`],
+                    ['TIPO', tipoActa[row.tipo_acta] || row.tipo_acta],
+                    ['CIUDADANO', `<strong>${row.nombre_completo}</strong>`],
+                    ['ESTADO DE ORIGEN', row.estado_origen],
+                    ['FECHA DE RECEPCIÓN', row.fecha_recepcion],
+                    ['OBSERVACIONES', `<span style="white-space: pre-wrap;">${row.observaciones || '—'}</span>`]
+                ],
+                estatus: row.estatus,
+                banner: {
+                    'PENDIENTE': { clase: 'alert-warning', icono: 'fa-hourglass-half', texto: 'Acta recibida, en espera de validación.' },
+                    'VALIDADA':  { clase: 'alert-success', icono: 'fa-circle-check',  texto: 'Acta validada y aceptada.' },
+                    'RECHAZADA': { clase: 'alert-danger',  icono: 'fa-ban',           texto: 'Acta rechazada por no cumplir requisitos.' }
+                },
+                acciones: {
+                    'PENDIENTE': [
+                        { key: 'RECHAZAR', label: 'Rechazar', icono: 'fa-ban', clase: 'btn-outline-danger', requiereMotivo: true,
+                          titulo: '¿Rechazar el acta foránea?', texto: 'Se marcará como RECHAZADA con el motivo capturado. Podrá reactivarse después si fue un error.' },
+                        { key: 'VALIDAR', label: 'Validar', icono: 'fa-check', clase: 'btn-success', requiereMotivo: false,
+                          titulo: '¿Validar el acta foránea?', texto: 'Se marcará como VALIDADA. Podrá reactivarse después si fue un error.' }
+                    ],
+                    'VALIDADA': [
+                        { key: 'REACTIVAR', label: 'Corregir: Reactivar a PENDIENTE', icono: 'fa-rotate-left', clase: 'btn-warning text-dark', requiereMotivo: true,
+                          titulo: '¿Reactivar el acta?', texto: 'El acta volverá a PENDIENTE para corregir un error de operación.' }
+                    ],
+                    'RECHAZADA': [
+                        { key: 'REACTIVAR', label: 'Corregir: Reactivar a PENDIENTE', icono: 'fa-rotate-left', clase: 'btn-warning text-dark', requiereMotivo: true,
+                          titulo: '¿Reactivar el acta?', texto: 'El acta volverá a PENDIENTE para corregir un error de operación.' }
+                    ]
+                },
+                onSuccess: function() {
+                    table.ajax.reload(null, false);
+                }
+            });
         });
 
         // Exportar a Excel

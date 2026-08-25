@@ -17,12 +17,17 @@ try {
     $search = trim($_GET['search']['value'] ?? '');
     $orderCol = intval($_GET['order'][0]['column'] ?? 0);
     $orderDir = ($_GET['order'][0]['dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+    $filter_estatus = strtoupper(trim($_GET['estatus'] ?? ''));
 
     $cols = ['p.folio', 'c.nombre', 'p.tipo_peticion', 'p.descripcion', 'p.estatus', 'p.fecha_creacion'];
     $orderSql = isset($cols[$orderCol]) ? $cols[$orderCol] . ' ' . $orderDir : 'p.id DESC';
 
     $where = 'WHERE 1=1';
     $params = [];
+    if (in_array($filter_estatus, ['ABIERTA', 'EN_PROGRESO', 'CERRADA'], true)) {
+        $where .= " AND p.estatus = :estatus";
+        $params[':estatus'] = $filter_estatus;
+    }
     if ($search !== '') {
         $where .= " AND (p.folio LIKE :s1 OR c.nombre LIKE :s2 OR c.apellido_paterno LIKE :s3 OR p.tipo_peticion LIKE :s4 OR p.descripcion LIKE :s5 OR p.estatus LIKE :s6)";
         $term = '%' . $search . '%';

@@ -242,6 +242,25 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 </div>
             </div>
             
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body p-3">
+                    <div class="row align-items-center g-2">
+                        <div class="col-auto">
+                            <label for="filter_estado_ciu" class="col-form-label fw-bold small text-muted">
+                                <i class="fa-solid fa-filter text-primary me-1"></i> Filtrar por Estatus:
+                            </label>
+                        </div>
+                        <div class="col-auto">
+                            <select class="form-select form-select-sm" id="filter_estado_ciu">
+                                <option value="">TODOS</option>
+                                <option value="1">ACTIVOS</option>
+                                <option value="0">INACTIVOS</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-body">
                     <table id="ciudadanosTable" class="table table-striped dt-responsive nowrap w-100">
@@ -283,6 +302,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 "url": "data.php",
                 "data": function(d) {
                     d.incluir_inactivos = $('#btnVerInactivos').data('inactivos') ? '1' : '';
+                    d.filtro_estado = $('#filter_estado_ciu').val();
                 }
             },
             "columns": [
@@ -306,6 +326,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 { 
                     "data": "estado",
                     "orderable": false,
+                    "responsivePriority": 2,
                     "render": function ( data, type, row ) {
                         if (data === 1) return `<span class="badge bg-success">ACTIVO</span>`;
                         return `<span class="badge bg-secondary">INACTIVO</span>`;
@@ -314,6 +335,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 {
                     "data": null,
                     "orderable": false,
+                    "responsivePriority": 1,
                     "render": function ( data, type, row ) {
                         if (row.estado === 0) {
                             return `

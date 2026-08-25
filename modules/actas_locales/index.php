@@ -273,6 +273,14 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                         <option value="RECONOCIMIENTO">RECONOCIMIENTO</option>
                                     </select>
                                 </div>
+                                <div class="col-md-4">
+                                    <label for="filter_estatus_acta" class="form-label fw-bold small text-muted">Estatus</label>
+                                    <select class="form-select form-select-sm" id="filter_estatus_acta">
+                                        <option value="">TODOS LOS ESTATUS</option>
+                                        <option value="REGISTRADO">REGISTRADOS</option>
+                                        <option value="CANCELADO">CANCELADOS</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -287,6 +295,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                         <th>Primer Involucrado / Ciudadano</th>
                                         <th>Segundo Involucrado (Si aplica)</th>
                                         <th>Fecha Registro</th>
+                                        <th>Estatus</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
@@ -386,6 +395,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 "url": "data.php",
                 "data": function(d) {
                     d.tipo_acta = $('#filter_tipo').val();
+                    d.estatus = $('#filter_estatus_acta').val();
                 }
             },
             "columns": [
@@ -410,9 +420,20 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                     }
                 },
                 { "data": "fecha_registro" },
+                { 
+                    "data": "estatus",
+                    "responsivePriority": 2,
+                    "render": function(data) {
+                        let badgeClass = 'bg-secondary';
+                        if(data === 'REGISTRADO') badgeClass = 'bg-success';
+                        if(data === 'CANCELADO') badgeClass = 'bg-danger';
+                        return `<span class="badge ${badgeClass}">${data}</span>`;
+                    }
+                },
                 {
                     "data": null,
                     "orderable": false,
+                    "responsivePriority": 1,
                     "render": function(data, type, row) {
                         return `<button class="btn btn-sm btn-outline-primary btn-details" data-tipo="${row.tipo_acta}" data-id="${row.registro_id}">
                                     <i class="fa-solid fa-eye"></i> Detalle
@@ -423,7 +444,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             "order": [[4, "desc"]]
         });
 
-        $('#filter_tipo').on('change', function() {
+        $('#filter_tipo, #filter_estatus_acta').on('change', function() {
             table.draw();
         });
 

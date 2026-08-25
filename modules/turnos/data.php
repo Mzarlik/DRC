@@ -15,10 +15,24 @@ try {
 
     $atendiendo = $pdo->query("SELECT folio, modulo_atencion FROM turnos WHERE estado = 'ATENDIENDO' ORDER BY atendido_en DESC LIMIT 1")->fetch(PDO::FETCH_ASSOC);
 
+    // Filtro visual por estado: por defecto la cola activa; con filtro se amplía
+    $filtroEstado = strtoupper(trim($_GET['estado'] ?? ''));
+    $estadosValidos = ['EN_ESPERA', 'ATENDIENDO', 'COMPLETADO', 'CANCELADO'];
+    if ($filtroEstado === 'TODOS') {
+        $whereEstados = "estado IN ('EN_ESPERA', 'ATENDIENDO', 'COMPLETADO', 'CANCELADO')";
+        $orderEstados = "creado_en DESC";
+    } elseif (in_array($filtroEstado, $estadosValidos, true)) {
+        $whereEstados = "estado = " . $pdo->quote($filtroEstado);
+        $orderEstados = "creado_en DESC";
+    } else {
+        $whereEstados = "estado IN ('EN_ESPERA', 'ATENDIENDO')";
+        $orderEstados = "FIELD(estado, 'ATENDIENDO', 'EN_ESPERA'), creado_en ASC";
+    }
+
     $stmt = $pdo->query("SELECT id, folio, modulo_atencion, ciudadano_nombre, estado, ventanilla, DATE_FORMAT(creado_en, '%d/%m/%Y %H:%i') AS creado_en
                          FROM turnos
-                         WHERE estado IN ('EN_ESPERA', 'ATENDIENDO')
-                         ORDER BY FIELD(estado, 'ATENDIENDO', 'EN_ESPERA'), creado_en ASC
+                         WHERE $whereEstados
+                         ORDER BY $orderEstados
                          LIMIT 100");
     $turnos = $stmt->fetchAll();
 

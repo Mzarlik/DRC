@@ -13,12 +13,13 @@ try {
     $start = isset($_GET['start']) ? intval($_GET['start']) : 0;
     $length = isset($_GET['length']) ? intval($_GET['length']) : 10;
     $searchValue = isset($_GET['search']['value']) ? $_GET['search']['value'] : '';
+    $filter_estatus = strtoupper(trim($_GET['estatus'] ?? ''));
 
     // Sort
     $columnIndex = isset($_GET['order'][0]['column']) ? intval($_GET['order'][0]['column']) : 0;
     $columnSortOrder = isset($_GET['order'][0]['dir']) ? $_GET['order'][0]['dir'] : 'desc';
 
-    $sql = "SELECT i.id, i.numero_acta, i.pais_origen, i.fecha_registro,
+    $sql = "SELECT i.id, i.numero_acta, i.pais_origen, i.fecha_registro, i.estatus,
                                 CONCAT(c.nombre, ' ', c.apellido_paterno, ' ', IFNULL(c.apellido_materno, '')) AS ciudadano
                          FROM inscripciones i
                          JOIN ciudadanos c ON i.ciudadano_id = c.id";
@@ -28,9 +29,17 @@ try {
 
     $searchQuery = "";
     $params = [];
+    $whereParts = [];
     if ($searchValue != '') {
-        $searchQuery = " WHERE (i.numero_acta LIKE :search OR i.pais_origen LIKE :search OR c.nombre LIKE :search OR c.apellido_paterno LIKE :search) ";
+        $whereParts[] = "(i.numero_acta LIKE :search OR i.pais_origen LIKE :search OR c.nombre LIKE :search OR c.apellido_paterno LIKE :search)";
         $params[':search'] = '%' . $searchValue . '%';
+    }
+    if (in_array($filter_estatus, ['REGISTRADO', 'CANCELADO'], true)) {
+        $whereParts[] = "i.estatus = :estatus";
+        $params[':estatus'] = $filter_estatus;
+    }
+    if (count($whereParts) > 0) {
+        $searchQuery = " WHERE " . implode(" AND ", $whereParts);
     }
 
     $sqlFilteredCount = "SELECT COUNT(*) FROM inscripciones m ";

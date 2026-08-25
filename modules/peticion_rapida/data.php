@@ -32,6 +32,11 @@ try {
 
     $where = 'WHERE pv.deleted_at IS NULL';
     $params = [];
+    $filter_estatus = strtoupper(trim($_GET['estatus'] ?? ''));
+    if (in_array($filter_estatus, ['PENDIENTE', 'EN_PROCESO', 'ENTREGADO', 'CANCELADO'], true)) {
+        $where .= " AND pv.estatus = :estatus";
+        $params[':estatus'] = $filter_estatus;
+    }
     if ($search !== '') {
         // Si el término parece una CURP completa, buscar por blind index (búsqueda exacta cifrada)
         $curpCandidata = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $search));

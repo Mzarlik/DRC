@@ -15,6 +15,7 @@ try {
     $start = isset($_GET['start']) ? intval($_GET['start']) : 0;
     $length = isset($_GET['length']) ? intval($_GET['length']) : 10;
     $searchValue = isset($_GET['search']['value']) ? $_GET['search']['value'] : '';
+    $filter_estatus = strtoupper(trim($_GET['estatus'] ?? ''));
 
     $columns = array(
         0 => 'numero_acta',
@@ -39,9 +40,17 @@ try {
 
     $searchQuery = "";
     $params = [];
+    $whereParts = [];
     if ($searchValue != '') {
-        $searchQuery = " WHERE (f.numero_acta LIKE :search OR c.nombre LIKE :search OR c.apellido_paterno LIKE :search OR f.estado_origen LIKE :search) ";
+        $whereParts[] = "(f.numero_acta LIKE :search OR c.nombre LIKE :search OR c.apellido_paterno LIKE :search OR f.estado_origen LIKE :search)";
         $params[':search'] = '%' . $searchValue . '%';
+    }
+    if (in_array($filter_estatus, ['PENDIENTE', 'VALIDADA', 'RECHAZADA'], true)) {
+        $whereParts[] = "f.estatus = :estatus";
+        $params[':estatus'] = $filter_estatus;
+    }
+    if (count($whereParts) > 0) {
+        $searchQuery = " WHERE " . implode(" AND ", $whereParts);
     }
 
     $sqlCountFiltered = "SELECT COUNT(f.id) as allcount " . $baseQuery . $searchQuery;
@@ -49,7 +58,7 @@ try {
     $stmtCountFiltered->execute($params);
     $recordsFiltered = $stmtCountFiltered->fetchColumn();
 
-    $sql = "SELECT f.numero_acta, f.estado_origen, f.tipo_acta, f.fecha_recepcion, f.estatus, 
+    $sql = "SELECT f.id, f.numero_acta, f.estado_origen, f.tipo_acta, f.fecha_recepcion, f.estatus, f.observaciones,
             CONCAT_WS(' ', c.nombre, c.apellido_paterno, c.apellido_materno) AS nombre_completo " 
             . $baseQuery . $searchQuery . " ORDER BY " . $columnName . " " . $columnSortOrder . " LIMIT :limit OFFSET :offset";
     
@@ -57,8 +66,8 @@ try {
     $stmt->bindValue(':limit', $length, PDO::PARAM_INT);
     $stmt->bindValue(':offset', $start, PDO::PARAM_INT);
     
-    if ($searchValue != '') {
-        $stmt->bindValue(':search', '%' . $searchValue . '%', PDO::PARAM_STR);
+    foreach ($params as $key => $val) {
+        $stmt->bindValue($key, $val, PDO::PARAM_STR);
     }
     
     $stmt->execute();
@@ -67,12 +76,14 @@ try {
     $sanitizedData = [];
     foreach($data as $row) {
         $sanitizedData[] = [
+            "id" => htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8'),
             "numero_acta" => htmlspecialchars($row['numero_acta'], ENT_QUOTES, 'UTF-8'),
             "nombre_completo" => htmlspecialchars($row['nombre_completo'], ENT_QUOTES, 'UTF-8'),
             "estado_origen" => htmlspecialchars($row['estado_origen'], ENT_QUOTES, 'UTF-8'),
             "tipo_acta" => htmlspecialchars($row['tipo_acta'], ENT_QUOTES, 'UTF-8'),
             "fecha_recepcion" => htmlspecialchars($row['fecha_recepcion'], ENT_QUOTES, 'UTF-8'),
-            "estatus" => htmlspecialchars($row['estatus'], ENT_QUOTES, 'UTF-8')
+            "estatus" => htmlspecialchars($row['estatus'], ENT_QUOTES, 'UTF-8'),
+            "observaciones" => htmlspecialchars($row['observaciones'] ?? '', ENT_QUOTES, 'UTF-8')
         ];
     }
 

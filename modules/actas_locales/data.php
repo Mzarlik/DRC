@@ -15,6 +15,7 @@ try {
     $length = isset($_GET['length']) ? intval($_GET['length']) : 10;
     $searchValue = isset($_GET['search']['value']) ? trim($_GET['search']['value']) : '';
     $filter_tipo = isset($_GET['tipo_acta']) ? trim($_GET['tipo_acta']) : '';
+    $filter_estatus = strtoupper(trim($_GET['estatus'] ?? ''));
 
     // Mapeo de columnas para ordenamiento
     $columns = array(
@@ -34,7 +35,7 @@ try {
     
     // Nacimientos
     if ($filter_tipo === '' || $filter_tipo === 'NACIMIENTO') {
-        $subqueries[] = "SELECT 'NACIMIENTO' AS tipo_acta, n.numero_acta, n.fecha_registro,
+        $subqueries[] = "SELECT 'NACIMIENTO' AS tipo_acta, n.numero_acta, n.fecha_registro, n.estatus,
                                 CONCAT(c.nombre, ' ', c.apellido_paterno, ' ', IFNULL(c.apellido_materno, '')) AS ciudadano_1,
                                 '' AS ciudadano_2,
                                 c.curp AS curp_1,
@@ -46,7 +47,7 @@ try {
 
     // Matrimonios
     if ($filter_tipo === '' || $filter_tipo === 'MATRIMONIO') {
-        $subqueries[] = "SELECT 'MATRIMONIO' AS tipo_acta, m.numero_acta, m.fecha_registro,
+        $subqueries[] = "SELECT 'MATRIMONIO' AS tipo_acta, m.numero_acta, m.fecha_registro, m.estatus,
                                 CONCAT(c1.nombre, ' ', c1.apellido_paterno, ' ', IFNULL(c1.apellido_materno, '')) AS ciudadano_1,
                                 CONCAT(c2.nombre, ' ', c2.apellido_paterno, ' ', IFNULL(c2.apellido_materno, '')) AS ciudadano_2,
                                 c1.curp AS curp_1,
@@ -59,7 +60,7 @@ try {
 
     // Divorcios
     if ($filter_tipo === '' || $filter_tipo === 'DIVORCIO') {
-        $subqueries[] = "SELECT 'DIVORCIO' AS tipo_acta, d.numero_acta, d.fecha_registro,
+        $subqueries[] = "SELECT 'DIVORCIO' AS tipo_acta, d.numero_acta, d.fecha_registro, d.estatus,
                                 CONCAT(c1.nombre, ' ', c1.apellido_paterno, ' ', IFNULL(c1.apellido_materno, '')) AS ciudadano_1,
                                 CONCAT(c2.nombre, ' ', c2.apellido_paterno, ' ', IFNULL(c2.apellido_materno, '')) AS ciudadano_2,
                                 c1.curp AS curp_1,
@@ -72,7 +73,7 @@ try {
 
     // Defunciones
     if ($filter_tipo === '' || $filter_tipo === 'DEFUNCION') {
-        $subqueries[] = "SELECT 'DEFUNCION' AS tipo_acta, df.numero_acta, df.fecha_registro,
+        $subqueries[] = "SELECT 'DEFUNCION' AS tipo_acta, df.numero_acta, df.fecha_registro, df.estatus,
                                 CONCAT(c.nombre, ' ', c.apellido_paterno, ' ', IFNULL(c.apellido_materno, '')) AS ciudadano_1,
                                 '' AS ciudadano_2,
                                 c.curp AS curp_1,
@@ -84,7 +85,7 @@ try {
 
     // Reconocimientos
     if ($filter_tipo === '' || $filter_tipo === 'RECONOCIMIENTO') {
-        $subqueries[] = "SELECT 'RECONOCIMIENTO' AS tipo_acta, r.numero_acta, r.fecha_registro,
+        $subqueries[] = "SELECT 'RECONOCIMIENTO' AS tipo_acta, r.numero_acta, r.fecha_registro, r.estatus,
                                 CONCAT(c1.nombre, ' ', c1.apellido_paterno, ' ', IFNULL(c1.apellido_materno, '')) AS ciudadano_1,
                                 CONCAT(c2.nombre, ' ', c2.apellido_paterno, ' ', IFNULL(c2.apellido_materno, '')) AS ciudadano_2,
                                 c1.curp AS curp_1,
@@ -130,6 +131,11 @@ try {
     }
 
     // Total Filtrado
+    if (in_array($filter_estatus, ['REGISTRADO', 'CANCELADO'], true)) {
+        $searchQuery .= ($searchQuery === '') ? " WHERE estatus = :estatus" : " AND estatus = :estatus";
+        $params[':estatus'] = $filter_estatus;
+    }
+
     $sqlCountFiltered = "SELECT COUNT(*) FROM (" . $unionSql . ") AS t" . $searchQuery;
     $stmtCountFiltered = $pdo->prepare($sqlCountFiltered);
     foreach ($params as $key => $val) {
@@ -162,6 +168,7 @@ try {
             "curp_1" => htmlspecialchars(\Core\Encryption::decrypt($row['curp_1']) ?? '', ENT_QUOTES, 'UTF-8'),
             "curp_2" => htmlspecialchars(\Core\Encryption::decrypt($row['curp_2']) ?? '', ENT_QUOTES, 'UTF-8'),
             "fecha_registro" => htmlspecialchars($row['fecha_registro'], ENT_QUOTES, 'UTF-8'),
+            "estatus" => htmlspecialchars($row['estatus'] ?? 'REGISTRADO', ENT_QUOTES, 'UTF-8'),
             "registro_id" => htmlspecialchars($row['registro_id'], ENT_QUOTES, 'UTF-8')
         ];
     }

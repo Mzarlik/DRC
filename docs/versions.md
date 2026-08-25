@@ -4,6 +4,22 @@ Este documento registra todos los cambios notables, actualizaciones y correcione
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.6.0] - 2026-08-25
+### Añadido — Seguimiento y corrección de errores en todos los módulos
+- **Migración `docs/migration_estatus_actas.php` (CLI, idempotente, ejecutada):** columna `estatus ENUM('REGISTRADO','CANCELADO') DEFAULT 'REGISTRADO'` + índice en las 6 tablas de actas registrales (`nacimientos`, `matrimonios`, `divorcios`, `defunciones`, `inscripciones`, `reconocimientos`).
+- **Servicio genérico `Core\Services\GestorEstatus`:** transiciones de estatus validadas por módulo (whitelist de tablas/estados), motivo obligatorio (mín. 5 caracteres) para cancelar/rechazar/reactivar, trazabilidad anexada a observaciones (cuando la tabla la tiene) y auditoría con estatus previo/posterior y motivo.
+- **Componente compartido `assets/js/seguimiento.js` (`DrcSeguimiento.open()`):** modal flotante reutilizable con detalle del registro, banner de estatus, acciones contextuales, confirmación SweetAlert2 y motivo auditable.
+- **Endpoints `update_status.php` nuevos** en `foraneas` (VALIDAR/RECHAZAR/REACTIVAR), `curp` (PROCESAR/RECHAZAR/REACTIVAR) y los 6 módulos de actas (CANCELAR/REACTIVAR): POST + CSRF + permiso de módulo + delegación en `GestorEstatus`.
+- **Módulos de actas (`nacimientos`, `matrimonios`, `divorcios`, `defunciones`, `inscripciones`, `reconocimientos`):** columna Estatus con badge de color (siempre visible, `responsivePriority`), filtro server-side por estatus, columna Acciones con botón Seguimiento (modal: cancelar con motivo / reactivar para corregir errores).
+- **`foraneas`:** acciones de Validar/Rechazar/Reactivar desde modal de seguimiento + filtro por estatus + `id` y `observaciones` expuestos en `data.php`.
+- **`curp`:** badges de color para estatus (antes texto plano), seguimiento con Procesar/Rechazar/Reactivar + filtro por estatus.
+- **`peticiones`:** botón Seguimiento con modal de expediente; nueva acción REABRIR (CERRADA → EN_PROGRESO) con motivo obligatorio en `update_status.php` (compatibilidad con `estatus` directo); filtro server-side por estatus.
+- **`peticion_rapida`:** botón Seguimiento con modal; `estado.php` acepta REACTIVAR (→ PENDIENTE) con motivo obligatorio desde ENTREGADO/CANCELADO/EN_PROCESO; filtro server-side por estatus.
+- **`actas_locales`:** estatus en las 5 subconsultas UNION con badge de color y filtro (vista de solo lectura; las acciones viven en cada módulo).
+- **`ciudadanos`:** filtro visual ACTIVOS/INACTIVOS server-side (`filtro_estado`) + columnas Estatus/Acciones siempre visibles.
+- **`turnos`:** filtro de cola por estado (incluye COMPLETADOS/CANCELADOS/TODOS, antes solo cola activa hardcodeada).
+- **Corrección UI transversal:** resolución de fila padre en tablas Responsive al hacer clic en botones de fila hija (`prevAll('tr.parent')` + fallback por ID), que era la causa de botones "muertos" en pantallas angostas.
+
 ## [1.5.8] - 2026-08-24
 ### Añadido
 - **Seguimiento de Constancias Emitidas (`modules/inexistencias/index.php`):** nueva columna "Acciones" en la tabla de constancias emitidas con botón "Seguimiento" que abre un modal flotante con el detalle completo del registro (tipo, línea de pago, fechas, observaciones) y acciones contextuales según estatus, alineando la experiencia con la pestaña de Peticiones de Ventanilla.

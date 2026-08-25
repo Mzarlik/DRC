@@ -261,6 +261,24 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             <div class="tab-content" id="nacimientosTabContent">
                 <!-- Pestaña 1: Registros de Nacimiento -->
                 <div class="tab-pane fade show active" id="tab-registros" role="tabpanel">
+                    <div class="card mb-4 border-0 shadow-sm">
+                        <div class="card-body p-3">
+                            <div class="row align-items-center g-2">
+                                <div class="col-auto">
+                                    <label for="filter_estatus_nac" class="col-form-label fw-bold small text-muted">
+                                        <i class="fa-solid fa-filter text-primary me-1"></i> Filtrar por Estatus:
+                                    </label>
+                                </div>
+                                <div class="col-auto">
+                                    <select class="form-select form-select-sm" id="filter_estatus_nac">
+                                        <option value="">TODOS LOS ESTATUS</option>
+                                        <option value="REGISTRADO">REGISTRADOS</option>
+                                        <option value="CANCELADO">CANCELADOS</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card border-0 shadow-sm">
                         <div class="card-body p-3">
                             <table id="nacimientosTable" class="table table-striped dt-responsive nowrap w-100">
@@ -270,6 +288,8 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                         <th>Ciudadano (Registrado)</th>
                                         <th>Fecha Registro</th>
                                         <th>Lugar de Nacimiento</th>
+                                        <th>Estatus</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -340,6 +360,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 <script src="../../assets/vendor/datatables/js/dataTables.responsive.min.js"></script>
 <script src="../../assets/vendor/datatables/js/responsive.bootstrap5.min.js"></script>
 <script src="../../assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
+<script src="../../assets/js/seguimiento.js"></script>
 
 <script>
     $(document).ready(function() {
@@ -349,14 +370,90 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
         var table = $('#nacimientosTable').DataTable({
             "processing": true,
             "serverSide": true,
-            "ajax": "data.php",
+            "ajax": {
+                "url": "data.php",
+                "data": function(d) {
+                    d.estatus = $('#filter_estatus_nac').val();
+                }
+            },
             "columns": [
                 { "data": "numero_acta" },
                 { "data": "nombre_completo" },
                 { "data": "fecha_registro" },
-                { "data": "lugar_nacimiento" }
+                { "data": "lugar_nacimiento" },
+                {
+                    "data": "estatus",
+                    "responsivePriority": 2,
+                    "render": function(data) {
+                        let badgeClass = 'bg-secondary';
+                        if(data === 'REGISTRADO') badgeClass = 'bg-success';
+                        if(data === 'CANCELADO') badgeClass = 'bg-danger';
+                        return `<span class="badge ${badgeClass}">${data}</span>`;
+                    }
+                },
+                {
+                    "data": null,
+                    "orderable": false,
+                    "searchable": false,
+                    "responsivePriority": 1,
+                    "render": function(data, type, row) {
+                        return `
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button class="btn btn-outline-primary btn-seguimiento" data-id="${row.id}" title="Abrir Seguimiento">
+                                    <i class="fa-solid fa-eye me-1"></i> Seguimiento
+                                </button>
+                            </div>`;
+                    }
+                }
             ],
             "order": [[2, "desc"]]
+        });
+
+        $('#filter_estatus_nac').on('change', function() {
+            table.draw();
+        });
+
+        // Seguimiento de Actas de Nacimiento
+        $('#nacimientosTable').on('click', '.btn-seguimiento', function() {
+            const $tr = $(this).closest('tr');
+            let row = table.row($tr).data();
+            if (!row) row = table.row($tr.prevAll('tr.parent').first()).data();
+            if (!row) {
+                const id = String($(this).data('id'));
+                row = table.rows().data().toArray().find(function(r) { return String(r.id) === id; });
+            }
+            if (!row) return;
+
+            DrcSeguimiento.open({
+                titulo: 'Seguimiento de Acta de Nacimiento',
+                endpoint: 'update_status.php',
+                id: row.id,
+                csrf: csrfToken,
+                campos: [
+                    ['NO. DE ACTA', `<strong class="font-monospace">${row.numero_acta}</strong>`],
+                    ['CIUDADANO', `<strong>${row.nombre_completo}</strong>`],
+                    ['FECHA DE REGISTRO', row.fecha_registro],
+                    ['LUGAR DE NACIMIENTO', row.lugar_nacimiento]
+                ],
+                estatus: row.estatus,
+                banner: {
+                    'REGISTRADO': { clase: 'alert-success', icono: 'fa-circle-check', texto: 'Acta vigente y registrada en el libro oficial.' },
+                    'CANCELADO':  { clase: 'alert-danger',  icono: 'fa-ban',           texto: 'Acta cancelada; no surte efectos legales.' }
+                },
+                acciones: {
+                    'REGISTRADO': [
+                        { key: 'CANCELAR', label: 'Cancelar Acta', icono: 'fa-ban', clase: 'btn-outline-danger', requiereMotivo: true,
+                          titulo: '¿Cancelar el acta de nacimiento?', texto: 'El acta se marcará como CANCELADA con motivo auditable. Podrá reactivarse después si fue un error.' }
+                    ],
+                    'CANCELADO': [
+                        { key: 'REACTIVAR', label: 'Corregir: Reactivar a REGISTRADO', icono: 'fa-rotate-left', clase: 'btn-warning text-dark', requiereMotivo: true,
+                          titulo: '¿Reactivar el acta?', texto: 'El acta volverá a estatus REGISTRADO para corregir un error de operación.' }
+                    ]
+                },
+                onSuccess: function() {
+                    table.ajax.reload(null, false);
+                }
+            });
         });
 
         // Exportar a Excel

@@ -238,6 +238,27 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 </div>
             </div>
 
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body p-3">
+                    <div class="row align-items-center g-2">
+                        <div class="col-auto">
+                            <label for="filter_estatus_pv" class="col-form-label fw-bold small text-muted">
+                                <i class="fa-solid fa-filter text-primary me-1"></i> Filtrar por Estatus:
+                            </label>
+                        </div>
+                        <div class="col-auto">
+                            <select class="form-select form-select-sm" id="filter_estatus_pv">
+                                <option value="">TODOS LOS ESTATUS</option>
+                                <option value="PENDIENTE">PENDIENTES</option>
+                                <option value="EN_PROCESO">EN PROCESO</option>
+                                <option value="ENTREGADO">ENTREGADOS</option>
+                                <option value="CANCELADO">CANCELADOS</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
                     <div class="table-responsive">
@@ -270,6 +291,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 <script src="../../assets/vendor/datatables/js/dataTables.responsive.min.js"></script>
 <script src="../../assets/vendor/datatables/js/responsive.bootstrap5.min.js"></script>
 <script src="../../assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
+<script src="../../assets/js/seguimiento.js"></script>
 
 <script>
 $(document).ready(function() {
@@ -280,7 +302,12 @@ $(document).ready(function() {
     const pvTable = $('#pvTable').DataTable({
         "processing": true,
         "serverSide": true,
-        "ajax": "data.php",
+        "ajax": {
+            "url": "data.php",
+            "data": function(d) {
+                d.estatus = $('#filter_estatus_pv').val();
+            }
+        },
         "columns": [
             { 
                 "data": "folio",
@@ -317,6 +344,7 @@ $(document).ready(function() {
             },
             {
                 "data": "estatus",
+                "responsivePriority": 2,
                 "render": function(data) {
                     let badgeClass = 'badge-pendiente';
                     let label = data;
@@ -335,9 +363,13 @@ $(document).ready(function() {
             {
                 "data": null,
                 "orderable": false,
+                "responsivePriority": 1,
                 "render": function(data, type, row) {
                     let html = `
                         <div class="btn-group btn-group-sm" role="group">
+                            <button class="btn btn-outline-primary btn-seguimiento" data-id="${row.id}" title="Abrir Seguimiento">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
                             <button class="btn btn-outline-primary btn-ticket" data-id="${row.id}" title="Imprimir Ticket">
                                 <i class="fa-solid fa-print"></i>
                             </button>
@@ -371,6 +403,52 @@ $(document).ready(function() {
     // Imprimir Ticket
     $('#pvTable').on('click', '.btn-ticket', function() {
         window.open('ticket.php?id=' + $(this).data('id'), '_blank');
+    });
+
+    // Seguimiento de Peticiones (modal con detalle y reactivación)
+    $('#pvTable').on('click', '.btn-seguimiento', function() {
+        const $tr = $(this).closest('tr');
+        let row = pvTable.row($tr).data();
+        if (!row) row = pvTable.row($tr.prevAll('tr.parent').first()).data();
+        if (!row) {
+            const id = String($(this).data('id'));
+            row = pvTable.rows().data().toArray().find(function(r) { return String(r.id) === id; });
+        }
+        if (!row) return;
+
+        const acciones = {};
+        if (row.estatus !== 'PENDIENTE') {
+            acciones[row.estatus] = [
+                { key: 'REACTIVAR', label: 'Corregir: Reactivar a PENDIENTE', icono: 'fa-rotate-left', clase: 'btn-warning text-dark', requiereMotivo: true,
+                  titulo: '¿Reactivar la petición?', texto: 'La petición volverá a PENDIENTE para corregir un error de operación. Se requiere el motivo.' }
+            ];
+        }
+
+        DrcSeguimiento.open({
+            titulo: 'Seguimiento de Petición de Ventanilla',
+            endpoint: 'estado.php',
+            id: row.id,
+            csrf: csrfToken,
+            campos: [
+                ['FOLIO', `<strong class="text-primary font-monospace">${row.folio}</strong>`],
+                ['SOLICITANTE', `<strong>${row.solicitante_nombre}</strong>`],
+                ['CURP', row.solicitante_curp ? `<span class="font-monospace">${row.solicitante_curp}</span>` : 'SIN CURP'],
+                ['TRÁMITE', tramitesMap[row.tipo_peticion] || row.tipo_peticion],
+                ['DETALLE / REFERENCIA', `<span style="white-space: pre-wrap;">${row.detalle || '—'}</span>`],
+                ['FECHA DE INGRESO', row.creado_en ? row.creado_en.substring(0, 16) : '—']
+            ],
+            estatus: row.estatus,
+            banner: {
+                'PENDIENTE':  { clase: 'alert-warning', icono: 'fa-hourglass-half', texto: 'Petición en espera de atención en ventanilla.' },
+                'EN_PROCESO': { clase: 'alert-info',    icono: 'fa-gears',          texto: 'Petición en proceso de atención.' },
+                'ENTREGADO':  { clase: 'alert-success', icono: 'fa-circle-check',   texto: 'Petición entregada al solicitante.' },
+                'CANCELADO':  { clase: 'alert-danger',  icono: 'fa-ban',            texto: 'Petición cancelada.' }
+            },
+            acciones: acciones,
+            onSuccess: function() {
+                pvTable.ajax.reload(null, false);
+            }
+        });
     });
 
     // Cambiar Estatus

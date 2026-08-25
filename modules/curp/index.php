@@ -254,6 +254,25 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             <div class="tab-content" id="curpTabContent">
                 <!-- Pestaña 1: Trámites Registrados -->
                 <div class="tab-pane fade show active" id="tab-registros" role="tabpanel">
+                    <div class="card mb-4 border-0 shadow-sm">
+                        <div class="card-body p-3">
+                            <div class="row align-items-center g-2">
+                                <div class="col-auto">
+                                    <label for="filter_estatus_curp" class="col-form-label fw-bold small text-muted">
+                                        <i class="fa-solid fa-filter text-primary me-1"></i> Filtrar por Estatus:
+                                    </label>
+                                </div>
+                                <div class="col-auto">
+                                    <select class="form-select form-select-sm" id="filter_estatus_curp">
+                                        <option value="">TODOS LOS ESTATUS</option>
+                                        <option value="PENDIENTE">PENDIENTES</option>
+                                        <option value="PROCESADO">PROCESADOS</option>
+                                        <option value="RECHAZADO">RECHAZADOS</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card border-0 shadow-sm">
                         <div class="card-body p-3">
                             <table id="mainTable" class="table table-striped dt-responsive nowrap w-100">
@@ -264,6 +283,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                                         <th>Tipo Trámite</th>
                                         <th>Estatus</th>
                                         <th>Fecha Solicitud</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -334,24 +354,115 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 <script src="../../assets/vendor/datatables/js/dataTables.responsive.min.js"></script>
 <script src="../../assets/vendor/datatables/js/responsive.bootstrap5.min.js"></script>
 <script src="../../assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
+<script src="../../assets/js/seguimiento.js"></script>
 
 <script>
     $(document).ready(function() {
         const csrfToken = '<?php echo \Core\Auth::generateCSRF(); ?>';
 
         // 1. Tabla de Trámites CURP
-        $('#mainTable').DataTable({
+        const mainTable = $('#mainTable').DataTable({
             "processing": true,
             "serverSide": true,
-            "ajax": "data.php",
+            "ajax": {
+                "url": "data.php",
+                "data": function(d) {
+                    d.estatus = $('#filter_estatus_curp').val();
+                }
+            },
             "columns": [
                 { "data": "id" },
                 { "data": "ciudadano" },
-                { "data": "tipo_solicitud" },
-                { "data": "estatus" },
+                { 
+                    "data": "tipo_solicitud",
+                    "render": function(data) {
+                        const tipos = { 'ALTA': 'ALTA DE CURP', 'BAJA': 'BAJA DE CURP', 'CORRECCION': 'CORRECCIÓN DE CURP' };
+                        return `<span class="badge bg-light text-dark border" style="font-size: 0.75rem;">${tipos[data] || data}</span>`;
+                    }
+                },
+                { 
+                    "data": "estatus",
+                    "responsivePriority": 2,
+                    "render": function(data) {
+                        let badgeClass = 'bg-secondary';
+                        if(data === 'PENDIENTE') badgeClass = 'bg-warning text-dark';
+                        if(data === 'PROCESADO') badgeClass = 'bg-success';
+                        if(data === 'RECHAZADO') badgeClass = 'bg-danger';
+                        return `<span class="badge ${badgeClass}">${data}</span>`;
+                    }
+                },
                 { "data": "fecha_registro" },
+                {
+                    "data": null,
+                    "orderable": false,
+                    "searchable": false,
+                    "responsivePriority": 1,
+                    "render": function(data, type, row) {
+                        return `
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button class="btn btn-outline-primary btn-seguimiento" data-id="${row.id}" title="Abrir Seguimiento">
+                                    <i class="fa-solid fa-eye me-1"></i> Seguimiento
+                                </button>
+                            </div>`;
+                    }
+                }
             ],
             "order": [[0, "desc"]]
+        });
+
+        $('#filter_estatus_curp').on('change', function() {
+            mainTable.draw();
+        });
+
+        // Seguimiento de Trámites CURP
+        $('#mainTable').on('click', '.btn-seguimiento', function() {
+            const $tr = $(this).closest('tr');
+            let row = mainTable.row($tr).data();
+            if (!row) row = mainTable.row($tr.prevAll('tr.parent').first()).data();
+            if (!row) {
+                const id = String($(this).data('id'));
+                row = mainTable.rows().data().toArray().find(function(r) { return String(r.id) === id; });
+            }
+            if (!row) return;
+
+            const tipos = { 'ALTA': 'ALTA DE CURP', 'BAJA': 'BAJA DE CURP', 'CORRECCION': 'CORRECCIÓN DE CURP' };
+            DrcSeguimiento.open({
+                titulo: 'Seguimiento de Trámite CURP',
+                endpoint: 'update_status.php',
+                id: row.id,
+                csrf: csrfToken,
+                campos: [
+                    ['FOLIO / ID', `<strong class="font-monospace">#${row.id}</strong>`],
+                    ['CIUDADANO', `<strong>${row.ciudadano}</strong>`],
+                    ['TIPO DE TRÁMITE', tipos[row.tipo_solicitud] || row.tipo_solicitud],
+                    ['FECHA DE SOLICITUD', row.fecha_registro]
+                ],
+                estatus: row.estatus,
+                banner: {
+                    'PENDIENTE': { clase: 'alert-warning', icono: 'fa-hourglass-half', texto: 'Trámite en espera de procesamiento ante RENAPO.' },
+                    'PROCESADO': { clase: 'alert-success', icono: 'fa-circle-check',  texto: 'Trámite procesado y concluido.' },
+                    'RECHAZADO': { clase: 'alert-danger',  icono: 'fa-ban',           texto: 'Trámite rechazado.' }
+                },
+                acciones: {
+                    'PENDIENTE': [
+                        { key: 'RECHAZAR', label: 'Rechazar', icono: 'fa-ban', clase: 'btn-outline-danger', requiereMotivo: true,
+                          titulo: '¿Rechazar el trámite CURP?', texto: 'Se marcará como RECHAZADO con el motivo capturado. Podrá reactivarse después si fue un error.' },
+                        { key: 'PROCESAR', label: 'Marcar Procesado', icono: 'fa-check', clase: 'btn-success', requiereMotivo: false,
+                          titulo: '¿Marcar como PROCESADO?', texto: 'El trámite quedará concluido. Podrá reactivarse después si fue un error.' }
+                    ],
+                    'PROCESADO': [
+                        { key: 'REACTIVAR', label: 'Corregir: Reactivar a PENDIENTE', icono: 'fa-rotate-left', clase: 'btn-warning text-dark', requiereMotivo: true,
+                          titulo: '¿Reactivar el trámite?', texto: 'El trámite volverá a PENDIENTE para corregir un error de operación.' }
+                    ],
+                    'RECHAZADO': [
+                        { key: 'REACTIVAR', label: 'Corregir: Reactivar a PENDIENTE', icono: 'fa-rotate-left', clase: 'btn-warning text-dark', requiereMotivo: true,
+                          titulo: '¿Reactivar el trámite?', texto: 'El trámite volverá a PENDIENTE para corregir un error de operación.' }
+                    ]
+                },
+                onSuccess: function() {
+                    mainTable.ajax.reload(null, false);
+                }
+            });
         });
 
         // 2. Tabla de Peticiones de Ventanilla para CURP

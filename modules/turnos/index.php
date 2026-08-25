@@ -266,8 +266,21 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
             </div>
 
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white fw-bold py-3">
-                    <i class="fa-solid fa-people-line me-2 text-primary"></i> Cola de atención
+                <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <span><i class="fa-solid fa-people-line me-2 text-primary"></i> Cola de atención</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <label for="filter_estado_turno" class="fw-normal small text-muted">
+                            <i class="fa-solid fa-filter text-primary me-1"></i> Filtrar por Estado:
+                        </label>
+                        <select class="form-select form-select-sm" id="filter_estado_turno" style="width: auto;">
+                            <option value="">COLA ACTIVA</option>
+                            <option value="EN_ESPERA">EN ESPERA</option>
+                            <option value="ATENDIENDO">EN ATENCIÓN</option>
+                            <option value="COMPLETADO">COMPLETADOS</option>
+                            <option value="CANCELADO">CANCELADOS</option>
+                            <option value="TODOS">TODOS</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -349,6 +362,7 @@ $(document).ready(function() {
         $.ajax({
             url: 'data.php',
             type: 'GET',
+            data: { estado: $('#filter_estado_turno').val() || '' },
             dataType: 'json',
             success: function(r) {
                 if (r.status !== 'success') return;
@@ -385,6 +399,9 @@ $(document).ready(function() {
         });
     }
     cargarTablero();
+    $('#filter_estado_turno').on('change', function() {
+        cargarTablero();
+    });
     setInterval(cargarTablero, 15000);
 
     $('#btnNuevoTurno').on('click', function() {

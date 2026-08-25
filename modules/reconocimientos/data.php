@@ -13,12 +13,13 @@ try {
     $start = isset($_GET['start']) ? intval($_GET['start']) : 0;
     $length = isset($_GET['length']) ? intval($_GET['length']) : 10;
     $searchValue = isset($_GET['search']['value']) ? $_GET['search']['value'] : '';
+    $filter_estatus = strtoupper(trim($_GET['estatus'] ?? ''));
 
     // Sort
     $columnIndex = isset($_GET['order'][0]['column']) ? intval($_GET['order'][0]['column']) : 0;
     $columnSortOrder = isset($_GET['order'][0]['dir']) ? $_GET['order'][0]['dir'] : 'desc';
 
-    $sql = "SELECT r.id, r.numero_acta, r.fecha_registro,
+    $sql = "SELECT r.id, r.numero_acta, r.fecha_registro, r.estatus,
                                 CONCAT(c1.nombre, ' ', c1.apellido_paterno, ' ', IFNULL(c1.apellido_materno, '')) AS reconocido,
                                 CONCAT(c2.nombre, ' ', c2.apellido_paterno, ' ', IFNULL(c2.apellido_materno, '')) AS reconocedor
                          FROM reconocimientos r
@@ -30,9 +31,17 @@ try {
 
     $searchQuery = "";
     $params = [];
+    $whereParts = [];
     if ($searchValue != '') {
-        $searchQuery = " WHERE (r.numero_acta LIKE :search OR c1.nombre LIKE :search OR c1.apellido_paterno LIKE :search OR c2.nombre LIKE :search OR c2.apellido_paterno LIKE :search) ";
+        $whereParts[] = "(r.numero_acta LIKE :search OR c1.nombre LIKE :search OR c1.apellido_paterno LIKE :search OR c2.nombre LIKE :search OR c2.apellido_paterno LIKE :search)";
         $params[':search'] = '%' . $searchValue . '%';
+    }
+    if (in_array($filter_estatus, ['REGISTRADO', 'CANCELADO'], true)) {
+        $whereParts[] = "r.estatus = :estatus";
+        $params[':estatus'] = $filter_estatus;
+    }
+    if (count($whereParts) > 0) {
+        $searchQuery = " WHERE " . implode(" AND ", $whereParts);
     }
 
     $sqlFilteredCount = "SELECT COUNT(*) FROM reconocimientos m ";

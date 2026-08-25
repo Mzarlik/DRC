@@ -235,6 +235,26 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
                 </div>
             </div>
 
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body p-3">
+                    <div class="row align-items-center g-2">
+                        <div class="col-auto">
+                            <label for="filter_estatus_seg" class="col-form-label fw-bold small text-muted">
+                                <i class="fa-solid fa-filter text-primary me-1"></i> Filtrar por Estatus:
+                            </label>
+                        </div>
+                        <div class="col-auto">
+                            <select class="form-select form-select-sm" id="filter_estatus_seg">
+                                <option value="">TODOS LOS ESTATUS</option>
+                                <option value="ABIERTA">ABIERTOS</option>
+                                <option value="EN_PROGRESO">EN ANÁLISIS / PROCESO</option>
+                                <option value="CERRADA">CONCLUIDOS</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
                     <div class="table-responsive">
@@ -267,6 +287,7 @@ $notif_api = ($current_module == 'public') ? 'api/notifications.php' : '../../pu
 <script src="../../assets/vendor/datatables/js/dataTables.responsive.min.js"></script>
 <script src="../../assets/vendor/datatables/js/responsive.bootstrap5.min.js"></script>
 <script src="../../assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
+<script src="../../assets/js/seguimiento.js"></script>
 
 <script>
 $(document).ready(function() {
@@ -275,7 +296,12 @@ $(document).ready(function() {
     const segTable = $('#segTable').DataTable({
         "processing": true,
         "serverSide": true,
-        "ajax": "data.php",
+        "ajax": {
+            "url": "data.php",
+            "data": function(d) {
+                d.estatus = $('#filter_estatus_seg').val();
+            }
+        },
         "columns": [
             { 
                 "data": "folio",
@@ -316,6 +342,7 @@ $(document).ready(function() {
             },
             {
                 "data": "estatus",
+                "responsivePriority": 2,
                 "render": function(data) {
                     let badgeClass = 'badge-pendiente';
                     let label = data;
@@ -334,8 +361,14 @@ $(document).ready(function() {
             {
                 "data": null,
                 "orderable": false,
+                "responsivePriority": 1,
                 "render": function(data, type, row) {
                     let html = `<div class="btn-group btn-group-sm" role="group">`;
+                    html += `
+                            <button class="btn btn-outline-primary btn-seguimiento" data-id="${row.id}" title="Abrir Seguimiento">
+                                <i class="fa-solid fa-eye me-1"></i> Seguimiento
+                            </button>
+                        `;
                     if (row.estatus === 'ABIERTA') {
                         html += `
                             <button class="btn btn-outline-primary btn-cambiar-estatus" data-id="${row.id}" data-estatus="EN_PROGRESO" title="Pasar a En Análisis">
@@ -358,6 +391,64 @@ $(document).ready(function() {
             }
         ],
         "order": [[0, "desc"]]
+    });
+
+    $('#filter_estatus_seg').on('change', function() {
+        segTable.draw();
+    });
+
+    // Seguimiento de Expedientes (modal con detalle y reapertura)
+    const tiposPeticion = {
+        'CORRECCION_ACTA': 'CORRECCIÓN DE ACTA',
+        'ACLARACION': 'ACLARACIÓN JURÍDICA',
+        'DIGITALIZACION': 'DIGITALIZACIÓN (RENAPO)',
+        'REGISTRO_EXTEMPORANEO': 'EXTEMPORÁNEO',
+        'IDENTIDAD_GENERO': 'IDENTIDAD DE GÉNERO',
+        'OFICIO_DIR_GENERAL': 'DIR. GENERAL'
+    };
+    $('#segTable').on('click', '.btn-seguimiento', function() {
+        const $tr = $(this).closest('tr');
+        let row = segTable.row($tr).data();
+        if (!row) row = segTable.row($tr.prevAll('tr.parent').first()).data();
+        if (!row) {
+            const id = String($(this).data('id'));
+            row = segTable.rows().data().toArray().find(function(r) { return String(r.id) === id; });
+        }
+        if (!row) return;
+
+        const nombreCompleto = `${row.nombre} ${row.apellido_paterno} ${row.apellido_materno || ''}`;
+        const acciones = {};
+        if (row.estatus === 'CERRADA') {
+            acciones['CERRADA'] = [
+                { key: 'REABRIR', label: 'Corregir: Reabrir Expediente', icono: 'fa-rotate-left', clase: 'btn-warning text-dark', requiereMotivo: true,
+                  titulo: '¿Reabrir el expediente?', texto: 'El expediente volverá a EN ANÁLISIS para corregir un cierre erróneo. Se requiere el motivo.' }
+            ];
+        }
+
+        DrcSeguimiento.open({
+            titulo: 'Seguimiento de Expediente',
+            endpoint: 'update_status.php',
+            id: row.id,
+            csrf: csrfToken,
+            campos: [
+                ['FOLIO', `<strong class="font-monospace">${row.folio}</strong>`],
+                ['CIUDADANO TITULAR', `<strong>${nombreCompleto}</strong>`],
+                ['CURP', row.curp ? `<span class="font-monospace">${row.curp}</span>` : 'SIN CURP'],
+                ['MATERIA / CASO', tiposPeticion[row.tipo_peticion] || row.tipo_peticion],
+                ['ANTECEDENTES / DICTAMEN', `<span style="white-space: pre-wrap;">${row.descripcion || '—'}</span>`],
+                ['FECHA DE APERTURA', row.fecha_creacion ? row.fecha_creacion.substring(0, 16) : '—']
+            ],
+            estatus: row.estatus,
+            banner: {
+                'ABIERTA':     { clase: 'alert-warning', icono: 'fa-inbox',    texto: 'Expediente abierto en mesa de ayuda.' },
+                'EN_PROGRESO': { clase: 'alert-info',    icono: 'fa-gears',    texto: 'Expediente en análisis / proceso.' },
+                'CERRADA':     { clase: 'alert-success', icono: 'fa-check-double', texto: 'Expediente concluido.' }
+            },
+            acciones: acciones,
+            onSuccess: function() {
+                segTable.ajax.reload(null, false);
+            }
+        });
     });
 
     // Manejo de cambio de estatus de expediente

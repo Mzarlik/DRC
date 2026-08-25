@@ -21,9 +21,22 @@ if (!\Core\Auth::validateCSRF($csrf_token)) {
 
 $id = intval($_POST['id'] ?? 0);
 $estatus = strtoupper(trim($_POST['estatus'] ?? ''));
+$accion = strtoupper(trim($_POST['accion'] ?? ''));
+$motivo = mb_strtoupper(trim($_POST['motivo'] ?? ''), 'UTF-8');
 
-if ($id <= 0 || !in_array($estatus, ['ENTREGADO', 'CANCELADO'], true)) {
+// Compatibilidad: el modal de seguimiento envía accion=REACTIVAR
+if ($accion === 'REACTIVAR') {
+    $estatus = 'PENDIENTE';
+}
+
+if ($id <= 0 || !in_array($estatus, ['ENTREGADO', 'CANCELADO', 'PENDIENTE'], true)) {
     echo json_encode(['status' => 'error', 'message' => 'Solicitud inválida.']);
+    exit;
+}
+
+$es_reactivacion = ($estatus === 'PENDIENTE');
+if ($es_reactivacion && mb_strlen($motivo) < 5) {
+    echo json_encode(['status' => 'error', 'message' => 'El motivo es obligatorio (mínimo 5 caracteres) para reactivar la petición.']);
     exit;
 }
 
@@ -38,17 +51,30 @@ try {
         exit;
     }
 
-    if ($pv['estatus'] === 'ENTREGADO' && $estatus === 'ENTREGADO') {
-        echo json_encode(['status' => 'error', 'message' => 'Esta petición ya fue entregada al solicitante.']);
+    if ($pv['estatus'] === $estatus) {
+        echo json_encode(['status' => 'error', 'message' => "Esta petición ya se encuentra en estatus $estatus."]);
         exit;
     }
 
-    if ($pv['estatus'] === 'CANCELADO') {
-        echo json_encode(['status' => 'error', 'message' => 'Esta petición se encuentra cancelada y no puede ser modificada.']);
-        exit;
+    if (!$es_reactivacion) {
+        if ($pv['estatus'] === 'ENTREGADO') {
+            echo json_encode(['status' => 'error', 'message' => 'Esta petición ya fue entregada al solicitante. Use la opción de reactivar si fue un error.']);
+            exit;
+        }
+        if ($pv['estatus'] === 'CANCELADO') {
+            echo json_encode(['status' => 'error', 'message' => 'Esta petición se encuentra cancelada. Use la opción de reactivar si fue un error.']);
+            exit;
+        }
     }
 
     $pdo->prepare("UPDATE peticiones_ventanilla SET estatus = ?, actualizado_en = NOW() WHERE id = ?")->execute([$estatus, $id]);
+
+    if ($es_reactivacion) {
+        \Core\Auditoria::logAccion('Petición Rápida', 'REACTIVAR', "Petición {$pv['folio']} REACTIVADA a PENDIENTE (estatus previo: {$pv['estatus']}). Motivo: $motivo");
+        echo json_encode(['status' => 'success', 'message' => 'Petición reactivada a PENDIENTE correctamente.']);
+        exit;
+    }
+
     \Core\Auditoria::logAccion('Petición Rápida', 'EDITAR', "Petición {$pv['folio']} actualizada a estatus: $estatus.");
 
     $mensaje = ($estatus === 'ENTREGADO')
